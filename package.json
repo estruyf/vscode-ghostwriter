@@ -1,40 +1,85 @@
 {
   "name": "vscode-ghostwriter",
   "displayName": "Ghostwriter",
-  "description": "AI-assisted content creation tool using the GitHub Copilot",
+  "description": "AI-assisted content creation tool for interviews and writing workflows",
   "version": "0.0.1",
+  "publisher": "estruyf",
   "engines": {
     "vscode": "^1.108.1"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:ghostwriter.mainView"
+  ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ghostwriter",
+          "title": "Ghostwriter",
+          "icon": "$(edit)"
+        }
+      ]
+    },
+    "views": {
+      "ghostwriter": [
+        {
+          "type": "webview",
+          "id": "ghostwriter.mainView",
+          "name": "Ghostwriter"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "vscode-ghostwriter.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-ghostwriter.openView",
+        "title": "Open Ghostwriter",
+        "category": "Ghostwriter"
+      },
+      {
+        "command": "vscode-ghostwriter.startInterview",
+        "title": "Start New Interview",
+        "category": "Ghostwriter"
+      },
+      {
+        "command": "vscode-ghostwriter.startWriter",
+        "title": "Start Writer",
+        "category": "Ghostwriter"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && npm run build:webview",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "build:webview": "vite build",
+    "watch:webview": "vite build --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.108.1",
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.52.0",
-    "eslint": "^9.39.2",
-    "typescript": "^5.9.3",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.108.1",
+    "@vitejs/plugin-react": "^5.1.2",
     "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^9.39.2",
+    "postcss": "^8.5.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.52.0",
+    "vite": "^7.3.1"
   }
 }

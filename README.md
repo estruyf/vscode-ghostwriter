@@ -1,82 +1,89 @@
-# vscode-ghostwriter README
+# Ghostwriter for VS Code
 
-This is the README for your extension "vscode-ghostwriter". After writing up a
-brief description, we recommend including the following sections.
+AI-assisted content creation tool for interviews and writing workflows. This extension serves as the frontend for the Ghostwriter app, providing an in-editor experience for managing interviews and writing content.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your
-extension in action. Image paths are relative to this README file.
+### Interview Mode
+- Start new interview sessions directly within VS Code
+- Automatically save transcripts to the `.ghostwriter` folder in your workspace
+- Keep track of all your interview sessions in one place
 
-For example if there is an image subfolder under your extension project
-workspace:
+### Writer Mode
+- Browse and select interview transcripts from your workspace
+- Support for custom transcript files from any location
+- Optional voice file integration for personalized content generation
+- Single voice file auto-selection or multi-file picker
 
-\!\[feature X\]\(images/feature-x.png\)
+## Getting Started
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to
-> show off your extension! We recommend short, focused animations that are easy
-> to follow.
+1. Open a workspace folder in VS Code
+2. Click on the Ghostwriter icon in the Activity Bar
+3. Choose between Interview or Writer mode:
+   - **Interview**: Start a new interview session
+   - **Writer**: Generate content from existing transcripts
+
+## Usage
+
+### Starting an Interview
+
+1. Open the Ghostwriter panel
+2. Click on the "Interview" tab
+3. Enter your interview topic
+4. Click "Start Interview"
+5. The transcript will be created in the `.ghostwriter` folder
+
+### Using the Writer
+
+1. Open the Ghostwriter panel
+2. Click on the "Writer" tab
+3. Select a transcript from your workspace or browse for a custom file
+4. Optionally select a voice file for personalization
+5. Click "Start Writing"
+
+## File Structure
+
+The extension creates a `.ghostwriter` folder in your workspace root to store:
+- Interview transcripts (`.md` files)
+- Voice files (`.md` files)
+
+## Commands
+
+- `Ghostwriter: Open Ghostwriter` - Open the main panel
+- `Ghostwriter: Start New Interview` - Quick start a new interview
+- `Ghostwriter: Start Writer` - Open the writer interface
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and
-how to install and configure them.
+- VS Code 1.108.1 or higher
+- An open workspace folder
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the
-`contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+This extension does not add any VS Code settings at this time.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against
-your extension.
+- Integration with ghostwriter-agents-ai is planned for future releases
+- Voice file support currently accepts markdown files
+
+## Contributing
+
+This extension integrates with:
+- [ghostwriter-app](https://github.com/estruyf/ghostwriter-app) - Electron app
+- [ghostwriter-agents-ai](https://github.com/estruyf/ghostwriter-agents-ai) - AI agent services
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
+Initial release of Ghostwriter for VS Code
+- Interview mode for starting new sessions
+- Writer mode for content generation
+- File management in `.ghostwriter` folder
+- Custom file selection support
+- Voice file integration
 
-Initial release of ...
+---
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
-
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best
-practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor
-keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and
-  Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy writing with Ghostwriter!**
