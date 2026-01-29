@@ -1,11 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { VSCodeAPI, TranscriptFile, VoiceFile } from '../types';
+import { useState, useEffect } from 'react';
+import { messageHandler } from '@estruyf/vscode/dist/client';
+import { TranscriptFile, VoiceFile } from '../types';
 
-interface Props {
-  vscode: VSCodeAPI;
-}
-
-export default function WriterView({ vscode }: Props) {
+export default function WriterView() {
   const [transcripts, setTranscripts] = useState<TranscriptFile[]>([]);
   const [voiceFiles, setVoiceFiles] = useState<VoiceFile[]>([]);
   const [selectedTranscript, setSelectedTranscript] = useState<string>('');
@@ -13,46 +10,47 @@ export default function WriterView({ vscode }: Props) {
   const [customTranscript, setCustomTranscript] = useState<string>('');
   const [customVoice, setCustomVoice] = useState<string>('');
 
-  const handleMessage = useCallback((event: MessageEvent) => {
-    const message = event.data;
-    switch (message.command) {
-      case 'transcripts':
-        setTranscripts(message.payload || []);
-        break;
-      case 'voiceFiles':
-        setVoiceFiles(message.payload || []);
-        // Auto-select if only one voice file
-        if (message.payload?.length === 1) {
-          setSelectedVoice(message.payload[0].path);
-        }
-        break;
-      case 'customTranscriptSelected':
-        setCustomTranscript(message.payload);
-        setSelectedTranscript('');
-        break;
-      case 'customVoiceSelected':
-        setCustomVoice(message.payload);
-        setSelectedVoice('');
-        break;
-    }
-  }, []);
-
   useEffect(() => {
     // Request transcript and voice files on mount
-    vscode.postMessage({ command: 'getTranscripts' });
-    vscode.postMessage({ command: 'getVoiceFiles' });
+    messageHandler.request<TranscriptFile[]>('getTranscripts').then((response) => {
+      setTranscripts(response || []);
+    }).catch((error) => {
+      console.error('Error loading transcripts:', error);
+      setTranscripts([]);
+    });
 
-    // Listen for messages from extension
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [vscode, handleMessage]);
+    messageHandler.request<VoiceFile[]>('getVoiceFiles').then((response) => {
+      setVoiceFiles(response || []);
+      // Auto-select if only one voice file
+      if (response?.length === 1) {
+        setSelectedVoice(response[0].path);
+      }
+    }).catch((error) => {
+      console.error('Error loading voice files:', error);
+      setVoiceFiles([]);
+    });
+  }, []);
 
   const selectCustomTranscript = () => {
-    vscode.postMessage({ command: 'selectCustomTranscript' });
+    messageHandler.request<string>('selectCustomTranscript').then((response) => {
+      if (response) {
+        setCustomTranscript(response);
+        setSelectedTranscript('');
+      }
+    }).catch((error) => {
+      console.error('Error selecting custom transcript:', error);
+    });
   };
 
   const selectCustomVoice = () => {
-    vscode.postMessage({ command: 'selectCustomVoice' });
+    messageHandler.request<string>('selectCustomVoice').then((response) => {
+      if (response) {
+        setCustomVoice(response);
+        setSelectedVoice('');
+      }
+    }).catch((error) => {
+      console.error('Error selecting custom voice:', error);
+    });
   };
 
   const startWriting = () => {
@@ -63,10 +61,7 @@ export default function WriterView({ vscode }: Props) {
       return;
     }
 
-    vscode.postMessage({
-      command: 'startWriting',
-      payload: { transcript, voice }
-    });
+    messageHandler.send('startWriting', { transcript, voice });
   };
 
   return (

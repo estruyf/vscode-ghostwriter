@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
+import { MessageHandlerData } from '@estruyf/vscode';
 import { FileService } from '../services/FileService';
 import { InterviewService } from '../services/InterviewService';
 import { WriterService } from '../services/WriterService';
@@ -27,52 +27,54 @@ export class GhostwriterViewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
     // Handle messages from the webview
-    webviewView.webview.onDidReceiveMessage(async (data) => {
-      switch (data.command) {
+    webviewView.webview.onDidReceiveMessage(async (message: MessageHandlerData<any>) => {
+      const { command, requestId, payload } = message;
+
+      switch (command) {
         case 'startInterview':
-          await InterviewService.startInterview(data.payload.topic);
+          await InterviewService.startInterview(payload.topic);
           break;
 
         case 'getTranscripts':
           const transcripts = await FileService.getTranscriptFiles();
           webviewView.webview.postMessage({
-            command: 'transcripts',
+            command,
+            requestId,
             payload: transcripts
-          });
+          } as MessageHandlerData<any>);
           break;
 
         case 'getVoiceFiles':
           const voiceFiles = await FileService.getVoiceFiles();
           webviewView.webview.postMessage({
-            command: 'voiceFiles',
+            command,
+            requestId,
             payload: voiceFiles
-          });
+          } as MessageHandlerData<any>);
           break;
 
         case 'selectCustomTranscript':
           const transcriptPath = await FileService.selectCustomFile('Transcript');
-          if (transcriptPath) {
-            webviewView.webview.postMessage({
-              command: 'customTranscriptSelected',
-              payload: transcriptPath
-            });
-          }
+          webviewView.webview.postMessage({
+            command,
+            requestId,
+            payload: transcriptPath
+          } as MessageHandlerData<string>);
           break;
 
         case 'selectCustomVoice':
           const voicePath = await FileService.selectCustomFile('Voice');
-          if (voicePath) {
-            webviewView.webview.postMessage({
-              command: 'customVoiceSelected',
-              payload: voicePath
-            });
-          }
+          webviewView.webview.postMessage({
+            command,
+            requestId,
+            payload: voicePath
+          } as MessageHandlerData<string>);
           break;
 
         case 'startWriting':
           await WriterService.startWriting(
-            data.payload.transcript,
-            data.payload.voice
+            payload.transcript,
+            payload.voice
           );
           break;
       }

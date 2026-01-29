@@ -72,6 +72,7 @@
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.108.1",
+    "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^5.1.2",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
@@ -85,5 +86,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.52.0",
     "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@estruyf/vscode": "^1.2.0"
   }
 }

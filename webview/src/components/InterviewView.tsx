@@ -1,11 +1,7 @@
 import { useState } from 'react';
-import { VSCodeAPI } from '../types';
+import { messageHandler } from '@estruyf/vscode/dist/client';
 
-interface Props {
-  vscode: VSCodeAPI;
-}
-
-export default function InterviewView({ vscode }: Props) {
+export default function InterviewView() {
   const [topic, setTopic] = useState('');
   const [isStarted, setIsStarted] = useState(false);
 
@@ -14,10 +10,7 @@ export default function InterviewView({ vscode }: Props) {
       return;
     }
     
-    vscode.postMessage({
-      command: 'startInterview',
-      payload: { topic }
-    });
+    messageHandler.send('startInterview', { topic });
     
     setIsStarted(true);
   };

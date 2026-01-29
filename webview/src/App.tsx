@@ -1,23 +1,10 @@
-import { useState, useEffect } from 'react';
-import { ViewMode, VSCodeAPI } from './types';
+import { useState } from 'react';
+import { ViewMode } from './types';
 import InterviewView from './components/InterviewView';
 import WriterView from './components/WriterView';
 
-declare const acquireVsCodeApi: () => VSCodeAPI;
-
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('interview');
-  const [vscode] = useState<VSCodeAPI>(() => {
-    if (typeof acquireVsCodeApi !== 'undefined') {
-      return acquireVsCodeApi();
-    }
-    // Fallback for development/testing
-    return {
-      postMessage: (message) => console.log('Mock postMessage:', message),
-      getState: () => ({}),
-      setState: () => {}
-    };
-  });
 
   return (
     <div className="h-screen flex flex-col bg-vscode-background text-vscode-foreground">
@@ -45,9 +32,9 @@ function App() {
       </div>
       <div className="flex-1 overflow-auto">
         {viewMode === 'interview' ? (
-          <InterviewView vscode={vscode} />
+          <InterviewView />
         ) : (
-          <WriterView vscode={vscode} />
+          <WriterView />
         )}
       </div>
     </div>

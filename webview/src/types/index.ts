@@ -1,14 +1,3 @@
-export interface Message {
-  command: string;
-  payload?: unknown;
-}
-
-export interface VSCodeAPI {
-  postMessage(message: Message): void;
-  getState(): unknown;
-  setState(state: unknown): void;
-}
-
 export interface TranscriptFile {
   path: string;
   name: string;
