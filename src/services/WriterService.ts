@@ -1,46 +1,188 @@
-import * as vscode from 'vscode';
-import * as fs from 'fs';
+import * as vscode from "vscode";
+import { LanguageModelChatMessage } from "vscode";
+import * as fs from "fs";
+import { CopilotService } from "./CopilotService";
+import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
+import { PROMPTS } from "../constants";
+
+export interface WritingOptions {
+  style?: "formal" | "casual" | "conversational";
+  length?: "short" | "medium" | "long";
+  includeHeadings?: boolean;
+  includeSEO?: boolean;
+}
 
 export class WriterService {
+  private static readonly SYSTEM_PROMPT = PROMPTS.WRITER;
+
   /**
    * Start the writing workflow with selected transcript and voice file
    */
-  static async startWriting(transcriptPath: string, voicePath?: string): Promise<void> {
+  static async startWriting(
+    transcriptPath: string,
+    voicePath?: string,
+    options?: WritingOptions,
+  ): Promise<void> {
     try {
       // Verify transcript file exists
       if (!fs.existsSync(transcriptPath)) {
-        vscode.window.showErrorMessage('Transcript file not found');
+        vscode.window.showErrorMessage("Transcript file not found");
         return;
       }
 
       // Read transcript content
-      const transcriptContent = fs.readFileSync(transcriptPath, 'utf-8');
+      const transcriptContent = fs.readFileSync(transcriptPath, "utf-8");
 
       // Read voice file if provided
       let voiceContent: string | undefined;
       if (voicePath && fs.existsSync(voicePath)) {
-        voiceContent = fs.readFileSync(voicePath, 'utf-8');
+        voiceContent = fs.readFileSync(voicePath, "utf-8");
       }
 
-      // Open the transcript in the editor
-      const document = await vscode.workspace.openTextDocument(transcriptPath);
+      vscode.window.showInformationMessage(
+        "Generating content from transcript...",
+      );
+
+      // Generate content using Copilot
+      const generatedContent = await this.generateContent(
+        transcriptContent,
+        voiceContent,
+        options,
+        (chunk: string) => {
+          // Optionally handle streaming chunks here
+        },
+      );
+
+      if (!generatedContent) {
+        vscode.window.showErrorMessage("Failed to generate content");
+        GhostwriterViewProvider.postMessage("failedWriting", {});
+        return;
+      }
+
+      // Send completion message to webview
+      GhostwriterViewProvider.postMessage("writingComplete", generatedContent);
+    } catch (error) {
+      console.error("Error starting writing workflow:", error);
+      vscode.window.showErrorMessage("Failed to start writing workflow");
+    }
+  }
+
+  /**
+   * Generate content based on transcript
+   */
+  private static async generateContent(
+    transcriptContent: string,
+    voiceContent?: string,
+    options?: WritingOptions,
+    onChunk?: (chunk: string) => void,
+  ): Promise<string> {
+    try {
+      const styleGuide = this.getStyleGuide(options);
+
+      const voiceBaseOnWritingOptions = `
+- Writing style should be: ${styleGuide}.
+${options?.includeHeadings ? "- Structure the article with clear headings and subheadings." : ""}
+${options?.includeSEO ? "- Optimize the content for SEO by including relevant keywords naturally throughout the text." : ""}
+      `;
+
+      // Create message array with system prompt and user request
+      const systemPrompt = this.SYSTEM_PROMPT.replace(
+        "{{voiceGuide}}",
+        voiceContent || voiceBaseOnWritingOptions,
+      );
+
+      const messages = [
+        LanguageModelChatMessage.Assistant(systemPrompt),
+        LanguageModelChatMessage.User(transcriptContent),
+      ];
+
+      if (onChunk) {
+        let fullContent = "";
+        const onChunkHandler = (chunk: string) => {
+          fullContent += chunk;
+          onChunk(chunk);
+          // Send streaming updates to the webview
+          GhostwriterViewProvider.postMessage("writingStream", { chunk });
+        };
+
+        await CopilotService.sendChatRequestStream(messages, onChunkHandler);
+
+        return fullContent;
+      } else {
+        const content = await CopilotService.sendChatRequest(messages);
+
+        return content || "";
+      }
+    } catch (error) {
+      console.error("Error generating content:", error);
+      return "";
+    }
+  }
+
+  /**
+   * Get style guide based on options
+   */
+  private static getStyleGuide(options?: WritingOptions): string {
+    if (!options?.style) {
+      return "";
+    }
+
+    const styleGuides: Record<string, string> = {
+      formal:
+        "Use formal, professional language appropriate for academic or business contexts.",
+      casual:
+        "Use casual, friendly language that feels approachable and easy to read.",
+      conversational:
+        "Write in a conversational tone as if speaking directly to the reader.",
+    };
+
+    return ` ${styleGuides[options.style]}`;
+  }
+
+  /**
+   * Save the generated article to a file
+   */
+  static async saveArticle(content: string): Promise<void> {
+    try {
+      // Get the current workspace folder
+      const workspaceFolders = vscode.workspace.workspaceFolders;
+      const workspaceFolder = workspaceFolders?.[0];
+
+      if (!workspaceFolder) {
+        vscode.window.showErrorMessage("No workspace folder is open");
+        return;
+      }
+
+      // Create default URI in the workspace folder
+      const defaultUri = vscode.Uri.joinPath(
+        workspaceFolder.uri,
+        `${new Date().getTime()}_article.md`,
+      );
+
+      // Show save dialog to let user choose where to save
+      const fileUri = await vscode.window.showSaveDialog({
+        defaultUri,
+        filters: {
+          "Markdown files": ["md"],
+          "All files": ["*"],
+        },
+      });
+
+      if (!fileUri) {
+        return; // User cancelled
+      }
+
+      // Write the file
+      fs.writeFileSync(fileUri.fsPath, content, "utf-8");
+
+      // Open the file in the editor
+      const document = await vscode.workspace.openTextDocument(fileUri);
       await vscode.window.showTextDocument(document);
 
-      // Show info message
-      const message = voicePath 
-        ? `Writing started with transcript and voice file`
-        : `Writing started with transcript`;
-      
-      vscode.window.showInformationMessage(message);
-
-      // TODO: Integrate with ghostwriter-agents-ai for actual writing workflow
-      // This is a placeholder - actual implementation would:
-      // 1. Send transcript and voice to AI service
-      // 2. Generate content based on the interview
-      // 3. Present the generated content to the user
+      vscode.window.showInformationMessage("Article saved successfully!");
     } catch (error) {
-      console.error('Error starting writing workflow:', error);
-      vscode.window.showErrorMessage('Failed to start writing workflow');
+      console.error("Error saving article:", error);
+      vscode.window.showErrorMessage("Failed to save article");
     }
   }
 }

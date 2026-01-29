@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
 
 export class FileService {
-  private static GHOSTWRITER_FOLDER = '.ghostwriter';
+  private static GHOSTWRITER_FOLDER = ".ghostwriter";
 
   /**
    * Get or create the .ghostwriter folder in the workspace
@@ -11,7 +11,7 @@ export class FileService {
   static async getGhostwriterFolder(): Promise<string | undefined> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
-      vscode.window.showWarningMessage('No workspace folder open');
+      vscode.window.showWarningMessage("No workspace folder open");
       return undefined;
     }
 
@@ -29,7 +29,9 @@ export class FileService {
   /**
    * Get all transcript files from .ghostwriter folder
    */
-  static async getTranscriptFiles(): Promise<Array<{ path: string; name: string; date?: string }>> {
+  static async getTranscriptFiles(): Promise<
+    Array<{ path: string; name: string; date?: string }>
+  > {
     const ghostwriterPath = await this.getGhostwriterFolder();
     if (!ghostwriterPath) {
       return [];
@@ -38,21 +40,21 @@ export class FileService {
     try {
       const files = fs.readdirSync(ghostwriterPath);
       const transcripts = files
-        .filter(file => file.endsWith('.md') && file.includes('transcript'))
-        .map(file => {
+        .filter((file) => file.endsWith(".md") && file.includes("transcript"))
+        .map((file) => {
           const filePath = path.join(ghostwriterPath, file);
           const stats = fs.statSync(filePath);
           return {
             path: filePath,
             name: file,
-            date: stats.mtime.toISOString().split('T')[0]
+            date: stats.mtime.toISOString().split("T")[0],
           };
         })
         .sort((a, b) => b.date!.localeCompare(a.date!));
 
       return transcripts;
     } catch (error) {
-      console.error('Error reading transcript files:', error);
+      console.error("Error reading transcript files:", error);
       return [];
     }
   }
@@ -69,15 +71,18 @@ export class FileService {
     try {
       const files = fs.readdirSync(ghostwriterPath);
       const voiceFiles = files
-        .filter(file => file.endsWith('.md') && file.includes('voice'))
-        .map(file => ({
+        .filter(
+          (file) =>
+            file.endsWith(".md") && file.toLowerCase().includes("voice"),
+        )
+        .map((file) => ({
           path: path.join(ghostwriterPath, file),
-          name: file
+          name: file,
         }));
 
       return voiceFiles;
     } catch (error) {
-      console.error('Error reading voice files:', error);
+      console.error("Error reading voice files:", error);
       return [];
     }
   }
@@ -85,25 +90,48 @@ export class FileService {
   /**
    * Create a new transcript file
    */
-  static async createTranscript(topic: string, content: string = ''): Promise<string | undefined> {
+  static async createTranscript(
+    topic: string,
+    content: string = "",
+  ): Promise<string | undefined> {
     const ghostwriterPath = await this.getGhostwriterFolder();
     if (!ghostwriterPath) {
       return undefined;
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5); // YYYY-MM-DDTHH-MM-SS
-    const fileName = `transcript-${topic.toLowerCase().replace(/\s+/g, '-')}-${timestamp}.md`;
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")
+      .slice(0, -5); // YYYY-MM-DDTHH-MM-SS
+    const fileName = `transcript-${topic.toLowerCase().replace(/\s+/g, "-")}-${timestamp}.md`;
     const filePath = path.join(ghostwriterPath, fileName);
 
-    const initialContent = content || `# Interview Transcript: ${topic}\n\nDate: ${new Date().toLocaleDateString()}\n\n## Interview Content\n\n`;
+    const initialContent =
+      content ||
+      `# Interview Transcript: ${topic}\n\nDate: ${new Date().toLocaleDateString()}\n\n## Interview Content\n\n`;
 
     try {
-      fs.writeFileSync(filePath, initialContent, 'utf-8');
+      fs.writeFileSync(filePath, initialContent, "utf-8");
       return filePath;
     } catch (error) {
-      console.error('Error creating transcript:', error);
-      vscode.window.showErrorMessage('Failed to create transcript file');
+      console.error("Error creating transcript:", error);
+      vscode.window.showErrorMessage("Failed to create transcript file");
       return undefined;
+    }
+  }
+
+  /**
+   * Save interview session data
+   */
+  static async saveInterviewSession(
+    transcriptPath: string,
+    session: any,
+  ): Promise<void> {
+    try {
+      const sessionPath = transcriptPath.replace(/\.md$/, ".json");
+      fs.writeFileSync(sessionPath, JSON.stringify(session, null, 2), "utf-8");
+    } catch (error) {
+      console.error("Error saving interview session:", error);
     }
   }
 
@@ -116,10 +144,10 @@ export class FileService {
       canSelectFolders: false,
       canSelectMany: false,
       filters: {
-        'Markdown': ['md'],
-        'All Files': ['*']
+        Markdown: ["md"],
+        "All Files": ["*"],
       },
-      title: `Select ${fileType} File`
+      title: `Select ${fileType} File`,
     });
 
     if (result && result.length > 0) {

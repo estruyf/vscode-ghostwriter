@@ -1,14 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
 import { TranscriptFile, VoiceFile } from '../types';
+import { Streamdown } from 'streamdown';
+import { code } from "@streamdown/code";
 
-export default function WriterView() {
+declare const acquireVsCodeApi: () => any;
+
+export default function WriterView({ onBack }: { onBack: () => void }) {
   const [transcripts, setTranscripts] = useState<TranscriptFile[]>([]);
   const [voiceFiles, setVoiceFiles] = useState<VoiceFile[]>([]);
   const [selectedTranscript, setSelectedTranscript] = useState<string>('');
   const [selectedVoice, setSelectedVoice] = useState<string>('');
   const [customTranscript, setCustomTranscript] = useState<string>('');
   const [customVoice, setCustomVoice] = useState<string>('');
+  const [isWriting, setIsWriting] = useState(false);
+  const [isFinishedWriting, setIsFinishedWriting] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
+  const [writingStyle, setWritingStyle] = useState<'formal' | 'casual' | 'conversational'>('conversational');
+  const [includeHeadings, setIncludeHeadings] = useState(true);
+  const [includeSEO, setIncludeSEO] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Scroll to bottom when content updates
+    if (contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [streamingContent]);
 
   useEffect(() => {
     // Request transcript and voice files on mount
@@ -29,6 +48,29 @@ export default function WriterView() {
       console.error('Error loading voice files:', error);
       setVoiceFiles([]);
     });
+  }, []);
+
+  useEffect(() => {
+    // Handle messages from the extension
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+
+      if (message.command === 'writingStream') {
+        if (message.payload?.chunk) {
+          setStreamingContent((prev) => prev + message.payload.chunk);
+        }
+      } else if (message.command === 'writingComplete') {
+        setIsFinishedWriting(true);
+      } else if (message.command === 'failedWriting') {
+        setIsWriting(false);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   const selectCustomTranscript = () => {
@@ -61,115 +103,264 @@ export default function WriterView() {
       return;
     }
 
-    messageHandler.send('startWriting', { transcript, voice });
+    setIsWriting(true);
+    setStreamingContent('');
+
+    const options = {
+      style: writingStyle,
+      includeHeadings,
+      includeSEO
+    };
+
+    messageHandler.send('startWriting', { transcript, voice, options });
   };
 
+  const saveArticle = () => {
+    if (!streamingContent) return;
+
+    setIsSaving(true);
+    messageHandler.send('saveArticle', { content: streamingContent });
+    setIsSaving(false);
+  };
+
+  if (isWriting) {
+    return (
+      <div className="flex flex-col h-screen bg-slate-950">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div>
+              <h2 className="text-lg font-semibold text-white">
+                {streamingContent ? 'Article Generated' : 'Generating Article'}
+              </h2>
+              <p className="text-sm text-slate-400">
+                {streamingContent ? 'Review and save your generated article' : 'Creating your article from the transcript...'}
+              </p>
+            </div>
+          </div>
+
+          <div className='gap-4 grid grid-cols-2'>
+            <button
+              onClick={onBack}
+              className="px-4 py-2 bg-slate-700 text-slate-200 font-semibold rounded-lg hover:bg-slate-600 transition-all hover:cursor-pointer"
+            >
+              Back
+            </button>
+            <button
+              onClick={saveArticle}
+              disabled={isSaving || !streamingContent || !isFinishedWriting}
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer"
+            >
+              {isSaving ? 'Saving...' : 'Save Article'}
+            </button>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto" ref={contentRef}>
+          <div className="p-6 max-w-4xl mx-auto">
+            <div className="prose prose-invert max-w-none">
+              {streamingContent ? (
+                <Streamdown
+                  className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
+                  plugins={{ code: code }}
+                >
+                  {streamingContent}
+                </Streamdown>
+              ) : (
+                <div className="flex gap-2 py-12">
+                  <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                  <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Writer</h1>
-      <p className="mb-6 opacity-80">
-        Select an interview transcript and voice file to start writing.
-      </p>
-
-      {/* Transcript Selection */}
-      <div className="mb-6">
-        <h2 className="text-lg font-medium mb-3">Interview Transcript</h2>
-        
-        {transcripts.length > 0 ? (
-          <div className="space-y-2 mb-3">
-            <label className="block font-medium text-sm mb-1">
-              From Workspace (.ghostwriter folder)
-            </label>
-            <select
-              value={selectedTranscript}
-              onChange={(e) => {
-                setSelectedTranscript(e.target.value);
-                setCustomTranscript('');
-              }}
-              className="w-full px-3 py-2 bg-vscode-input border border-vscode-border rounded focus:outline-none focus:ring-2 focus:ring-vscode-button"
-            >
-              <option value="">Select a transcript...</option>
-              {transcripts.map((t) => (
-                <option key={t.path} value={t.path}>
-                  {t.name} {t.date && `(${t.date})`}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <p className="text-sm opacity-60 mb-3">
-            No transcripts found in .ghostwriter folder
-          </p>
-        )}
-
-        <div className="space-y-2">
-          <label className="block font-medium text-sm">Or select custom file</label>
-          {customTranscript && (
-            <p className="text-sm opacity-80 mb-1">Selected: {customTranscript}</p>
-          )}
-          <button
-            onClick={selectCustomTranscript}
-            className="px-4 py-2 bg-vscode-input hover:bg-vscode-button-hover border border-vscode-border rounded"
-          >
-            Browse for Transcript...
-          </button>
-        </div>
-      </div>
-
-      {/* Voice File Selection */}
-      <div className="mb-6">
-        <h2 className="text-lg font-medium mb-3">Voice File (Optional)</h2>
-        
-        {voiceFiles.length > 0 ? (
-          <div className="space-y-2 mb-3">
-            <label className="block font-medium text-sm mb-1">
-              {voiceFiles.length === 1 ? 'Default Voice' : 'Select Voice'}
-            </label>
-            <select
-              value={selectedVoice}
-              onChange={(e) => {
-                setSelectedVoice(e.target.value);
-                setCustomVoice('');
-              }}
-              className="w-full px-3 py-2 bg-vscode-input border border-vscode-border rounded focus:outline-none focus:ring-2 focus:ring-vscode-button"
-            >
-              <option value="">No voice file</option>
-              {voiceFiles.map((v) => (
-                <option key={v.path} value={v.path}>
-                  {v.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <p className="text-sm opacity-60 mb-3">
-            No voice files found in .ghostwriter folder
-          </p>
-        )}
-
-        <div className="space-y-2">
-          <label className="block font-medium text-sm">Or select custom file</label>
-          {customVoice && (
-            <p className="text-sm opacity-80 mb-1">Selected: {customVoice}</p>
-          )}
-          <button
-            onClick={selectCustomVoice}
-            className="px-4 py-2 bg-vscode-input hover:bg-vscode-button-hover border border-vscode-border rounded"
-          >
-            Browse for Voice File...
-          </button>
-        </div>
-      </div>
-
-      {/* Start Writing Button */}
-      <div className="mt-8">
+    <div className="flex flex-col h-screen bg-slate-950">
+      {/* Header */}
+      <div className="flex items-center gap-4 px-6 py-4 border-b border-slate-700 bg-slate-900">
         <button
-          onClick={startWriting}
-          disabled={!selectedTranscript && !customTranscript}
-          className="px-6 py-2 bg-vscode-button hover:bg-vscode-button-hover text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={onBack}
+          className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer"
         >
-          Start Writing
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
+        <div>
+          <h2 className="text-lg font-semibold text-white">Write Article</h2>
+          <p className="text-sm text-slate-400">Transform your interview into a polished article</p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* Transcript Selection */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Interview Transcript</h3>
+
+            {transcripts.length > 0 ? (
+              <div className="space-y-3 mb-4">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  From Workspace (.ghostwriter folder)
+                </label>
+                <select
+                  value={selectedTranscript}
+                  onChange={(e) => {
+                    setSelectedTranscript(e.target.value);
+                    setCustomTranscript('');
+                  }}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                >
+                  <option value="">Select a transcript...</option>
+                  {transcripts.map((t) => (
+                    <option key={t.path} value={t.path}>
+                      {t.name} {t.date && `(${t.date})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 mb-4">
+                No transcripts found in .ghostwriter folder
+              </p>
+            )}
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Or select custom file</label>
+              {customTranscript && (
+                <p className="text-sm text-slate-400">Selected: {customTranscript}</p>
+              )}
+              <button
+                onClick={selectCustomTranscript}
+                className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors"
+              >
+                Browse for Transcript...
+              </button>
+            </div>
+          </div>
+
+          {/* Voice File Selection */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Voice File (Optional)</h3>
+
+            {voiceFiles.length > 0 ? (
+              <div className="space-y-3 mb-4">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  {voiceFiles.length === 1 ? 'Default Voice' : 'Select Voice'}
+                </label>
+                <select
+                  value={selectedVoice}
+                  onChange={(e) => {
+                    setSelectedVoice(e.target.value);
+                    setCustomVoice('');
+                  }}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                >
+                  <option value="">No voice file</option>
+                  {voiceFiles.map((v) => (
+                    <option key={v.path} value={v.path}>
+                      {v.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 mb-4">
+                No voice files found in .ghostwriter folder
+              </p>
+            )}
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-300">Or select custom file</label>
+              {customVoice && (
+                <p className="text-sm text-slate-400">Selected: {customVoice}</p>
+              )}
+              <button
+                onClick={selectCustomVoice}
+                className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors"
+              >
+                Browse for Voice File...
+              </button>
+            </div>
+          </div>
+
+          {/* Writing Options */}
+          <div className="p-4 bg-slate-800 border border-slate-700 rounded-lg">
+            <h3 className="text-lg font-semibold text-white mb-4">Writing Options</h3>
+
+            {(selectedVoice || customVoice) && (
+              <div className="mb-4 p-2 bg-blue-500/10 border-l-2 border-blue-500/50 rounded">
+                <p className="text-base text-blue-300/90">
+                  Voice file selected. Writing style and additional options are disabled to maintain consistency with the chosen voice.
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Writing Style</label>
+                <select
+                  value={writingStyle}
+                  onChange={(e) => setWritingStyle(e.target.value as any)}
+                  disabled={!!(selectedVoice || customVoice)}
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="formal">Formal</option>
+                  <option value="casual">Casual</option>
+                  <option value="conversational">Conversational</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={includeHeadings}
+                  onChange={(e) => setIncludeHeadings(e.target.checked)}
+                  disabled={!!(selectedVoice || customVoice)}
+                  className="w-4 h-4 bg-slate-700 border border-slate-600 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <span className={(selectedVoice || customVoice) ? 'opacity-50' : ''}>Include Headings</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={includeSEO}
+                  onChange={(e) => setIncludeSEO(e.target.checked)}
+                  disabled={!!(selectedVoice || customVoice)}
+                  className="w-4 h-4 bg-slate-700 border border-slate-600 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <span className={(selectedVoice || customVoice) ? 'opacity-50' : ''}>Optimize for SEO</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Start Writing Button */}
+          <button
+            onClick={startWriting}
+            disabled={!selectedTranscript && !customTranscript}
+            className="w-full px-6 py-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer"
+          >
+            Start Writing
+          </button>
+        </div>
       </div>
     </div>
   );

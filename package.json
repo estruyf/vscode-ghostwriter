@@ -3,7 +3,7 @@
   "displayName": "Ghostwriter",
   "description": "AI-assisted content creation tool for interviews and writing workflows",
   "version": "0.0.1",
-  "publisher": "estruyf",
+  "publisher": "eliostruyf",
   "repository": {
     "type": "git",
     "url": "https://github.com/estruyf/vscode-ghostwriter"
@@ -14,29 +14,14 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onView:ghostwriter.mainView"
-  ],
+  "galleryBanner": {
+    "color": "#4e184c",
+    "theme": "dark"
+  },
+  "icon": "assets/ghostwriter-128x128.png",
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "ghostwriter",
-          "title": "Ghostwriter",
-          "icon": "$(edit)"
-        }
-      ]
-    },
-    "views": {
-      "ghostwriter": [
-        {
-          "type": "webview",
-          "id": "ghostwriter.mainView",
-          "name": "Ghostwriter"
-        }
-      ]
-    },
     "commands": [
       {
         "command": "vscode-ghostwriter.openView",
@@ -60,13 +45,13 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "build:webview": "vite build",
-    "watch:webview": "vite build --watch",
+    "dev": "vite",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
+    "@tailwindcss/vite": "^4.1.18",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/react": "^19.2.10",
@@ -77,9 +62,7 @@
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/webview-ui-toolkit": "^1.4.0",
-    "autoprefixer": "^10.4.23",
     "eslint": "^9.39.2",
-    "postcss": "^8.5.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwindcss": "^4.1.18",
@@ -88,6 +71,8 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
-    "@estruyf/vscode": "^1.2.0"
+    "@estruyf/vscode": "^1.2.0",
+    "@streamdown/code": "^1.0.1",
+    "streamdown": "^2.1.0"
   }
 }

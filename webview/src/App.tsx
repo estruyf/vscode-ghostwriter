@@ -1,42 +1,26 @@
 import { useState } from 'react';
-import { ViewMode } from './types';
+import HomePage from './components/HomePage';
 import InterviewView from './components/InterviewView';
 import WriterView from './components/WriterView';
 
+type Page = 'home' | 'interview' | 'writer';
+
 function App() {
-  const [viewMode, setViewMode] = useState<ViewMode>('interview');
+  const [currentPage, setCurrentPage] = useState<Page>('home');
+
+  const handleNavigation = (page: Page) => {
+    setCurrentPage(page);
+  };
 
   return (
-    <div className="h-screen flex flex-col bg-vscode-background text-vscode-foreground">
-      <div className="flex border-b border-vscode-border">
-        <button
-          onClick={() => setViewMode('interview')}
-          className={`flex-1 px-4 py-3 font-medium ${
-            viewMode === 'interview'
-              ? 'bg-vscode-button text-white'
-              : 'hover:bg-vscode-input'
-          }`}
-        >
-          Interview
-        </button>
-        <button
-          onClick={() => setViewMode('writer')}
-          className={`flex-1 px-4 py-3 font-medium ${
-            viewMode === 'writer'
-              ? 'bg-vscode-button text-white'
-              : 'hover:bg-vscode-input'
-          }`}
-        >
-          Writer
-        </button>
-      </div>
-      <div className="flex-1 overflow-auto">
-        {viewMode === 'interview' ? (
-          <InterviewView />
-        ) : (
-          <WriterView />
-        )}
-      </div>
+    <div className="h-screen flex flex-col bg-slate-950 text-slate-100">
+      {currentPage === 'home' && <HomePage />}
+      {currentPage === 'interview' && (
+        <InterviewView onBack={() => handleNavigation('home')} />
+      )}
+      {currentPage === 'writer' && (
+        <WriterView onBack={() => handleNavigation('home')} />
+      )}
     </div>
   );
 }
