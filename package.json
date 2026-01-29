@@ -4,6 +4,10 @@
   "description": "AI-assisted content creation tool for interviews and writing workflows",
   "version": "0.0.1",
   "publisher": "estruyf",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/estruyf/vscode-ghostwriter"
+  },
   "engines": {
     "vscode": "^1.108.1"
   },

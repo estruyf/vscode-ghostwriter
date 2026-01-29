@@ -81,10 +81,10 @@ export class GhostwriterViewProvider implements vscode.WebviewViewProvider {
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'out', 'webview', 'assets', 'main.js')
+      vscode.Uri.joinPath(this._extensionUri, 'out', 'webview', 'assets', 'index.js')
     );
     const styleUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'out', 'webview', 'assets', 'main.css')
+      vscode.Uri.joinPath(this._extensionUri, 'out', 'webview', 'assets', 'index.css')
     );
 
     // Use a nonce to only allow specific scripts to be run
