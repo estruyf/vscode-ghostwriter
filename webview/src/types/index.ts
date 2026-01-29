@@ -1,12 +1,12 @@
 export interface Message {
   command: string;
-  payload?: any;
+  payload?: unknown;
 }
 
 export interface VSCodeAPI {
   postMessage(message: Message): void;
-  getState(): any;
-  setState(state: any): void;
+  getState(): unknown;
+  setState(state: unknown): void;
 }
 
 export interface TranscriptFile {

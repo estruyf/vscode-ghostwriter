@@ -91,7 +91,7 @@ export class FileService {
       return undefined;
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5); // YYYY-MM-DDTHH-MM-SS
     const fileName = `transcript-${topic.toLowerCase().replace(/\s+/g, '-')}-${timestamp}.md`;
     const filePath = path.join(ghostwriterPath, fileName);
 

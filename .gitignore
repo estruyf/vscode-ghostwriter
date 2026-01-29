@@ -3,5 +3,3 @@ dist
 node_modules
 .vscode-test/
 *.vsix
-vite.config.js
-vite.config.js.map

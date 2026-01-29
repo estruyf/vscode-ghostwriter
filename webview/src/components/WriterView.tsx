@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { VSCodeAPI, TranscriptFile, VoiceFile } from '../types';
 
 interface Props {
@@ -13,17 +13,7 @@ export default function WriterView({ vscode }: Props) {
   const [customTranscript, setCustomTranscript] = useState<string>('');
   const [customVoice, setCustomVoice] = useState<string>('');
 
-  useEffect(() => {
-    // Request transcript and voice files on mount
-    vscode.postMessage({ command: 'getTranscripts' });
-    vscode.postMessage({ command: 'getVoiceFiles' });
-
-    // Listen for messages from extension
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  const handleMessage = (event: MessageEvent) => {
+  const handleMessage = useCallback((event: MessageEvent) => {
     const message = event.data;
     switch (message.command) {
       case 'transcripts':
@@ -45,7 +35,17 @@ export default function WriterView({ vscode }: Props) {
         setSelectedVoice('');
         break;
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Request transcript and voice files on mount
+    vscode.postMessage({ command: 'getTranscripts' });
+    vscode.postMessage({ command: 'getVoiceFiles' });
+
+    // Listen for messages from extension
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [vscode, handleMessage]);
 
   const selectCustomTranscript = () => {
     vscode.postMessage({ command: 'selectCustomTranscript' });
