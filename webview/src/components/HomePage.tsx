@@ -1,3 +1,4 @@
+import { MessagesSquare, Signature } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface HomePageProps {
@@ -30,7 +31,7 @@ export default function HomePage() {
             className="group relative flex h-full flex-col rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGetInterviewed}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/15 text-2xl text-purple-200 shadow-inner shadow-purple-500/20">🎤</div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/15 text-2xl text-purple-200 shadow-inner shadow-purple-500/20"><MessagesSquare /></div>
             <h2 className="mt-4 text-2xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Get Interviewed</h2>
             <p className="mt-2 text-base leading-relaxed text-slate-300">
               Start with an interactive interview. Answer questions and share your expertise while our AI assistant helps gather content material.
@@ -47,7 +48,7 @@ export default function HomePage() {
             className="group relative flex h-full flex-col rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleWriteArticle}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-400/20 text-2xl text-amber-100 shadow-inner shadow-amber-500/20">✍️</div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-400/20 text-2xl text-amber-100 shadow-inner shadow-amber-500/20"><Signature /></div>
             <h2 className="mt-4 text-2xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Write Article</h2>
             <p className="mt-2 text-base leading-relaxed text-slate-300">
               Have an interview already? Upload your interview markdown and let our writer transform it into a polished, comprehensive article.

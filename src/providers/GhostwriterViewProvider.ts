@@ -49,8 +49,8 @@ export class GhostwriterViewProvider {
     );
 
     this.webview.iconPath = {
-      light: Uri.joinPath(extensionUri, "assets", `ghostwriter-vscode.svg`),
-      dark: Uri.joinPath(extensionUri, "assets", `ghostwriter-vscode.svg`),
+      light: Uri.joinPath(extensionUri, "assets", `ghostwriter-light.svg`),
+      dark: Uri.joinPath(extensionUri, "assets", `ghostwriter-dark.svg`),
     };
 
     this.isDisposed = false;
