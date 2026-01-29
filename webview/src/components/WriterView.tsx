@@ -3,6 +3,7 @@ import { messageHandler } from '@estruyf/vscode/dist/client';
 import { TranscriptFile, VoiceFile } from '../types';
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
+import ModelSelector from './ModelSelector';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -20,6 +21,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [includeHeadings, setIncludeHeadings] = useState(true);
   const [includeSEO, setIncludeSEO] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedModelId, setSelectedModelId] = useState<string>('');
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,7 +114,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       includeSEO
     };
 
-    messageHandler.send('startWriting', { transcript, voice, options });
+    messageHandler.send('startWriting', { transcript, voice, options, modelId: selectedModelId });
   };
 
   const saveArticle = () => {
@@ -145,6 +147,13 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
                 {streamingContent ? 'Review and save your generated article' : 'Creating your article from the transcript...'}
               </p>
             </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <ModelSelector
+              selectedModel={selectedModelId}
+              onChange={setSelectedModelId}
+              showLabel={false}
+            />
           </div>
 
           <div className='gap-4 grid grid-cols-2'>
@@ -192,19 +201,26 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex flex-col h-screen bg-slate-950">
       {/* Header */}
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-slate-700 bg-slate-900">
-        <button
-          onClick={onBack}
-          className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <div>
-          <h2 className="text-lg font-semibold text-white">Write Article</h2>
-          <p className="text-sm text-slate-400">Transform your interview into a polished article</p>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onBack}
+            className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div>
+            <h2 className="text-lg font-semibold text-white">Write Article</h2>
+            <p className="text-sm text-slate-400">Transform your interview into a polished article</p>
+          </div>
         </div>
+        <ModelSelector
+          selectedModel={selectedModelId}
+          onChange={setSelectedModelId}
+          showLabel={true}
+        />
       </div>
 
       {/* Content */}

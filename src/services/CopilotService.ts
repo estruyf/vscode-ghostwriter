@@ -76,13 +76,15 @@ export class CopilotService {
   /**
    * Sends a chat request with conversation history.
    * @param messages - Array of LanguageModelChatMessage objects representing the conversation
+   * @param modelId - Optional model ID to use for the request
    * @returns A promise that resolves to the response text
    */
   public static async sendChatRequest(
     messages: LanguageModelChatMessage[],
+    modelId?: string,
   ): Promise<string | undefined> {
     try {
-      const chatResponse = await this.getChatResponse(messages);
+      const chatResponse = await this.getChatResponse(messages, modelId);
 
       if (!chatResponse) {
         return;
@@ -101,14 +103,16 @@ export class CopilotService {
    * Sends a chat request with conversation history and streams the response.
    * @param messages - Array of LanguageModelChatMessage objects representing the conversation
    * @param onChunk - Callback function that receives text chunks as they arrive
+   * @param modelId - Optional model ID to use for the request
    * @returns A promise that resolves to the full response text
    */
   public static async sendChatRequestStream(
     messages: LanguageModelChatMessage[],
     onChunk: (chunk: string) => void,
+    modelId?: string,
   ): Promise<string> {
     try {
-      const chatResponse = await this.getChatResponse(messages);
+      const chatResponse = await this.getChatResponse(messages, modelId);
 
       if (!chatResponse) {
         return "";
@@ -154,13 +158,15 @@ export class CopilotService {
   /**
    * Retrieves the chat response from the language model.
    * @param messages - The chat messages to send to the language model.
+   * @param modelId - Optional model ID to use for the request
    * @returns The chat response
    */
   private static async getChatResponse(
     messages: LanguageModelChatMessage[],
+    modelId?: string,
   ): Promise<LanguageModelChatResponse | undefined> {
     try {
-      const model = await this.getModel();
+      const model = await this.getModel(modelId);
       if (!model) {
         return;
       }
@@ -197,20 +203,36 @@ export class CopilotService {
 
   /**
    * Retrieves the chat model for the Copilot service.
+   * @param modelId - Optional model ID to use. If not provided, uses default COPILOT_FAMILY
+   * @param retry - Number of retry attempts
    * @returns A Promise that resolves to the chat model.
    */
   private static async getModel(
+    modelId?: string,
     retry = 0,
   ): Promise<LanguageModelChat | undefined> {
     try {
-      const [model] = await lm.selectChatModels({
-        vendor: "copilot",
-        family: this.COPILOT_FAMILY,
-      });
+      let model: LanguageModelChat | undefined;
+
+      if (modelId) {
+        // Select specific model by ID
+        const models = await lm.selectChatModels({
+          vendor: "copilot",
+          id: modelId,
+        });
+        model = models[0];
+      } else {
+        // Fallback to default family
+        const models = await lm.selectChatModels({
+          vendor: "copilot",
+          family: this.COPILOT_FAMILY,
+        });
+        model = models[0];
+      }
 
       if ((!model || !model.sendRequest) && retry <= 5) {
         await this.sleep(1000);
-        return this.getModel(retry + 1);
+        return this.getModel(modelId, retry + 1);
       }
 
       return model;

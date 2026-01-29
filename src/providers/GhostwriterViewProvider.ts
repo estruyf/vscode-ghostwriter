@@ -171,6 +171,7 @@ export class GhostwriterViewProvider {
             payload.transcript,
             payload.voice,
             payload.options,
+            payload.modelId,
           );
           break;
         }

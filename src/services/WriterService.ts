@@ -22,6 +22,7 @@ export class WriterService {
     transcriptPath: string,
     voicePath?: string,
     options?: WritingOptions,
+    modelId?: string,
   ): Promise<void> {
     try {
       // Verify transcript file exists
@@ -48,6 +49,7 @@ export class WriterService {
         transcriptContent,
         voiceContent,
         options,
+        modelId,
         (chunk: string) => {
           // Optionally handle streaming chunks here
         },
@@ -74,6 +76,7 @@ export class WriterService {
     transcriptContent: string,
     voiceContent?: string,
     options?: WritingOptions,
+    modelId?: string,
     onChunk?: (chunk: string) => void,
   ): Promise<string> {
     try {
@@ -105,11 +108,15 @@ ${options?.includeSEO ? "- Optimize the content for SEO by including relevant ke
           GhostwriterViewProvider.postMessage("writingStream", { chunk });
         };
 
-        await CopilotService.sendChatRequestStream(messages, onChunkHandler);
+        await CopilotService.sendChatRequestStream(
+          messages,
+          onChunkHandler,
+          modelId,
+        );
 
         return fullContent;
       } else {
-        const content = await CopilotService.sendChatRequest(messages);
+        const content = await CopilotService.sendChatRequest(messages, modelId);
 
         return content || "";
       }

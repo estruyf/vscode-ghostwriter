@@ -21,6 +21,17 @@ function App() {
       {currentPage === 'writer' && (
         <WriterView onBack={() => handleNavigation('home')} />
       )}
+
+      {/* Listen for navigation events */}
+      {currentPage === 'home' &&
+        typeof window !== 'undefined' &&
+        (() => {
+          const handleNavigate = (e: any) => {
+            handleNavigation(e.detail.page);
+          };
+          window.addEventListener('navigate', handleNavigate);
+          return null;
+        })()}
     </div>
   );
 }
