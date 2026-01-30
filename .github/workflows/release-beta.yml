@@ -14,7 +14,7 @@ jobs:
   build-and-test:
     uses: ./.github/workflows/release-common.yml
     with:
-      build_command: npm run vscode:build
+      build_command: npm run build
       lint_command: npm run lint
       prepare_beta_command: ${{ github.ref != 'refs/heads/alpha' && format('node ./scripts/beta-release.mjs {0}', github.run_id) || '' }}
       working_directory: apps/vscode-extension

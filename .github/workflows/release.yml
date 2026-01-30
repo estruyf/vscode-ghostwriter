@@ -13,7 +13,7 @@ jobs:
   build-and-test:
     uses: ./.github/workflows/release-common.yml
     with:
-      build_command: npm run vscode:build
+      build_command: npm run build
       lint_command: npm run lint
       prepare_beta_command: ""
       working_directory: ./
