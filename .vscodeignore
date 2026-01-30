@@ -9,3 +9,8 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+
+tsconfig.node.json
+tsconfig.webview.json
+.github/**
+webview/**
