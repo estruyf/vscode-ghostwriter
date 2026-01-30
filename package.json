@@ -68,13 +68,31 @@
   "activationEvents": [],
   "main": "./out/extension/extension.js",
   "contributes": {
+    "keybindings": [
+      {
+        "command": "vscode-ghostwriter.openView",
+        "key": "alt+g"
+      }
+    ],
     "commands": [
       {
         "command": "vscode-ghostwriter.openView",
         "title": "Open Ghostwriter",
-        "category": "Ghostwriter"
+        "category": "Ghostwriter",
+        "icon": {
+          "light": "assets/ghostwriter-vscode.png",
+          "dark": "assets/ghostwriter-vscode.png"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "vscode-ghostwriter.openView",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
