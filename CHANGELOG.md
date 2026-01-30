@@ -6,6 +6,8 @@ this file.
 ## [0.0.2] - 2026-01-30
 
 - [#2](https://github.com/estruyf/vscode-ghostwriter/issues/2): Updated tab icon
+- [#3](https://github.com/estruyf/vscode-ghostwriter/issues/3): Voice generation
+  support for up to 10 markdown files
 - [#4](https://github.com/estruyf/vscode-ghostwriter/issues/4): Update the
   extension icon
 
