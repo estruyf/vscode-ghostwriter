@@ -1,82 +1,172 @@
-# vscode-ghostwriter README
+<h1 align="center">
+  <img alt="Ghostwriter for VS Code" src="./assets/ghostwriter-icon-128x128.png" width="64" height="64" />
+</h1>
 
-This is the README for your extension "vscode-ghostwriter". After writing up a
-brief description, we recommend including the following sections.
+# Ghostwriter for VS Code
+
+AI-assisted content creation tool powered by GitHub Copilot for interviews and
+writing workflows. This extension provides an in-editor experience for
+conducting AI-driven interviews and generating polished articles from
+transcripts.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your
-extension in action. Image paths are relative to this README file.
+### AI-Powered Interview Mode
+- **Interactive AI Interviews**: Conduct dynamic interviews with GitHub Copilot
+  asking relevant questions
+- **Smart Conversation Flow**: AI adapts questions based on your responses
+- **Auto-completion Detection**: Automatically detects when the interview is
+  complete
+- **Model Selection**: Choose from available GitHub Copilot models (GPT-4o,
+  GPT-4o mini, etc.)
+- **Transcript Management**: Automatically saves formatted transcripts to the
+  `.ghostwriter` folder
+- **Hot Module Replacement**: Fast development with HMR support
 
-For example if there is an image subfolder under your extension project
-workspace:
+### Advanced Writer Mode
+- **Transcript Selection**: Browse interview transcripts from your workspace or
+  select custom files
+- **Voice File Integration**: Apply writing style from voice files for
+  consistent tone
+- **Model Selection**: Choose specific GitHub Copilot models for content
+  generation
+- **Writing Style Options**:
+  - Formal, Casual, or Conversational tone
+  - Automatic heading generation
+  - SEO optimization
+- **Keyword Optimization**: Define target keywords for improved search engine
+  visibility
+- **Frontmatter Templates**: Create reusable YAML frontmatter templates for
+  consistent article metadata
+- **Real-time Streaming**: Watch your article being generated in real-time
+- **Direct File Save**: Save generated articles directly to your workspace
 
-\!\[feature X\]\(images/feature-x.png\)
+### State Persistence
+- **Model Preferences**: Selected GitHub Copilot model persists across sessions
+- **Frontmatter Templates**: Save and reuse frontmatter templates for all
+  articles
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to
-> show off your extension! We recommend short, focused animations that are easy
-> to follow.
+## Getting Started
+
+1. Install the extension
+2. Ensure you have GitHub Copilot subscription and extension installed
+3. Open a workspace folder in VS Code
+4. Use the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run
+   `Ghostwriter: Open Ghostwriter`
+5. Choose between Interview or Writer mode
+
+## Usage
+
+### Conducting an AI Interview
+
+1. Open the Ghostwriter panel
+2. Click on "Start Interview"
+3. Select your preferred GitHub Copilot model
+4. Answer the AI's questions in the chat interface
+5. The AI will automatically detect completion and generate a formatted
+   transcript
+6. Transcript is saved to `.ghostwriter/transcripts/` folder
+
+### Generating Content from Transcripts
+
+1. Open the Ghostwriter panel
+2. Click on "Write Article"
+3. Select a transcript from your workspace or browse for a custom file
+4. (Optional) Select a voice file to maintain consistent writing style
+5. Configure writing options:
+   - Choose writing style (Formal/Casual/Conversational)
+   - Enable/disable headings and SEO optimization
+   - Add target keywords for SEO
+   - Configure frontmatter template
+6. Select your preferred GitHub Copilot model
+7. Click "Start Writing"
+8. Watch the article generate in real-time
+9. Save the article to your workspace
+
+### Setting Up Frontmatter Templates
+
+1. In the Writer view, expand "Writing Options"
+2. Click "Add Frontmatter Template"
+3. Enter your YAML frontmatter template:
+   ```yaml
+   ---
+   title: ""
+   date: ""
+   tags: []
+   draft: false
+   ---
+   ```
+4. Click "Save Template"
+5. The template will be applied to all future articles
+
+## File Structure
+
+The extension creates a `.ghostwriter` folder in your workspace root:
+```
+.ghostwriter/
+├── transcripts/     # Interview transcripts (.md files)
+└── voices/          # Voice files for writing style (.md files)
+```
+
+## Commands
+
+- `Ghostwriter: Open Ghostwriter` - Open the main editor panel
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and
-how to install and configure them.
+- VS Code 1.108.1 or higher
+- GitHub Copilot subscription
+- GitHub Copilot extension installed
+- An open workspace folder
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the
-`contributes.configuration` extension point.
+This extension stores the following in workspace state:
+- Selected GitHub Copilot model ID
+- Frontmatter template for articles
 
-For example:
+## Development
 
-This extension contributes the following settings:
+### Building
+- `npm run compile` - Compile TypeScript
+- `npm run watch` - Watch mode for TypeScript
+- `npm run build:webview` - Build webview with Vite
+- `npm run dev` - Start Vite dev server with HMR
+- `npm run clean` - Remove build artifacts
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## Contributing
 
-## Known Issues
+This extension is part of the Ghostwriter ecosystem:
+- [ghostwriter-app](https://github.com/estruyf/ghostwriter-app) - Electron app
+- [ghostwriter-agents-ai](https://github.com/estruyf/ghostwriter-agents-ai) - AI
+  agent services
 
-Calling out known issues can help limit users opening duplicate issues against
-your extension.
+## License
 
-## Release Notes
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
-Users appreciate release notes as you update your extension.
+<p align="center">
+  <a href="https://github.com/sponsors/estruyf" title="Sponsor Elio Struyf" target="_blank">
+    <img src="https://img.shields.io/badge/Sponsor-Elio%20Struyf%20%E2%9D%A4-%23fe8e86?logo=GitHub&style=flat-square" height="25px" alt="Sponsor @estruyf" />
+  </a>
+</p>
 
-### 1.0.0
+<br />
 
-Initial release of ...
+<p align="center">
+  <a href="https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2Festruyf%2Fvscode-ghostwriter">
+    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Festruyf%2Fvscode-ghostwriter&labelColor=%23555555&countColor=%2397ca00" height="25px" alt="Ghostwriter visitors" />
+  </a>
+</p>
 
-### 1.0.1
+<br />
 
-Fixed issue #.
+<p align="center">
+  <a href="https://struyfconsulting.com" title="Hire Elio Struyf via Struyf Consulting" target="_blank">
+    <img src="./assets/struyf-consulting.webp" height="25px" alt="Struyf Consulting Logo" />
+  </a>
+</p>
 
-### 1.1.0
 
-Added features X, Y, and Z.
-
-
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best
-practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor
-keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and
-  Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy writing with Ghostwriter and GitHub Copilot!**

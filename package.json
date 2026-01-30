@@ -1,40 +1,115 @@
 {
   "name": "vscode-ghostwriter",
   "displayName": "Ghostwriter",
-  "description": "AI-assisted content creation tool using the GitHub Copilot",
+  "description": "AI-powered content creation tool that leverages GitHub Copilot to conduct intelligent interviews and transform transcripts into polished, SEO-optimized articles.",
   "version": "0.0.1",
+  "publisher": "eliostruyf",
+  "author": "Elio Struyf <elio@struyfconsulting.be> (https://www.eliostruyf.com)",
+  "license": "MIT",
+  "preview": true,
+  "galleryBanner": {
+    "color": "#4e184c",
+    "theme": "dark"
+  },
+  "icon": "assets/ghostwriter-128x128.png",
+  "keywords": [
+    "ai",
+    "copilot",
+    "github copilot",
+    "content creation",
+    "writing",
+    "interview",
+    "article",
+    "blog",
+    "seo",
+    "markdown",
+    "content",
+    "assistant",
+    "automation",
+    "transcript",
+    "publishing"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/estruyf/vscode-ghostwriter"
+  },
+  "bugs": {
+    "url": "https://github.com/estruyf/vscode-ghostwriter/issues"
+  },
+  "badges": [
+    {
+      "description": "version",
+      "url": "https://img.shields.io/github/package-json/v/estruyf/vscode-ghostwriter?color=green&label=vscode-ghostwriter&style=flat-square",
+      "href": "https://github.com/estruyf/vscode-ghostwriter"
+    },
+    {
+      "description": "Buy me a coffee",
+      "url": "https://img.shields.io/badge/Buy%20me%20a%20coffee-€%203-blue?logo=buy-me-a-coffee&style=flat-square",
+      "href": "https://www.buymeacoffee.com/zMeFRy9"
+    },
+    {
+      "description": "sponsor",
+      "url": "https://img.shields.io/badge/Sponsor-Elio%20Struyf%20%E2%9D%A4-%23fe8e86?logo=GitHub&style=flat-square",
+      "href": "https://github.com/sponsors/estruyf"
+    }
+  ],
   "engines": {
     "vscode": "^1.108.1"
   },
   "categories": [
-    "Other"
+    "AI",
+    "Chat",
+    "Education"
   ],
+  "homepage": "https://github.com/estruyf/vscode-ghostwriter",
+  "sponsor": {
+    "url": "https://github.com/sponsors/estruyf"
+  },
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./out/extension/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-ghostwriter.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-ghostwriter.openView",
+        "title": "Open Ghostwriter",
+        "category": "Ghostwriter"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
+    "vscode:prepublish": "npm run build",
+    "build": "npm run clean && npm run build:ext && npm run build:webview",
+    "build:ext": "tsup --minify",
+    "build:webview": "vite build",
+    "dev": "npm run watch:ext & npm run watch:webview",
+    "watch:ext": "tsup --watch",
+    "watch:webview": "vite",
+    "clean": "rm -rf out",
+    "lint": "eslint src"
   },
   "devDependencies": {
-    "@types/vscode": "^1.108.1",
+    "@tailwindcss/vite": "^4.1.18",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.52.0",
-    "eslint": "^9.39.2",
-    "typescript": "^5.9.3",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.108.1",
+    "@types/vscode-webview": "^1.57.5",
+    "@vitejs/plugin-react": "^5.1.2",
     "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "eslint": "^9.39.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.1.18",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.52.0",
+    "vite": "^7.3.1",
+    "@estruyf/vscode": "^1.2.0",
+    "@streamdown/code": "^1.0.1",
+    "lucide-react": "^0.563.0",
+    "streamdown": "^2.1.0"
   }
 }
