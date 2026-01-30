@@ -62,14 +62,16 @@ export default function HomePage() {
           </button>
         </div>
 
-        <div className="mt-8 text-center text-sm text-slate-400">
-          Powered by GitHub Copilot
-          <br />
-          <span className="text-xs">
-            Created by Elio Struyf
-          </span>
+        <div className="mt-8 text-center text-base text-slate-400 space-y-2">
+          <p>Powered by GitHub Copilot</p>
+          <p className="text-base">
+            Created by <a href="https://eliostruyf.com" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition" title="Visit Elio Struyf's website">Elio Struyf</a>
+          </p>
+          <p>
+            <a href="https://github.com/sponsors/estruyf" target="_blank" rel="noopener noreferrer" className="text-rose-400 hover:text-rose-300 transition font-medium" title="Support Elio via GitHub Sponsors">💖 Support this project</a>
+          </p>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
