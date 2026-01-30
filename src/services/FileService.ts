@@ -4,6 +4,8 @@ import * as fs from "fs";
 
 export class FileService {
   private static GHOSTWRITER_FOLDER = ".ghostwriter";
+  private static TRANSCRIPTS_FOLDER = "transcripts";
+  private static VOICES_FOLDER = "voices";
 
   /**
    * Get or create the .ghostwriter folder in the workspace
@@ -27,22 +29,56 @@ export class FileService {
   }
 
   /**
-   * Get all transcript files from .ghostwriter folder
+   * Get or create the transcripts folder
+   */
+  private static async getTranscriptsFolder(): Promise<string | undefined> {
+    const ghostwriterPath = await this.getGhostwriterFolder();
+    if (!ghostwriterPath) {
+      return undefined;
+    }
+
+    const transcriptsPath = path.join(ghostwriterPath, this.TRANSCRIPTS_FOLDER);
+    if (!fs.existsSync(transcriptsPath)) {
+      fs.mkdirSync(transcriptsPath, { recursive: true });
+    }
+
+    return transcriptsPath;
+  }
+
+  /**
+   * Get or create the voices folder
+   */
+  private static async getVoicesFolder(): Promise<string | undefined> {
+    const ghostwriterPath = await this.getGhostwriterFolder();
+    if (!ghostwriterPath) {
+      return undefined;
+    }
+
+    const voicesPath = path.join(ghostwriterPath, this.VOICES_FOLDER);
+    if (!fs.existsSync(voicesPath)) {
+      fs.mkdirSync(voicesPath, { recursive: true });
+    }
+
+    return voicesPath;
+  }
+
+  /**
+   * Get all transcript files from .ghostwriter/transcripts folder
    */
   static async getTranscriptFiles(): Promise<
     Array<{ path: string; name: string; date?: string }>
   > {
-    const ghostwriterPath = await this.getGhostwriterFolder();
-    if (!ghostwriterPath) {
+    const transcriptsPath = await this.getTranscriptsFolder();
+    if (!transcriptsPath) {
       return [];
     }
 
     try {
-      const files = fs.readdirSync(ghostwriterPath);
+      const files = fs.readdirSync(transcriptsPath);
       const transcripts = files
-        .filter((file) => file.endsWith(".md") && file.includes("transcript"))
+        .filter((file) => file.endsWith(".md"))
         .map((file) => {
-          const filePath = path.join(ghostwriterPath, file);
+          const filePath = path.join(transcriptsPath, file);
           const stats = fs.statSync(filePath);
           return {
             path: filePath,
@@ -60,23 +96,20 @@ export class FileService {
   }
 
   /**
-   * Get all voice files from .ghostwriter folder
+   * Get all voice files from .ghostwriter/voices folder
    */
   static async getVoiceFiles(): Promise<Array<{ path: string; name: string }>> {
-    const ghostwriterPath = await this.getGhostwriterFolder();
-    if (!ghostwriterPath) {
+    const voicesPath = await this.getVoicesFolder();
+    if (!voicesPath) {
       return [];
     }
 
     try {
-      const files = fs.readdirSync(ghostwriterPath);
+      const files = fs.readdirSync(voicesPath);
       const voiceFiles = files
-        .filter(
-          (file) =>
-            file.endsWith(".md") && file.toLowerCase().includes("voice"),
-        )
+        .filter((file) => file.endsWith(".md"))
         .map((file) => ({
-          path: path.join(ghostwriterPath, file),
+          path: path.join(voicesPath, file),
           name: file,
         }));
 
@@ -88,14 +121,14 @@ export class FileService {
   }
 
   /**
-   * Create a new transcript file
+   * Create a new transcript file in .ghostwriter/transcripts folder
    */
   static async createTranscript(
     topic: string,
     content: string = "",
   ): Promise<string | undefined> {
-    const ghostwriterPath = await this.getGhostwriterFolder();
-    if (!ghostwriterPath) {
+    const transcriptsPath = await this.getTranscriptsFolder();
+    if (!transcriptsPath) {
       return undefined;
     }
 
@@ -104,7 +137,7 @@ export class FileService {
       .replace(/[:.]/g, "-")
       .slice(0, -5); // YYYY-MM-DDTHH-MM-SS
     const fileName = `transcript-${topic.toLowerCase().replace(/\s+/g, "-")}-${timestamp}.md`;
-    const filePath = path.join(ghostwriterPath, fileName);
+    const filePath = path.join(transcriptsPath, fileName);
 
     const initialContent =
       content ||

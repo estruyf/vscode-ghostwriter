@@ -81,6 +81,7 @@
     "build": "npm run clean && npm run build:ext && npm run build:webview",
     "build:ext": "tsup --minify",
     "build:webview": "vite build",
+    "dev": "npm run watch:ext & npm run watch:webview",
     "watch:ext": "tsup --watch",
     "watch:webview": "vite",
     "clean": "rm -rf out",
