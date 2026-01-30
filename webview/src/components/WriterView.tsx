@@ -212,7 +212,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
           </div>
         </div>
         <ModelSelector
-          selectedModel={selectedModelId}
+          value={selectedModelId}
           onChange={setSelectedModelId}
           showLabel={true}
         />
@@ -273,7 +273,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
             {voiceFiles.length > 0 ? (
               <div className="space-y-3 mb-4">
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  {voiceFiles.length === 1 ? 'Default Voice' : 'Select Voice'}
+                  {voiceFiles.length === 1 ? 'Default Voice (.ghostwriter folder)' : 'Select Voice'}
                 </label>
                 <select
                   value={selectedVoice}
