@@ -3,8 +3,11 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [tailwindcss(), react()],
+  optimizeDeps: {
+    exclude: ["lucide-react"],
+  },
   root: "./webview",
   server: {
     port: 5173,
@@ -24,7 +27,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "out/webview"),
     emptyOutDir: true,
-    sourcemap: "inline",
+    sourcemap: mode === "development" ? "inline" : false,
     rollupOptions: {
       output: {
         entryFileNames: "assets/[name].js",
@@ -38,4 +41,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./webview/src"),
     },
   },
-});
+}));

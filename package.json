@@ -20,7 +20,7 @@
   },
   "icon": "assets/ghostwriter-128x128.png",
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./out/extension/extension.js",
   "contributes": {
     "commands": [
       {
@@ -31,14 +31,14 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile && npm run build:webview",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run build",
+    "build": "npm run clean && npm run build:ext && npm run build:webview",
+    "build:ext": "tsup --minify",
     "build:webview": "vite build",
-    "dev": "vite",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
+    "watch:ext": "tsup --watch",
+    "watch:webview": "vite",
+    "clean": "rm -rf out",
+    "lint": "eslint src"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -56,6 +56,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwindcss": "^4.1.18",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.52.0",
     "vite": "^7.3.1"
