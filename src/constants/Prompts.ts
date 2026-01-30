@@ -158,7 +158,7 @@ Open-Focused-Closed questioning model.
   markdown transcript without waiting for me to ask. You start the transcript with a note that indicates that the interview was completed. Use the following format: INTERVIEW COMPLETED
 - Format the transcript as follows:
   - Start with a markdown heading for the interview topic
-  - Include metadata about content type and date
+  - Include metadata about content type and today's date ({{date}})
   - Then a separator
   - Then the full Q&A exchange with clear speaker labels
   - End with any relevant notes or resources mentioned

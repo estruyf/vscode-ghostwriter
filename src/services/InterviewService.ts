@@ -42,7 +42,12 @@ export class InterviewService {
 
       // Initialize conversation with system prompt and request for first question
       const conversationMessages = [
-        LanguageModelChatMessage.User(this.SYSTEM_PROMPT),
+        LanguageModelChatMessage.User(
+          this.SYSTEM_PROMPT.replace(
+            "{{date}}",
+            new Date().toLocaleDateString(),
+          ),
+        ),
       ];
 
       const response =
