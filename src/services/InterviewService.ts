@@ -130,28 +130,38 @@ export class InterviewService {
 
   /**
    * End the interview and save the transcript
-   * Can be called either manually (stop) or naturally (end with complete transcript)
+   * @param sessionId - The interview session ID
+   * @param topic - The interview topic
+   * @param isManualStop - True if user manually stopped, false if AI ended naturally
    */
-  static async endInterview(sessionId: string, topic: string): Promise<string> {
+  static async endInterview(
+    sessionId: string,
+    topic: string,
+    isManualStop: boolean = false,
+  ): Promise<string> {
     try {
       const session = this.sessions.get(sessionId);
       if (!session) {
         throw new Error("Interview session not found");
       }
 
-      // Try to extract transcript from the last assistant message first
-      // (for natural end where AI provides complete transcript)
+      // For natural end, try to extract transcript from the last assistant message
+      // (where AI provides complete formatted transcript)
+      // For manual stop, always generate transcript from all messages
       let transcript = "";
-      for (let i = session.messages.length - 1; i >= 0; i--) {
-        if (session.messages[i].role === "assistant") {
-          transcript = session.messages[i].content;
-          break;
+
+      if (!isManualStop) {
+        // Natural end - extract from last assistant message
+        for (let i = session.messages.length - 1; i >= 0; i--) {
+          if (session.messages[i].role === "assistant") {
+            transcript = session.messages[i].content;
+            break;
+          }
         }
       }
 
-      // If no transcript found or it's empty, generate it from messages
-      // (for manual stop where we need to compile the conversation)
-      if (!transcript) {
+      // If manual stop or no transcript found, generate it from messages
+      if (!transcript || isManualStop) {
         transcript = this.generateTranscript(session);
       }
 

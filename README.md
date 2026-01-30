@@ -9,6 +9,21 @@ writing workflows. This extension provides an in-editor experience for
 conducting AI-driven interviews and generating polished articles from
 transcripts.
 
+## Screenshots
+
+<div align="center">
+
+### Home View
+<img alt="Ghostwriter Home View" src="./assets/screenshot/app-home.png" width="800" />
+
+### Interview Mode
+<img alt="Ghostwriter Interview Mode" src="./assets/screenshot/app-interview.png" width="800" />
+
+### Writer Mode
+<img alt="Ghostwriter Writer Mode" src="./assets/screenshot/app-writer.png" width="800" />
+
+</div>
+
 ## Features
 
 ### AI-Powered Interview Mode

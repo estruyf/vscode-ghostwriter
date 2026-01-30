@@ -128,6 +128,7 @@ export class GhostwriterViewProvider {
           await InterviewService.endInterview(
             this.currentInterviewId,
             payload.topic,
+            payload.isManualStop ?? false,
           );
           this.currentInterviewId = null;
           break;

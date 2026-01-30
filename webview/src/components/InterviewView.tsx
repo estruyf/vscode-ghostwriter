@@ -62,7 +62,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
           if (isInterviewComplete) {
             // Wait a moment for the message to be visible, then auto-end
             setTimeout(() => {
-              messageHandler.send('interview:end', {});
+              messageHandler.send('interview:end', { isManualStop: false });
             }, 1500);
           }
         }
@@ -92,7 +92,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     // Check for end commands
     if (userMessage.toLowerCase() === 'stop' || userMessage.toLowerCase() === 'done') {
       setIsSending(true);
-      messageHandler.send('interview:end', {});
+      messageHandler.send('interview:end', { isManualStop: true });
       return;
     }
 
