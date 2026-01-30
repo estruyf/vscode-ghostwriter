@@ -10,6 +10,7 @@ export interface WritingOptions {
   length?: "short" | "medium" | "long";
   includeHeadings?: boolean;
   includeSEO?: boolean;
+  keywords?: string;
 }
 
 export class WriterService {
@@ -82,6 +83,23 @@ export class WriterService {
     try {
       const styleGuide = this.getStyleGuide(options);
 
+      // Build keyword optimization instructions
+      let keywordInstructions = "";
+      if (options?.keywords) {
+        const keywordList = options.keywords
+          .split(",")
+          .map((k) => k.trim())
+          .filter((k) => k.length > 0);
+
+        if (keywordList.length > 0) {
+          keywordInstructions = `## SEO Instructions
+- Target Keywords: Naturally incorporate these keywords throughout the article for SEO optimization: ${keywordList.join(", ")}.
+- Use these keywords in headings, subheadings, and body text where contextually appropriate.
+- Maintain natural readability while optimizing for these search terms.
+          `;
+        }
+      }
+
       const voiceBaseOnWritingOptions = `
 - Writing style should be: ${styleGuide}.
 ${options?.includeHeadings ? "- Structure the article with clear headings and subheadings." : ""}
@@ -89,9 +107,12 @@ ${options?.includeSEO ? "- Optimize the content for SEO by including relevant ke
       `;
 
       // Create message array with system prompt and user request
-      const systemPrompt = this.SYSTEM_PROMPT.replace(
+      let systemPrompt = this.SYSTEM_PROMPT.replace(
         "{{voiceGuide}}",
         voiceContent || voiceBaseOnWritingOptions,
+      ).replace(
+        "{{seoInstructions}}",
+        options?.includeSEO ? keywordInstructions : "",
       );
 
       const messages = [

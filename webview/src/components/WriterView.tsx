@@ -20,6 +20,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [writingStyle, setWritingStyle] = useState<'formal' | 'casual' | 'conversational'>('conversational');
   const [includeHeadings, setIncludeHeadings] = useState(true);
   const [includeSEO, setIncludeSEO] = useState(true);
+  const [keywords, setKeywords] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const contentRef = useRef<HTMLDivElement>(null);
@@ -111,7 +112,8 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     const options = {
       style: writingStyle,
       includeHeadings,
-      includeSEO
+      includeSEO,
+      keywords: keywords.trim() || undefined
     };
 
     messageHandler.send('startWriting', { transcript, voice, options, modelId: selectedModelId });
@@ -147,13 +149,6 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
                 {streamingContent ? 'Review and save your generated article' : 'Creating your article from the transcript...'}
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <ModelSelector
-              selectedModel={selectedModelId}
-              onChange={setSelectedModelId}
-              showLabel={false}
-            />
           </div>
 
           <div className='gap-4 grid grid-cols-2'>
@@ -365,6 +360,24 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
                 />
                 <span className={(selectedVoice || customVoice) ? 'opacity-50' : ''}>Optimize for SEO</span>
               </label>
+            </div>
+
+            {/* Keyword Optimization */}
+            <div className="mt-4 pt-4 border-t border-slate-700">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Keyword Optimization
+                <span className="text-slate-500 font-normal ml-1">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                placeholder="Enter keywords separated by commas (e.g., AI, machine learning, automation)"
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+              />
+              <p className="mt-2 text-xs text-slate-500">
+                {keywords.trim() ? `Keywords: ${keywords.split(',').map(k => k.trim()).filter(k => k).join(', ')}` : 'Add target keywords to optimize article for search engines'}
+              </p>
             </div>
           </div>
 
