@@ -24,6 +24,7 @@ export class WriterService {
     voicePath?: string,
     options?: WritingOptions,
     modelId?: string,
+    frontmatter?: string,
   ): Promise<void> {
     try {
       // Verify transcript file exists
@@ -51,6 +52,7 @@ export class WriterService {
         voiceContent,
         options,
         modelId,
+        frontmatter,
         (chunk: string) => {
           // Optionally handle streaming chunks here
         },
@@ -78,6 +80,7 @@ export class WriterService {
     voiceContent?: string,
     options?: WritingOptions,
     modelId?: string,
+    frontmatter?: string,
     onChunk?: (chunk: string) => void,
   ): Promise<string> {
     try {
@@ -114,6 +117,21 @@ ${options?.includeSEO ? "- Optimize the content for SEO by including relevant ke
         "{{seoInstructions}}",
         options?.includeSEO ? keywordInstructions : "",
       );
+
+      if (frontmatter) {
+        const frontmatterSection = `## Frontmatter Instructions
+- Include the following frontmatter at the beginning of the article:
+
+${frontmatter}
+
+        `;
+        systemPrompt = systemPrompt.replace(
+          "{{frontmatterSection}}",
+          frontmatterSection,
+        );
+      } else {
+        systemPrompt = systemPrompt.replace("{{frontmatterSection}}", "");
+      }
 
       const messages = [
         LanguageModelChatMessage.Assistant(systemPrompt),

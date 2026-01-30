@@ -91,6 +91,19 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "getFrontmatterTemplate": {
+          const template = StateService.getFrontmatterTemplate();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, template);
+          }
+          break;
+        }
+
+        case "setFrontmatterTemplate": {
+          await StateService.setFrontmatterTemplate(payload.template);
+          break;
+        }
+
         case "interview:start": {
           const session = await InterviewService.startInterview();
           this.currentInterviewId = session.id;
@@ -172,6 +185,7 @@ export class GhostwriterViewProvider {
             payload.voice,
             payload.options,
             payload.modelId,
+            payload.frontmatter,
           );
           break;
         }

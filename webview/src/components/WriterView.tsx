@@ -23,6 +23,8 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [keywords, setKeywords] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
+  const [frontmatter, setFrontmatter] = useState<string>('');
+  const [showFrontmatterEditor, setShowFrontmatterEditor] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,6 +52,15 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     }).catch((error) => {
       console.error('Error loading voice files:', error);
       setVoiceFiles([]);
+    });
+
+    // Load frontmatter template from backend
+    messageHandler.request<string>('getFrontmatterTemplate').then((response) => {
+      if (response) {
+        setFrontmatter(response);
+      }
+    }).catch((error) => {
+      console.error('Error loading frontmatter template:', error);
     });
   }, []);
 
@@ -116,7 +127,23 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       keywords: keywords.trim() || undefined
     };
 
-    messageHandler.send('startWriting', { transcript, voice, options, modelId: selectedModelId });
+    messageHandler.send('startWriting', {
+      transcript,
+      voice,
+      options,
+      modelId: selectedModelId,
+      frontmatter: frontmatter.trim() || undefined
+    });
+  };
+
+  const saveFrontmatter = () => {
+    messageHandler.send('setFrontmatterTemplate', { template: frontmatter.trim() || undefined });
+    setShowFrontmatterEditor(false);
+  };
+
+  const clearFrontmatter = () => {
+    setFrontmatter('');
+    messageHandler.send('setFrontmatterTemplate', { template: undefined });
   };
 
   const saveArticle = () => {
@@ -378,6 +405,78 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
               <p className="mt-2 text-xs text-slate-500">
                 {keywords.trim() ? `Keywords: ${keywords.split(',').map(k => k.trim()).filter(k => k).join(', ')}` : 'Add target keywords to optimize article for search engines'}
               </p>
+            </div>
+
+            {/* Frontmatter Template */}
+            <div className="mt-4 pt-4 border-t border-slate-700">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  Frontmatter Template
+                  <span className="text-slate-500 font-normal ml-1">(Optional)</span>
+                </label>
+                {frontmatter && (
+                  <button
+                    onClick={clearFrontmatter}
+                    className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {!showFrontmatterEditor ? (
+                <div className="space-y-2">
+                  {frontmatter ? (
+                    <>
+                      <div className="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg">
+                        <pre className="text-xs text-slate-300 overflow-x-auto max-h-24 overflow-y-auto whitespace-pre-wrap">
+                          {frontmatter}
+                        </pre>
+                      </div>
+                      <button
+                        onClick={() => setShowFrontmatterEditor(true)}
+                        className="w-full px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 text-sm transition-colors"
+                      >
+                        Edit Frontmatter
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setShowFrontmatterEditor(true)}
+                      className="w-full px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 text-sm transition-colors"
+                    >
+                      Add Frontmatter Template
+                    </button>
+                  )}
+                  <p className="text-xs text-slate-500">
+                    Define YAML frontmatter to include in all generated articles
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <textarea
+                    value={frontmatter}
+                    onChange={(e) => setFrontmatter(e.target.value)}
+                    placeholder="---&#10;title: &quot;&quot;&#10;date: &quot;&quot;&#10;tags: []&#10;---"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono text-sm"
+                    rows={10}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={saveFrontmatter}
+                      className="flex-1 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm transition-colors"
+                    >
+                      Save Template
+                    </button>
+                    <button
+                      onClick={() => setShowFrontmatterEditor(false)}
+                      className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

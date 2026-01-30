@@ -192,6 +192,8 @@ content type (technical, narrative, educational, or review/analysis).
 
 {{seoInstructions}}
 
+{{frontmatterSection}}
+
 ## Operating Rules
 
 - Do not invent facts, benchmarks, quotes, or error messages.

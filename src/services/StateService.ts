@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 
 interface AppState {
   selectedModelId?: string;
+  frontmatterTemplate?: string;
 }
 
 export class StateService {
@@ -37,6 +38,27 @@ export class StateService {
     await this.context.workspaceState.update(this.STATE_KEY, {
       ...state,
       selectedModelId: modelId,
+    });
+  }
+
+  /**
+   * Get the frontmatter template
+   */
+  public static getFrontmatterTemplate(): string | undefined {
+    const state = this.getState();
+    return state.frontmatterTemplate;
+  }
+
+  /**
+   * Set the frontmatter template
+   */
+  public static async setFrontmatterTemplate(
+    template: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      frontmatterTemplate: template,
     });
   }
 
