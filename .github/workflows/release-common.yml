@@ -28,10 +28,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "yarn"
+          cache: "npm"
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: npm ci
 
       - name: Build
         run: ${{ inputs.build_command }}
