@@ -7,6 +7,7 @@ this file.
 
 - Added keyboard shortcut (Alt+G) to open Ghostwriter
 - Added editor title menu icon for quick access to Ghostwriter
+- Updated transcript metadata to include today's date
 
 ## [0.0.2] - 2026-01-30
 
