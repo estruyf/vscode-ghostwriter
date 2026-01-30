@@ -2,8 +2,9 @@ import { useState } from 'react';
 import HomePage from './components/HomePage';
 import InterviewView from './components/InterviewView';
 import WriterView from './components/WriterView';
+import VoiceGeneratorView from './components/VoiceGeneratorView';
 
-type Page = 'home' | 'interview' | 'writer';
+type Page = 'home' | 'interview' | 'writer' | 'voice-generator';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -20,6 +21,9 @@ function App() {
       )}
       {currentPage === 'writer' && (
         <WriterView onBack={() => handleNavigation('home')} />
+      )}
+      {currentPage === 'voice-generator' && (
+        <VoiceGeneratorView onBack={() => handleNavigation('home')} />
       )}
 
       {/* Listen for navigation events */}

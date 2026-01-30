@@ -22,6 +22,9 @@ transcripts.
 ### Writer Mode
 <img alt="Ghostwriter Writer Mode" src="./assets/screenshot/app-writer.png" width="800" />
 
+### Voice Generator Mode
+<img alt="Ghostwriter Voice Generator Mode" src="./assets/screenshot/app-voice.png" width="800" />
+
 </div>
 
 ## Features
@@ -55,6 +58,22 @@ transcripts.
   consistent article metadata
 - **Real-time Streaming**: Watch your article being generated in real-time
 - **Direct File Save**: Save generated articles directly to your workspace
+
+### Voice Generator Mode
+- **Writing Style Analysis**: Automatically analyze your existing writing to
+  create a personalized voice profile
+- **Smart Content Discovery**: Recursively searches for markdown files in your
+  selected folder
+- **Recent Content Priority**: Analyzes your most recent writing (up to 20
+  files) to capture your current style
+- **Comprehensive Voice Profile**: Generates detailed analysis including:
+  - Voice characteristics (tone, pacing, formality)
+  - Style rules and guidelines
+  - Lexicon (favorite phrases, words to avoid)
+  - Structure patterns
+- **Automatic Storage**: Voice profiles saved to `.ghostwriter/voices/` folder
+- **Easy Integration**: Use generated voice files in Writer mode for consistent
+  content
 
 ### State Persistence
 - **Model Preferences**: Selected GitHub Copilot model persists across sessions
@@ -113,6 +132,19 @@ transcripts.
    ```
 4. Click "Save Template"
 5. The template will be applied to all future articles
+
+### Generating a Voice Profile
+
+1. Open the Ghostwriter panel
+2. Click on "Generate Voice"
+3. Select your preferred GitHub Copilot model
+4. Click "Generate Voice Profile"
+5. Select a folder containing your writing samples (blog posts, articles, etc.)
+6. Wait for the AI to analyze your writing style
+7. Voice profile is automatically saved to
+   `.ghostwriter/voices/voice-YYYY-MM-DD.md`
+8. Review and customize the generated profile if needed
+9. Use the voice file in Writer mode to maintain your unique style
 
 ## File Structure
 

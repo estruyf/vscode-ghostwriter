@@ -5,6 +5,7 @@ import { InterviewService } from "../services/InterviewService";
 import { WriterService } from "../services/WriterService";
 import { CopilotService } from "../services/CopilotService";
 import { StateService } from "../services/StateService";
+import { VoiceService } from "../services/VoiceService";
 import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
@@ -193,6 +194,14 @@ export class GhostwriterViewProvider {
 
         case "saveArticle": {
           await WriterService.saveArticle(payload.content);
+          break;
+        }
+
+        case "generateVoice": {
+          await VoiceService.generateVoice(
+            payload.contentLocation,
+            payload.modelId,
+          );
           break;
         }
       }

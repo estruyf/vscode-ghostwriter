@@ -235,4 +235,23 @@ expertise to identify which parts of the draft are too thin and need deeper
 work. Adapt your expansion style to match the content type (technical depth for
 tutorials, emotional resonance for narratives, clarity for educational content,
 evidence for reviews).`,
+  VOICE_GENERATOR: `Please analyze the voice and tone of my writing by discovering my content within
+the current location: {{contentLocation}}. Look for my blog articles, book chapters, or other written materials. I want you to replicate my style in future generated text. Analyze a representative sample of my writing that you can find.
+
+Analyze a representative sample of my writing based on this hint so you can replicate my style in future generated text.
+
+## If You Can't Find Writing Samples
+
+- If the repo does not contain suitable long-form writing, ask me for a path or
+  paste of 2–3 representative samples.
+
+## Output Format
+
+The output should be markdown content:
+
+1. Voice profile (tone, pacing, level of formality, typical sentence length).
+2. Reusable "style rules" (do/don't bullets).
+3. Lexicon (favorite phrases, transitions, words to avoid).
+4. Structure patterns (how intros/endings look, heading style).
+5. One short paragraph that imitates the style (clearly labeled as a sample).`,
 };
