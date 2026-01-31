@@ -137,7 +137,7 @@ export class DraftService {
 
 ${currentRevision.content}
 
-${this.activeDraft.voice ? `Please maintain the writing style from this voice profile:
+${this.activeDraft.voice && fs.existsSync(this.activeDraft.voice) ? `Please maintain the writing style from this voice profile:
 
 ${fs.readFileSync(this.activeDraft.voice, "utf-8")}` : ""}
 
@@ -315,7 +315,7 @@ Apply the user's refinement request while maintaining the overall structure and 
 
     const defaultUri = vscode.Uri.joinPath(
       workspaceFolder.uri,
-      `${draft.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`,
+      `${draft.title.replace(/[^a-zA-Z0-9\s-]/g, "").replace(/\s+/g, "-").toLowerCase()}.md`,
     );
 
     const fileUri = await vscode.window.showSaveDialog({

@@ -162,7 +162,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     const transcript = customTranscript || selectedTranscript;
     const voice = customVoice || selectedVoice;
 
-    const title = `Draft ${new Date().toLocaleString()}`;
+    const title = `Draft ${new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')}`;
     
     const draft = await messageHandler.request<Draft>('createDraft', {
       title,
