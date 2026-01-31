@@ -30,6 +30,7 @@ export class InterviewService {
   static async startInterview(
     agentPath?: string,
     modelId?: string,
+    language?: string,
   ): Promise<InterviewSession> {
     try {
       // Get system prompt
@@ -58,10 +59,15 @@ export class InterviewService {
       this.sessions.set(sessionId, session);
 
       // Initialize conversation with system prompt and request for first question
+      let finalSystemPrompt = systemPrompt.replace("{{date}}", new Date().toLocaleDateString());
+      
+      // Add language instruction if specified
+      if (language) {
+        finalSystemPrompt += `\n\n**IMPORTANT**: Conduct the entire interview in ${language}. All questions and the final transcript must be in ${language}.`;
+      }
+      
       const conversationMessages = [
-        LanguageModelChatMessage.User(
-          systemPrompt.replace("{{date}}", new Date().toLocaleDateString()),
-        ),
+        LanguageModelChatMessage.User(finalSystemPrompt),
       ];
 
       const response = await CopilotService.sendChatRequest(
@@ -72,7 +78,7 @@ export class InterviewService {
       if (response) {
         // Store the system prompt and assistant's response in conversation history
         session.conversationHistory.push(
-          LanguageModelChatMessage.User(systemPrompt),
+          LanguageModelChatMessage.User(finalSystemPrompt),
           LanguageModelChatMessage.Assistant(response),
         );
 

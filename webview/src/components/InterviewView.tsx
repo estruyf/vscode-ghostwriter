@@ -6,6 +6,7 @@ import ModelSelector from './ModelSelector';
 import ChatWindow from './ChatWindow';
 import ChatInput from './ChatInput';
 import { AgentDialog, CreateAgentForm } from './AgentManager';
+import { LanguageSelector } from './LanguageSelector';
 import { AgentFile } from '../types';
 
 declare const acquireVsCodeApi: () => any;
@@ -21,12 +22,14 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     agents,
     selectedAgent,
     selectedModelId,
+    selectedLanguage,
     hasUserStarted,
     textareaRef,
     messagesEndRef,
     sendMessage,
     handleAgentSelect,
     handleModelSelect,
+    handleLanguageSelect,
   } = useInterview();
 
   // Dialog state
@@ -121,6 +124,12 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
             value={selectedModelId}
             onChange={handleModelSelect}
             className={hasUserStarted ? 'opacity-50 pointer-events-none' : ''}
+          />
+          <LanguageSelector
+            value={selectedLanguage}
+            onChange={handleLanguageSelect}
+            disabled={hasUserStarted}
+            className="mt-4"
           />
         </div>
       </div>

@@ -107,6 +107,19 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "getSelectedLanguage": {
+          const language = StateService.getSelectedLanguage();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, language);
+          }
+          break;
+        }
+
+        case "setSelectedLanguage": {
+          await StateService.setSelectedLanguage(payload.language);
+          break;
+        }
+
         case "interview:start": {
           if (this.currentInterviewId) {
             await InterviewService.discardInterview(this.currentInterviewId);
@@ -115,6 +128,7 @@ export class GhostwriterViewProvider {
           const session = await InterviewService.startInterview(
             payload.agentPath,
             payload.modelId,
+            payload.language,
           );
           this.currentInterviewId = session.id;
           break;
