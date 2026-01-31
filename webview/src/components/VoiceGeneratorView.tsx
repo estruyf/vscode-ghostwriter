@@ -63,8 +63,8 @@ export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
             </svg>
           </button>
           <div>
-            <h2 className="text-lg font-semibold text-white">Generate Voice Profile</h2>
-            <p className="text-sm text-slate-400">
+            <h2 className="text-xl font-semibold text-white">Generate Voice Profile</h2>
+            <p className="text-base text-slate-400">
               Analyze your writing to create a personalized voice profile
             </p>
           </div>
@@ -111,7 +111,7 @@ export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
               </div>
 
               <div className="rounded-xl bg-slate-900/50 border border-slate-800 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Select AI Model</h3>
+                <h3 className="text-xl font-semibold text-white mb-4">Select AI Model</h3>
                 <ModelSelector
                   value={selectedModelId}
                   onChange={setSelectedModelId}
@@ -131,7 +131,7 @@ export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
                   <svg className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <div className="text-sm text-amber-200">
+                  <div className="text-base text-amber-200">
                     <p className="font-semibold mb-1">Tip:</p>
                     <p>For best results, select a folder with at least 5-10 markdown files containing your writing. The AI will analyze up to 10 files.</p>
                   </div>
@@ -162,14 +162,14 @@ export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
                     </svg>
                   </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-white mb-2">Voice Profile Generated!</h3>
+                <h3 className="text-3xl font-semibold text-white mb-2">Voice Profile Generated!</h3>
                 <p className="text-green-200">
                   Your voice profile has been created and saved. The file has been opened in the editor.
                 </p>
               </div>
 
               <div className="rounded-xl bg-slate-900/50 border border-slate-800 p-6">
-                <h3 className="text-lg font-semibold text-white mb-3">Next Steps</h3>
+                <h3 className="text-xl font-semibold text-white mb-3">Next Steps</h3>
                 <ul className="space-y-2 text-slate-300">
                   <li className="flex items-start gap-2">
                     <svg className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,7 +219,7 @@ export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
                     </svg>
                   </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-white mb-2">Generation Failed</h3>
+                <h3 className="text-3xl font-semibold text-white mb-2">Generation Failed</h3>
                 <p className="text-red-200">
                   {errorMessage || 'An error occurred while generating the voice profile.'}
                 </p>

@@ -1,5 +1,4 @@
 import { MessagesSquare, Signature, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 interface HomePageProps {
 }
@@ -25,8 +24,8 @@ export default function HomePage() {
       <div className="w-full max-w-6xl">
         <div className="mb-12 text-center">
           <h1 className="text-5xl font-extrabold tracking-tight text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">Ghostwriter</h1>
-          <p className="mt-3 text-lg text-slate-300">AI-powered content creation for writers</p>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-3 text-xl text-slate-300">AI-powered content creation for writers</p>
+          <p className="mt-2 text-base text-slate-400">
             Part of Ghostwriter Agents
           </p>
         </div>
@@ -36,12 +35,12 @@ export default function HomePage() {
             className="group relative flex h-full flex-col rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGetInterviewed}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/15 text-2xl text-purple-200 shadow-inner shadow-purple-500/20"><MessagesSquare /></div>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Get Interviewed</h2>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/15 text-3xl text-purple-200 shadow-inner shadow-purple-500/20"><MessagesSquare /></div>
+            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Get Interviewed</h2>
             <p className="mt-2 text-base leading-relaxed text-slate-300">
               Start with an interactive interview. Answer questions and share your expertise while our AI assistant helps gather content material.
             </p>
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-purple-200 transition group-hover:text-cyan-200">
+            <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
               Begin Interview
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -53,12 +52,12 @@ export default function HomePage() {
             className="group relative flex h-full flex-col rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleWriteArticle}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-400/20 text-2xl text-amber-100 shadow-inner shadow-amber-500/20"><Signature /></div>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Write Article</h2>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-400/20 text-3xl text-amber-100 shadow-inner shadow-amber-500/20"><Signature /></div>
+            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Write Article</h2>
             <p className="mt-2 text-base leading-relaxed text-slate-300">
               Have an interview already? Upload your interview markdown and let our writer transform it into a polished, comprehensive article.
             </p>
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-purple-200 transition group-hover:text-cyan-200">
+            <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
               Start Writing
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -70,12 +69,12 @@ export default function HomePage() {
             className="group relative flex h-full flex-col rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGenerateVoice}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-2xl text-cyan-200 shadow-inner shadow-cyan-500/20"><Sparkles /></div>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Generate Voice</h2>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-3xl text-cyan-200 shadow-inner shadow-cyan-500/20"><Sparkles /></div>
+            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Generate Voice</h2>
             <p className="mt-2 text-base leading-relaxed text-slate-300">
               Analyze your existing writing to create a voice profile. Let AI learn your unique style and tone for consistent content.
             </p>
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-purple-200 transition group-hover:text-cyan-200">
+            <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
               Create Voice Profile
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -93,7 +92,7 @@ export default function HomePage() {
             <a href="https://github.com/sponsors/estruyf" target="_blank" rel="noopener noreferrer" className="text-rose-400 hover:text-rose-300 transition font-medium" title="Support Elio via GitHub Sponsors">💖 Support this project</a>
           </p>
         </div>
-      </div>
+      </div >
     </div >
   );
 }

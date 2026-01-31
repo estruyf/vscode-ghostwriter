@@ -3,6 +3,9 @@ import * as vscode from "vscode";
 interface AppState {
   selectedModelId?: string;
   frontmatterTemplate?: string;
+  selectedPromptConfigId?: string;
+  selectedInterviewerAgent?: string;
+  selectedWriterAgent?: string;
 }
 
 export class StateService {
@@ -67,5 +70,68 @@ export class StateService {
    */
   public static async clearState() {
     await this.context.workspaceState.update(this.STATE_KEY, undefined);
+  }
+
+  /**
+   * Get the selected prompt config ID
+   */
+  public static getSelectedPromptConfigId(): string | undefined {
+    const state = this.getState();
+    return state.selectedPromptConfigId;
+  }
+
+  /**
+   * Set the selected prompt config ID
+   */
+  public static async setSelectedPromptConfigId(
+    configId: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      selectedPromptConfigId: configId,
+    });
+  }
+
+  /**
+   * Get the selected interviewer agent path
+   */
+  public static getSelectedInterviewerAgent(): string | undefined {
+    const state = this.getState();
+    return state.selectedInterviewerAgent;
+  }
+
+  /**
+   * Set the selected interviewer agent path
+   */
+  public static async setSelectedInterviewerAgent(
+    agentPath: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      selectedInterviewerAgent: agentPath,
+    });
+  }
+
+  /**
+   * Get the selected writer agent path
+   */
+  public static getSelectedWriterAgent(): string | undefined {
+    const state = this.getState();
+    return state.selectedWriterAgent;
+  }
+
+  /**
+   * Set the selected writer agent path
+   */
+  public static async setSelectedWriterAgent(
+    agentPath: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      selectedWriterAgent: agentPath,
+    });
   }
 }

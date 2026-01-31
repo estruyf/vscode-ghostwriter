@@ -4,6 +4,7 @@ import { FileService } from "./FileService";
 import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
 import { PROMPTS } from "../constants";
+import { AgentService } from "./AgentService";
 
 export interface InterviewMessage {
   role: "user" | "assistant";
@@ -15,6 +16,7 @@ export interface InterviewSession {
   messages: InterviewMessage[];
   conversationHistory: LanguageModelChatMessage[];
   createdAt: number;
+  modelId?: string;
 }
 
 export class InterviewService {
@@ -25,8 +27,22 @@ export class InterviewService {
   /**
    * Start a new interview session
    */
-  static async startInterview(): Promise<InterviewSession> {
+  static async startInterview(
+    agentPath?: string,
+    modelId?: string,
+  ): Promise<InterviewSession> {
     try {
+      // Get system prompt
+      let systemPrompt = this.SYSTEM_PROMPT;
+
+      if (agentPath) {
+        const agent = await AgentService.getInterviewerAgentByPath(agentPath);
+        if (agent) {
+          const customPrompt = AgentService.extractAgentPrompt(agent.content);
+          systemPrompt = AgentService.buildInterviewerPrompt(customPrompt);
+        }
+      }
+
       // Create a new session (don't persist yet)
       const sessionId =
         Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -35,6 +51,7 @@ export class InterviewService {
         messages: [],
         conversationHistory: [],
         createdAt: Date.now(),
+        modelId,
       };
 
       // Store the session
@@ -43,20 +60,19 @@ export class InterviewService {
       // Initialize conversation with system prompt and request for first question
       const conversationMessages = [
         LanguageModelChatMessage.User(
-          this.SYSTEM_PROMPT.replace(
-            "{{date}}",
-            new Date().toLocaleDateString(),
-          ),
+          systemPrompt.replace("{{date}}", new Date().toLocaleDateString()),
         ),
       ];
 
-      const response =
-        await CopilotService.sendChatRequest(conversationMessages);
+      const response = await CopilotService.sendChatRequest(
+        conversationMessages,
+        modelId,
+      );
 
       if (response) {
         // Store the system prompt and assistant's response in conversation history
         session.conversationHistory.push(
-          LanguageModelChatMessage.User(this.SYSTEM_PROMPT),
+          LanguageModelChatMessage.User(systemPrompt),
           LanguageModelChatMessage.Assistant(response),
         );
 
@@ -86,6 +102,7 @@ export class InterviewService {
   static async sendMessage(
     sessionId: string,
     message: string,
+    modelId?: string,
   ): Promise<string> {
     try {
       const session = this.sessions.get(sessionId);
@@ -102,8 +119,14 @@ export class InterviewService {
       session.conversationHistory.push(LanguageModelChatMessage.User(message));
 
       // Get AI response using the full conversation history
+      const effectiveModelId = modelId ?? session.modelId;
+      if (modelId && modelId !== session.modelId) {
+        session.modelId = modelId;
+      }
+
       const response = await CopilotService.sendChatRequest(
         session.conversationHistory,
+        effectiveModelId,
       );
 
       if (response) {
@@ -203,6 +226,18 @@ export class InterviewService {
     } catch (error) {
       console.error("Error ending interview:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Discard an interview session without saving a transcript
+   * @param sessionId - The interview session ID
+   */
+  static async discardInterview(sessionId: string): Promise<void> {
+    try {
+      this.sessions.delete(sessionId);
+    } catch (error) {
+      console.error("Error discarding interview:", error);
     }
   }
 

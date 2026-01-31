@@ -6,6 +6,8 @@ import { WriterService } from "../services/WriterService";
 import { CopilotService } from "../services/CopilotService";
 import { StateService } from "../services/StateService";
 import { VoiceService } from "../services/VoiceService";
+import { PromptConfigService } from "../services/PromptConfigService";
+import { AgentService } from "../services/AgentService";
 import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
@@ -106,7 +108,14 @@ export class GhostwriterViewProvider {
         }
 
         case "interview:start": {
-          const session = await InterviewService.startInterview();
+          if (this.currentInterviewId) {
+            await InterviewService.discardInterview(this.currentInterviewId);
+            this.currentInterviewId = null;
+          }
+          const session = await InterviewService.startInterview(
+            payload.agentPath,
+            payload.modelId,
+          );
           this.currentInterviewId = session.id;
           break;
         }
@@ -118,6 +127,7 @@ export class GhostwriterViewProvider {
           await InterviewService.sendMessage(
             this.currentInterviewId,
             payload.message,
+            payload.modelId,
           );
           break;
         }
@@ -182,12 +192,18 @@ export class GhostwriterViewProvider {
         }
 
         case "startWriting": {
+          const customSystemPrompt = payload.promptConfigId
+            ? PromptConfigService.getById(payload.promptConfigId)?.systemPrompt
+            : undefined;
+
           await WriterService.startWriting(
             payload.transcript,
             payload.voice,
             payload.options,
             payload.modelId,
             payload.frontmatter,
+            customSystemPrompt,
+            payload.writerAgentPath,
           );
           break;
         }
@@ -202,6 +218,186 @@ export class GhostwriterViewProvider {
             payload.contentLocation,
             payload.modelId,
           );
+          break;
+        }
+
+        case "getPromptConfigs": {
+          const configs = PromptConfigService.getAll();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, configs);
+          }
+          break;
+        }
+
+        case "getPromptConfig": {
+          const config = PromptConfigService.getById(payload.id);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, config);
+          }
+          break;
+        }
+
+        case "createPromptConfig": {
+          const config = await PromptConfigService.create(payload);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, config);
+          }
+          break;
+        }
+
+        case "updatePromptConfig": {
+          const config = await PromptConfigService.update(
+            payload.id,
+            payload.updates,
+          );
+          if (requestId) {
+            this.postRequestMessage(command, requestId, config);
+          }
+          break;
+        }
+
+        case "deletePromptConfig": {
+          const deleted = await PromptConfigService.delete(payload.id);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, deleted);
+          }
+          break;
+        }
+
+        case "exportPromptConfig": {
+          const json = PromptConfigService.export(payload.config);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, json);
+          }
+          break;
+        }
+
+        case "exportAllPromptConfigs": {
+          const json = PromptConfigService.exportAll();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, json);
+          }
+          break;
+        }
+
+        case "importPromptConfig": {
+          const config = await PromptConfigService.import(payload.json);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, config);
+          }
+          break;
+        }
+
+        case "importAllPromptConfigs": {
+          const configs = await PromptConfigService.importAll(payload.json);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, configs);
+          }
+          break;
+        }
+
+        case "getInterviewerAgents": {
+          const agents = await AgentService.getInterviewerAgents();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agents);
+          }
+          break;
+        }
+
+        case "getWriterAgents": {
+          const agents = await AgentService.getWriterAgents();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agents);
+          }
+          break;
+        }
+
+        case "createInterviewerAgent": {
+          const agent = await AgentService.createInterviewerAgent(payload.name);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agent);
+          }
+          break;
+        }
+
+        case "createWriterAgent": {
+          const agent = await AgentService.createWriterAgent(payload.name);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agent);
+          }
+          break;
+        }
+
+        case "updateInterviewerAgent": {
+          const agent = await AgentService.updateInterviewerAgent(
+            payload.agentPath,
+            payload.name,
+            payload.prompt,
+          );
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agent);
+          }
+          break;
+        }
+
+        case "updateWriterAgent": {
+          const agent = await AgentService.updateWriterAgent(
+            payload.agentPath,
+            payload.name,
+            payload.prompt,
+          );
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agent);
+          }
+          break;
+        }
+
+        case "getSelectedInterviewerAgent": {
+          const agentPath = StateService.getSelectedInterviewerAgent();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agentPath);
+          }
+          break;
+        }
+
+        case "setSelectedInterviewerAgent": {
+          await StateService.setSelectedInterviewerAgent(payload.agentPath);
+          break;
+        }
+
+        case "getSelectedWriterAgent": {
+          const agentPath = StateService.getSelectedWriterAgent();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, agentPath);
+          }
+          break;
+        }
+
+        case "setSelectedWriterAgent": {
+          await StateService.setSelectedWriterAgent(payload.agentPath);
+          break;
+        }
+
+        case "getSelectedPromptConfigId": {
+          const id = StateService.getSelectedPromptConfigId();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, id);
+          }
+          break;
+        }
+
+        case "setSelectedPromptConfigId": {
+          await StateService.setSelectedPromptConfigId(payload.id);
+          break;
+        }
+
+        case "openAgentFile": {
+          const agentPath = payload.agentPath;
+          if (agentPath) {
+            const uri = vscode.Uri.file(agentPath);
+            const doc = await vscode.workspace.openTextDocument(uri);
+            await vscode.window.showTextDocument(doc);
+          }
           break;
         }
       }

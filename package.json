@@ -100,17 +100,20 @@
     "build:ext": "tsup --minify",
     "build:webview": "vite build",
     "dev": "npm run watch:ext & npm run watch:webview",
-    "watch:ext": "tsup --watch",
+    "watch:ext": "tsup --watch --sourcemap",
     "watch:webview": "vite",
     "clean": "rm -rf out",
     "lint": "eslint src"
   },
   "devDependencies": {
+    "@estruyf/vscode": "^1.2.0",
+    "@streamdown/code": "^1.0.1",
     "@tailwindcss/vite": "^4.1.18",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+    "@types/uuid": "^10.0.0",
     "@types/vscode": "^1.108.1",
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^5.1.2",
@@ -118,16 +121,15 @@
     "@vscode/test-electron": "^2.5.2",
     "@vscode/webview-ui-toolkit": "^1.4.0",
     "eslint": "^9.39.2",
+    "lucide-react": "^0.563.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "streamdown": "^2.1.0",
     "tailwindcss": "^4.1.18",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.52.0",
-    "vite": "^7.3.1",
-    "@estruyf/vscode": "^1.2.0",
-    "@streamdown/code": "^1.0.1",
-    "lucide-react": "^0.563.0",
-    "streamdown": "^2.1.0"
+    "uuid": "^9.0.0",
+    "vite": "^7.3.1"
   }
 }

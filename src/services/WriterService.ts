@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
 import { PROMPTS } from "../constants";
+import { AgentService } from "./AgentService";
 
 export interface WritingOptions {
   style?: "formal" | "casual" | "conversational";
@@ -25,6 +26,8 @@ export class WriterService {
     options?: WritingOptions,
     modelId?: string,
     frontmatter?: string,
+    customSystemPrompt?: string,
+    writerAgentPath?: string,
   ): Promise<void> {
     try {
       // Verify transcript file exists
@@ -56,6 +59,8 @@ export class WriterService {
         (chunk: string) => {
           // Optionally handle streaming chunks here
         },
+        customSystemPrompt,
+        writerAgentPath,
       );
 
       if (!generatedContent) {
@@ -82,6 +87,8 @@ export class WriterService {
     modelId?: string,
     frontmatter?: string,
     onChunk?: (chunk: string) => void,
+    customSystemPrompt?: string,
+    writerAgentPath?: string,
   ): Promise<string> {
     try {
       const styleGuide = this.getStyleGuide(options);
@@ -110,13 +117,24 @@ ${options?.includeSEO ? "- Optimize the content for SEO by including relevant ke
       `;
 
       // Create message array with system prompt and user request
-      let systemPrompt = this.SYSTEM_PROMPT.replace(
-        "{{voiceGuide}}",
-        voiceContent || voiceBaseOnWritingOptions,
-      ).replace(
-        "{{seoInstructions}}",
-        options?.includeSEO ? keywordInstructions : "",
-      );
+      let systemPrompt = customSystemPrompt || this.SYSTEM_PROMPT;
+
+      // Use custom writer agent if provided
+      if (writerAgentPath && !customSystemPrompt) {
+        const agent = await AgentService.getWriterAgentByPath(writerAgentPath);
+        if (agent) {
+          const customPrompt = AgentService.extractAgentPrompt(agent.content);
+          systemPrompt = AgentService.buildWriterPrompt(customPrompt);
+        }
+      }
+
+      // Apply customizations
+      systemPrompt = systemPrompt
+        .replace("{{voiceGuide}}", voiceContent || voiceBaseOnWritingOptions)
+        .replace(
+          "{{seoInstructions}}",
+          options?.includeSEO ? keywordInstructions : "",
+        );
 
       if (frontmatter) {
         const frontmatterSection = `## Frontmatter Instructions

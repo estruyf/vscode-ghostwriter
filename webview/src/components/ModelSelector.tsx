@@ -91,11 +91,11 @@ export default function ModelSelector({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {showLabel && <span className="text-sm text-slate-400">{label}</span>}
+      {showLabel && <span className="text-base text-slate-300">{label}</span>}
       <select
         value={selectedModel}
         onChange={handleChange}
-        className="bg-slate-800 text-white rounded px-3 py-1 text-sm border border-slate-700 focus:outline-none focus:border-purple-500"
+        className="bg-slate-800 text-white rounded px-3 py-1 text-base border border-slate-700 focus:outline-none focus:border-purple-500"
       >
         {models.map((model) => (
           <option key={model.id} value={model.id}>
