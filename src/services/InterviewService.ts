@@ -23,6 +23,9 @@ export interface InterviewSession {
 
 export class InterviewService {
   private static readonly SYSTEM_PROMPT = PROMPTS.INTERVIEWER;
+  private static readonly RESUME_SEPARATOR = "---";
+  private static readonly RESUME_NOTICE_PREFIX = "*Interview resumed on ";
+  private static readonly RESUME_NOTICE_SUFFIX = "*";
 
   private static sessions = new Map<string, InterviewSession>();
 
@@ -456,7 +459,7 @@ export class InterviewService {
         // Write the continuation to the transcript file
         await FileService.appendToTranscript(
           transcriptPath,
-          `---\n\n*Interview resumed on ${new Date().toLocaleString()}*\n\n## Interviewer\n\n${response}\n\n`,
+          `${this.RESUME_SEPARATOR}\n\n${this.RESUME_NOTICE_PREFIX}${new Date().toLocaleString()}${this.RESUME_NOTICE_SUFFIX}\n\n## Interviewer\n\n${response}\n\n`,
         );
 
         // Send the message to the webview
@@ -506,12 +509,16 @@ export class InterviewService {
 
       if (role) {
         // Get the content (everything after the role header)
+        const resumeNoticePattern = new RegExp(
+          `${this.RESUME_NOTICE_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}.*?${this.RESUME_NOTICE_SUFFIX.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+          "g",
+        );
         const messageContent = lines
           .slice(1)
           .join("\n")
           .trim()
-          .replace(/^---.*$/gm, "") // Remove resume markers
-          .replace(/\*Interview resumed on.*\*/g, "") // Remove resume notices
+          .replace(new RegExp(`^${this.RESUME_SEPARATOR}.*$`, "gm"), "") // Remove resume markers
+          .replace(resumeNoticePattern, "") // Remove resume notices
           .trim();
 
         if (messageContent) {

@@ -164,6 +164,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
             disabled={hasUserStarted}
             className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
             title="Resume an Existing Interview"
+            aria-label={hasUserStarted ? "Resume Interview (disabled during active interview)" : "Resume an Existing Interview"}
           >
             Resume Interview
           </button>
