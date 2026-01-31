@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { messageHandler } from '@estruyf/vscode/dist/client';
 
 interface LanguageSelectorProps {
   value: string;
@@ -39,12 +38,9 @@ export function LanguageSelector({ value, onChange, disabled, className }: Langu
     setSelectedLanguage(value);
   }, [value]);
 
-  const handleChange = async (newLanguage: string) => {
+  const handleChange = (newLanguage: string) => {
     setSelectedLanguage(newLanguage);
     onChange(newLanguage);
-    
-    // Persist to workspace state
-    await messageHandler.send('setSelectedLanguage', { language: newLanguage });
   };
 
   return (

@@ -138,6 +138,11 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     writerHandlers.clearFrontmatter();
   }, [writerHandlers]);
 
+  const handleLanguageChange = useCallback((newLanguage: string) => {
+    setLanguage(newLanguage);
+    messageHandler.send('setSelectedLanguage', { language: newLanguage });
+  }, []);
+
   const saveArticle = useCallback(() => {
     if (!streamingContent) return;
 
@@ -362,7 +367,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
             showFrontmatterEditor={showFrontmatterEditor}
             setShowFrontmatterEditor={setShowFrontmatterEditor}
             language={language}
-            onLanguageChange={setLanguage}
+            onLanguageChange={handleLanguageChange}
           />
 
           {/* Start Writing Button */}
