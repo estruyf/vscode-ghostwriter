@@ -358,6 +358,175 @@ export class InterviewService {
   }
 
   /**
+   * Resume an interview from an existing transcript file
+   */
+  static async resumeInterview(
+    transcriptPath: string,
+    agentPath?: string,
+    modelId?: string,
+  ): Promise<InterviewSession> {
+    try {
+      // Read the existing transcript
+      const transcriptContent = await FileService.readTranscript(transcriptPath);
+      if (!transcriptContent) {
+        throw new Error("Could not read transcript file");
+      }
+
+      // Parse the transcript to extract messages
+      const { topic, messages } = this.parseTranscript(transcriptContent);
+
+      // Create a new session
+      const sessionId =
+        Date.now().toString(36) + Math.random().toString(36).substring(2);
+      const session: InterviewSession = {
+        id: sessionId,
+        messages: [],
+        conversationHistory: [],
+        createdAt: Date.now(),
+        modelId,
+        topic,
+        transcriptPath,
+      };
+
+      // Store the session
+      this.sessions.set(sessionId, session);
+
+      // Get system prompt
+      let systemPrompt = this.SYSTEM_PROMPT;
+
+      if (agentPath) {
+        const agent = await AgentService.getInterviewerAgentByPath(agentPath);
+        if (agent) {
+          const customPrompt = AgentService.extractAgentPrompt(agent.content);
+          systemPrompt = AgentService.buildInterviewerPrompt(customPrompt);
+        }
+      }
+
+      // Build conversation history from parsed messages
+      session.conversationHistory.push(
+        LanguageModelChatMessage.User(systemPrompt),
+        LanguageModelChatMessage.User(`Interview topic: ${topic}`),
+      );
+
+      // Add all messages to the session
+      for (const message of messages) {
+        session.messages.push(message);
+        if (message.role === "user") {
+          session.conversationHistory.push(
+            LanguageModelChatMessage.User(message.content),
+          );
+        } else {
+          session.conversationHistory.push(
+            LanguageModelChatMessage.Assistant(message.content),
+          );
+        }
+      }
+
+      // Send all messages to the webview to display the conversation
+      for (const message of messages) {
+        GhostwriterViewProvider.postMessage("interviewMessage", {
+          role: message.role,
+          content: message.content,
+        });
+      }
+
+      // Ask for the next response
+      const continuePrompt =
+        "The interview is being resumed. Please continue with your next question.";
+
+      session.conversationHistory.push(
+        LanguageModelChatMessage.User(continuePrompt),
+      );
+
+      const response = await CopilotService.sendChatRequest(
+        session.conversationHistory,
+        modelId,
+      );
+
+      if (response) {
+        session.conversationHistory.push(
+          LanguageModelChatMessage.Assistant(response),
+        );
+
+        session.messages.push({
+          role: "assistant",
+          content: response,
+        });
+
+        // Write the continuation to the transcript file
+        await FileService.appendToTranscript(
+          transcriptPath,
+          `---\n\n*Interview resumed on ${new Date().toLocaleString()}*\n\n## Interviewer\n\n${response}\n\n`,
+        );
+
+        // Send the message to the webview
+        GhostwriterViewProvider.postMessage("interviewMessage", {
+          role: "assistant",
+          content: response,
+        });
+      }
+
+      return session;
+    } catch (error) {
+      console.error("Error resuming interview:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Parse a transcript file to extract the topic and messages
+   */
+  private static parseTranscript(content: string): {
+    topic: string;
+    messages: InterviewMessage[];
+  } {
+    const messages: InterviewMessage[] = [];
+    let topic = "Resumed Interview";
+
+    // Extract topic from the header (e.g., "# Interview Transcript: Topic")
+    const topicMatch = content.match(/^#\s*Interview Transcript:\s*(.+)$/m);
+    if (topicMatch && topicMatch[1]) {
+      topic = topicMatch[1].trim();
+    }
+
+    // Split content by ## headers (role markers)
+    const sections = content.split(/^## /m).filter((s) => s.trim());
+
+    for (const section of sections) {
+      const lines = section.split("\n");
+      const roleHeader = lines[0].trim().toLowerCase();
+
+      // Determine the role
+      let role: "user" | "assistant" | null = null;
+      if (roleHeader === "you") {
+        role = "user";
+      } else if (roleHeader === "interviewer") {
+        role = "assistant";
+      }
+
+      if (role) {
+        // Get the content (everything after the role header)
+        const messageContent = lines
+          .slice(1)
+          .join("\n")
+          .trim()
+          .replace(/^---.*$/gm, "") // Remove resume markers
+          .replace(/\*Interview resumed on.*\*/g, "") // Remove resume notices
+          .trim();
+
+        if (messageContent) {
+          messages.push({
+            role,
+            content: messageContent,
+          });
+        }
+      }
+    }
+
+    return { topic, messages };
+  }
+
+  /**
    * Discard an interview session without saving a transcript
    * @param sessionId - The interview session ID
    */

@@ -24,6 +24,7 @@ interface UseInterviewReturn {
     agentPath?: string;
     modelId?: string;
   }) => void;
+  resumeInterview: (transcriptPath: string) => void;
   handleAgentSelect: (agentPath: string) => void;
   handleModelSelect: (modelId: string) => void;
 }
@@ -147,6 +148,28 @@ export function useInterview(): UseInterviewReturn {
     [selectedAgent, selectedModelId],
   );
 
+  const resumeInterview = useCallback(
+    (transcriptPath: string) => {
+      if (!selectedModelId) {
+        return;
+      }
+
+      setIsLoading(true);
+      setIsSending(false);
+      setMessages([]);
+      setHasUserStarted(true); // Mark as started since we're resuming
+
+      messageHandler.send("interview:resume", {
+        transcriptPath,
+        agentPath: selectedAgent || undefined,
+        modelId: selectedModelId || undefined,
+      });
+
+      hasStartedRef.current = true;
+    },
+    [selectedAgent, selectedModelId],
+  );
+
   // Start interview once model is selected
   useEffect(() => {
     if (!hasStartedRef.current && selectedModelId) {
@@ -232,6 +255,7 @@ export function useInterview(): UseInterviewReturn {
     messagesEndRef,
     sendMessage,
     startInterview,
+    resumeInterview,
     handleAgentSelect,
     handleModelSelect,
   };

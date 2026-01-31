@@ -6,7 +6,8 @@ import ModelSelector from './ModelSelector';
 import ChatWindow from './ChatWindow';
 import ChatInput from './ChatInput';
 import { AgentDialog, CreateAgentForm } from './AgentManager';
-import { AgentFile } from '../types';
+import { AgentFile, TranscriptFile } from '../types';
+import { TranscriptSelector } from './TranscriptSelector';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -25,6 +26,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     textareaRef,
     messagesEndRef,
     sendMessage,
+    resumeInterview,
     handleAgentSelect,
     handleModelSelect,
   } = useInterview();
@@ -32,7 +34,11 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
   // Dialog state
   const agentDialog = useDialog();
   const createAgentDialog = useDialog();
+  const resumeDialog = useDialog();
   const [newAgentName, setNewAgentName] = useState('');
+  const [transcripts, setTranscripts] = useState<TranscriptFile[]>([]);
+  const [selectedTranscript, setSelectedTranscript] = useState<string>('');
+  const [customTranscript, setCustomTranscript] = useState<string>('');
 
   // Agent management handlers
   const handleCreateAgent = useCallback(async () => {
@@ -63,6 +69,42 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
       alert('Failed to open agent file');
     }
   }, []);
+
+  const handleResumeClick = useCallback(async () => {
+    try {
+      const transcriptList = await messageHandler.request<TranscriptFile[]>('getTranscripts');
+      setTranscripts(transcriptList || []);
+      setSelectedTranscript('');
+      setCustomTranscript('');
+      resumeDialog.open();
+    } catch (error) {
+      console.error('Error loading transcripts:', error);
+      alert('Failed to load transcripts');
+    }
+  }, [resumeDialog]);
+
+  const handleCustomTranscriptSelect = useCallback(async () => {
+    try {
+      const path = await messageHandler.request<string>('selectCustomTranscript');
+      if (path) {
+        setCustomTranscript(path);
+        setSelectedTranscript('');
+      }
+    } catch (error) {
+      console.error('Error selecting custom transcript:', error);
+    }
+  }, []);
+
+  const handleResumeConfirm = useCallback(() => {
+    const transcriptPath = selectedTranscript || customTranscript;
+    if (!transcriptPath) {
+      alert('Please select a transcript to resume');
+      return;
+    }
+
+    resumeInterview(transcriptPath);
+    resumeDialog.close();
+  }, [selectedTranscript, customTranscript, resumeInterview, resumeDialog]);
 
 
   return (
@@ -117,6 +159,14 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
               + New
             </button>
           </div>
+          <button
+            onClick={handleResumeClick}
+            disabled={hasUserStarted}
+            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+            title="Resume an Existing Interview"
+          >
+            Resume Interview
+          </button>
           <ModelSelector
             value={selectedModelId}
             onChange={handleModelSelect}
@@ -150,6 +200,36 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         }}
         title="Create Interviewer Agent"
       />
+
+      {/* Resume Interview Dialog */}
+      {resumeDialog.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-slate-900 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <h2 className="text-2xl font-semibold text-white mb-4">Resume Interview</h2>
+            <TranscriptSelector
+              transcripts={transcripts}
+              selectedTranscript={selectedTranscript}
+              onTranscriptChange={setSelectedTranscript}
+              customTranscript={customTranscript}
+              onCustomSelect={handleCustomTranscriptSelect}
+            />
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleResumeConfirm}
+                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                Resume
+              </button>
+              <button
+                onClick={resumeDialog.close}
+                className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chat Area */}
       <ChatWindow messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef} />

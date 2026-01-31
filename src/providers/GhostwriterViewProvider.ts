@@ -120,6 +120,20 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "interview:resume": {
+          if (this.currentInterviewId) {
+            await InterviewService.discardInterview(this.currentInterviewId);
+            this.currentInterviewId = null;
+          }
+          const session = await InterviewService.resumeInterview(
+            payload.transcriptPath,
+            payload.agentPath,
+            payload.modelId,
+          );
+          this.currentInterviewId = session.id;
+          break;
+        }
+
         case "interview:setTopic": {
           if (!this.currentInterviewId) {
             throw new Error("No active interview session");
