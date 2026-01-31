@@ -176,15 +176,21 @@ export function useInterview(): UseInterviewReturn {
       setInputValue("");
       setIsSending(true);
 
+      // First message is the topic
       if (!hasUserStarted) {
         setHasUserStarted(true);
+        // Send topic to create the transcript file
+        messageHandler.send("interview:setTopic", {
+          topic: userMessage,
+          modelId: selectedModelId || undefined,
+        });
+      } else {
+        // Regular interview message
+        messageHandler.send("interview:message", {
+          message: userMessage,
+          modelId: selectedModelId || undefined,
+        });
       }
-
-      // Send message to extension
-      messageHandler.send("interview:message", {
-        message: userMessage,
-        modelId: selectedModelId || undefined,
-      });
     },
     [inputValue, isSending, selectedModelId, hasUserStarted],
   );

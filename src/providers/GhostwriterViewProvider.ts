@@ -120,6 +120,25 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "interview:setTopic": {
+          if (!this.currentInterviewId) {
+            throw new Error("No active interview session");
+          }
+          const transcriptPath = await InterviewService.setInterviewTopic(
+            this.currentInterviewId,
+            payload.topic,
+          );
+          await InterviewService.startInterviewQuestions(
+            this.currentInterviewId,
+            payload.modelId,
+          );
+          // Send transcript path to webview
+          if (transcriptPath) {
+            this.postMessage("transcriptCreated", { transcriptPath });
+          }
+          break;
+        }
+
         case "interview:message": {
           if (!this.currentInterviewId) {
             throw new Error("No active interview session");

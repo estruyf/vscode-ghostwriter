@@ -17,6 +17,8 @@ export interface InterviewSession {
   conversationHistory: LanguageModelChatMessage[];
   createdAt: number;
   modelId?: string;
+  topic?: string;
+  transcriptPath?: string;
 }
 
 export class InterviewService {
@@ -57,30 +59,123 @@ export class InterviewService {
       // Store the session
       this.sessions.set(sessionId, session);
 
+      // Ask for the topic first
+      const topicQuestion =
+        "Welcome! Before we begin the interview, what topic would you like to discuss today?";
+
+      // Send the topic question to the webview
+      GhostwriterViewProvider.postMessage("interviewMessage", {
+        role: "assistant",
+        content: topicQuestion,
+      });
+
+      // Store the topic question in messages
+      session.messages.push({
+        role: "assistant",
+        content: topicQuestion,
+      });
+
+      return session;
+    } catch (error) {
+      console.error("Error starting interview:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Set the topic for the interview and create the transcript file
+   */
+  static async setInterviewTopic(
+    sessionId: string,
+    topic: string,
+  ): Promise<string | undefined> {
+    try {
+      const session = this.sessions.get(sessionId);
+      if (!session) {
+        throw new Error("Interview session not found");
+      }
+
+      session.topic = topic;
+
+      // Create the transcript file immediately
+      const transcriptPath = await FileService.createTranscript(topic);
+      if (!transcriptPath) {
+        throw new Error("Failed to create transcript file");
+      }
+
+      session.transcriptPath = transcriptPath;
+
+      // Write the topic question and answer to the file
+      await FileService.appendToTranscript(
+        transcriptPath,
+        `## Interviewer\n\n${session.messages[0].content}\n\n`,
+      );
+      await FileService.appendToTranscript(
+        transcriptPath,
+        `## You\n\n${topic}\n\n`,
+      );
+
+      return transcriptPath;
+    } catch (error) {
+      console.error("Error setting interview topic:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Start the actual interview after topic is set
+   */
+  static async startInterviewQuestions(
+    sessionId: string,
+    modelId?: string,
+  ): Promise<void> {
+    try {
+      const session = this.sessions.get(sessionId);
+      if (!session) {
+        throw new Error("Interview session not found");
+      }
+
+      if (!session.topic) {
+        throw new Error("Interview topic not set");
+      }
+
+      // Get system prompt
+      let systemPrompt = this.SYSTEM_PROMPT;
+
       // Initialize conversation with system prompt and request for first question
       const conversationMessages = [
         LanguageModelChatMessage.User(
-          systemPrompt.replace("{{date}}", new Date().toLocaleDateString()),
+          systemPrompt.replace("{{date}}", new Date().toLocaleDateString()) +
+            `\n\nThe interview topic is: "${session.topic}". Please start the interview with your first question.`,
         ),
       ];
 
       const response = await CopilotService.sendChatRequest(
         conversationMessages,
-        modelId,
+        modelId ?? session.modelId,
       );
 
       if (response) {
         // Store the system prompt and assistant's response in conversation history
         session.conversationHistory.push(
           LanguageModelChatMessage.User(systemPrompt),
+          LanguageModelChatMessage.User(`Interview topic: ${session.topic}`),
           LanguageModelChatMessage.Assistant(response),
         );
 
-        // Store only the assistant's response in messages (not the system prompt)
+        // Store the assistant's response in messages
         session.messages.push({
           role: "assistant",
           content: response,
         });
+
+        // Write the first question to the transcript file
+        if (session.transcriptPath) {
+          await FileService.appendToTranscript(
+            session.transcriptPath,
+            `## Interviewer\n\n${response}\n\n`,
+          );
+        }
 
         // Send the message to the webview
         GhostwriterViewProvider.postMessage("interviewMessage", {
@@ -88,10 +183,8 @@ export class InterviewService {
           content: response,
         });
       }
-
-      return session;
     } catch (error) {
-      console.error("Error starting interview:", error);
+      console.error("Error starting interview questions:", error);
       throw error;
     }
   }
@@ -118,6 +211,14 @@ export class InterviewService {
 
       session.conversationHistory.push(LanguageModelChatMessage.User(message));
 
+      // Write user message to transcript file
+      if (session.transcriptPath) {
+        await FileService.appendToTranscript(
+          session.transcriptPath,
+          `## You\n\n${message}\n\n`,
+        );
+      }
+
       // Get AI response using the full conversation history
       const effectiveModelId = modelId ?? session.modelId;
       if (modelId && modelId !== session.modelId) {
@@ -140,6 +241,14 @@ export class InterviewService {
           content: response,
         });
 
+        // Write assistant response to transcript file
+        if (session.transcriptPath) {
+          await FileService.appendToTranscript(
+            session.transcriptPath,
+            `## Interviewer\n\n${response}\n\n`,
+          );
+        }
+
         // Send the message to the webview
         GhostwriterViewProvider.postMessage("interviewMessage", {
           role: "assistant",
@@ -159,12 +268,12 @@ export class InterviewService {
   /**
    * End the interview and save the transcript
    * @param sessionId - The interview session ID
-   * @param topic - The interview topic
+   * @param topic - The interview topic (optional, as it's now stored in session)
    * @param isManualStop - True if user manually stopped, false if AI ended naturally
    */
   static async endInterview(
     sessionId: string,
-    topic: string,
+    topic?: string,
     isManualStop: boolean = false,
   ): Promise<string> {
     try {
@@ -173,6 +282,24 @@ export class InterviewService {
         throw new Error("Interview session not found");
       }
 
+      // If transcript file already exists, just open it
+      if (session.transcriptPath) {
+        const document = await vscode.workspace.openTextDocument(
+          session.transcriptPath,
+        );
+        await vscode.window.showTextDocument(document);
+
+        vscode.window.showInformationMessage(
+          `Interview saved: ${session.topic || topic || "Interview"}`,
+        );
+
+        // Clean up the session
+        this.sessions.delete(sessionId);
+
+        return session.transcriptPath;
+      }
+
+      // Fallback: If no transcript path (shouldn't happen with new flow), create it
       // For natural end, try to extract transcript from the last assistant message
       // (where AI provides complete formatted transcript)
       // For manual stop, always generate transcript from all messages
@@ -194,14 +321,15 @@ export class InterviewService {
       }
 
       // Generate a title for the interview
-      const titlePrompt = `Based on this interview transcript about "${topic}", generate a short, concise title (max 5 words) that captures the main topic.\n\n${transcript}`;
+      const interviewTopic = session.topic || topic || "Interview";
+      const titlePrompt = `Based on this interview transcript about "${interviewTopic}", generate a short, concise title (max 5 words) that captures the main topic.\n\n${transcript}`;
       const title = await CopilotService.promptCopilot(titlePrompt);
       const cleanTitle = title
         ? title
             .trim()
             .replace(/^["']|["']$/g, "")
             .replace(/[^a-zA-Z0-9\s-]/g, "")
-        : "Interview";
+        : interviewTopic;
 
       // Create and save the transcript file
       const transcriptPath = await FileService.createTranscript(
