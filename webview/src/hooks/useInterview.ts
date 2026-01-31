@@ -16,6 +16,7 @@ interface UseInterviewReturn {
   agents: AgentFile[];
   selectedAgent: string;
   selectedModelId: string;
+  selectedLanguage: string;
   hasUserStarted: boolean;
   textareaRef: React.RefObject<HTMLTextAreaElement>;
   messagesEndRef: React.RefObject<HTMLDivElement>;
@@ -23,9 +24,11 @@ interface UseInterviewReturn {
   startInterview: (overrides?: {
     agentPath?: string;
     modelId?: string;
+    language?: string;
   }) => void;
   handleAgentSelect: (agentPath: string) => void;
   handleModelSelect: (modelId: string) => void;
+  handleLanguageSelect: (language: string) => void;
 }
 
 const INTERVIEW_COMPLETION_PHRASES = [
@@ -48,6 +51,7 @@ export function useInterview(): UseInterviewReturn {
   const [agents, setAgents] = useState<AgentFile[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<string>("");
   const [selectedModelId, setSelectedModelId] = useState<string>("");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [hasUserStarted, setHasUserStarted] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -75,6 +79,17 @@ export function useInterview(): UseInterviewReturn {
       })
       .catch((error) => {
         console.error("Error loading selected interviewer agent:", error);
+      });
+
+    messageHandler
+      .request<string>("getSelectedLanguage")
+      .then((response) => {
+        if (response) {
+          setSelectedLanguage(response);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading selected language:", error);
       });
   }, []);
 
@@ -124,9 +139,10 @@ export function useInterview(): UseInterviewReturn {
   }, [isLoading, isSending, messages.length]);
 
   const startInterview = useCallback(
-    (overrides?: { agentPath?: string; modelId?: string }) => {
+    (overrides?: { agentPath?: string; modelId?: string; language?: string }) => {
       const agentPath = overrides?.agentPath ?? selectedAgent;
       const modelId = overrides?.modelId ?? selectedModelId;
+      const language = overrides?.language ?? selectedLanguage;
 
       if (!modelId) {
         return;
@@ -140,11 +156,12 @@ export function useInterview(): UseInterviewReturn {
       messageHandler.send("interview:start", {
         agentPath: agentPath || undefined,
         modelId: modelId || undefined,
+        language: language || undefined,
       });
 
       hasStartedRef.current = true;
     },
-    [selectedAgent, selectedModelId],
+    [selectedAgent, selectedModelId, selectedLanguage],
   );
 
   // Start interview once model is selected
@@ -195,10 +212,10 @@ export function useInterview(): UseInterviewReturn {
       setSelectedAgent(agentPath);
       messageHandler.send("setSelectedInterviewerAgent", { agentPath });
       if (hasStartedRef.current) {
-        startInterview({ agentPath, modelId: selectedModelId });
+        startInterview({ agentPath, modelId: selectedModelId, language: selectedLanguage });
       }
     },
-    [hasUserStarted, selectedModelId, startInterview],
+    [hasUserStarted, selectedModelId, selectedLanguage, startInterview],
   );
 
   const handleModelSelect = useCallback(
@@ -206,10 +223,22 @@ export function useInterview(): UseInterviewReturn {
       if (hasUserStarted) return;
       setSelectedModelId(modelId);
       if (hasStartedRef.current) {
-        startInterview({ agentPath: selectedAgent, modelId });
+        startInterview({ agentPath: selectedAgent, modelId, language: selectedLanguage });
       }
     },
-    [hasUserStarted, selectedAgent, startInterview],
+    [hasUserStarted, selectedAgent, selectedLanguage, startInterview],
+  );
+
+  const handleLanguageSelect = useCallback(
+    (language: string) => {
+      if (hasUserStarted) return;
+      setSelectedLanguage(language);
+      messageHandler.send("setSelectedLanguage", { language });
+      if (hasStartedRef.current) {
+        startInterview({ agentPath: selectedAgent, modelId: selectedModelId, language });
+      }
+    },
+    [hasUserStarted, selectedAgent, selectedModelId, startInterview],
   );
 
   return {
@@ -221,6 +250,7 @@ export function useInterview(): UseInterviewReturn {
     agents,
     selectedAgent,
     selectedModelId,
+    selectedLanguage,
     hasUserStarted,
     textareaRef,
     messagesEndRef,
@@ -228,5 +258,6 @@ export function useInterview(): UseInterviewReturn {
     startInterview,
     handleAgentSelect,
     handleModelSelect,
+    handleLanguageSelect,
   };
 }

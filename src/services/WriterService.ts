@@ -12,6 +12,7 @@ export interface WritingOptions {
   includeHeadings?: boolean;
   includeSEO?: boolean;
   keywords?: string;
+  language?: string;
 }
 
 export class WriterService {
@@ -114,6 +115,7 @@ export class WriterService {
 - Writing style should be: ${styleGuide}.
 ${options?.includeHeadings ? "- Structure the article with clear headings and subheadings." : ""}
 ${options?.includeSEO ? "- Optimize the content for SEO by including relevant keywords naturally throughout the text." : ""}
+${options?.language ? `- Write the entire content in ${options.language}.` : ""}
       `;
 
       // Create message array with system prompt and user request

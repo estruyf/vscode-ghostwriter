@@ -1,3 +1,5 @@
+import { LanguageSelector } from './LanguageSelector';
+
 interface WritingOptionsProps {
   writingStyle: 'formal' | 'casual' | 'conversational';
   onStyleChange: (style: 'formal' | 'casual' | 'conversational') => void;
@@ -13,6 +15,8 @@ interface WritingOptionsProps {
   hasVoiceFile: boolean;
   showFrontmatterEditor: boolean;
   setShowFrontmatterEditor: (value: boolean) => void;
+  language: string;
+  onLanguageChange: (language: string) => void;
 }
 
 export function WritingOptions({
@@ -30,6 +34,8 @@ export function WritingOptions({
   hasVoiceFile,
   showFrontmatterEditor,
   setShowFrontmatterEditor,
+  language,
+  onLanguageChange,
 }: WritingOptionsProps) {
   return (
     <div className="p-4 bg-slate-800 border border-slate-700 rounded-lg">
@@ -58,6 +64,13 @@ export function WritingOptions({
           </select>
         </div>
       </div>
+
+      {/* Language Selector */}
+      <LanguageSelector
+        value={language}
+        onChange={onLanguageChange}
+        className="mb-4"
+      />
 
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-base text-slate-300">
