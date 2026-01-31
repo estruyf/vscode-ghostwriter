@@ -8,6 +8,7 @@ import { StateService } from "../services/StateService";
 import { VoiceService } from "../services/VoiceService";
 import { PromptConfigService } from "../services/PromptConfigService";
 import { AgentService } from "../services/AgentService";
+import { FrontMatterService } from "../services/FrontMatterService";
 import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
@@ -397,6 +398,22 @@ export class GhostwriterViewProvider {
             const uri = vscode.Uri.file(agentPath);
             const doc = await vscode.workspace.openTextDocument(uri);
             await vscode.window.showTextDocument(doc);
+          }
+          break;
+        }
+
+        case "isFrontMatterAvailable": {
+          const isAvailable = FrontMatterService.isFrontMatterInstalled();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, isAvailable);
+          }
+          break;
+        }
+
+        case "getFrontMatterContentDirectory": {
+          const contentDir = await FrontMatterService.getContentDirectory();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, contentDir);
           }
           break;
         }
