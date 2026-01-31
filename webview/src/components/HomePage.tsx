@@ -1,4 +1,4 @@
-import { MessagesSquare, Signature, Sparkles } from 'lucide-react';
+import { MessagesSquare, Signature, Sparkles, FileEdit } from 'lucide-react';
 
 interface HomePageProps {
 }
@@ -19,6 +19,11 @@ export default function HomePage() {
     window.dispatchEvent(event);
   };
 
+  const handleViewDrafts = () => {
+    const event = new CustomEvent('navigate', { detail: { page: 'drafts' } });
+    window.dispatchEvent(event);
+  };
+
   return (
     <div className="relative flex h-full items-center justify-center px-6 py-12">
       <div className="w-full max-w-6xl">
@@ -30,7 +35,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           <button
             className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGetInterviewed}
@@ -76,6 +81,23 @@ export default function HomePage() {
             </p>
             <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
               Create Voice Profile
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </button>
+
+          <button
+            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
+            onClick={handleViewDrafts}
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15 text-3xl text-emerald-200 shadow-inner shadow-emerald-500/20"><FileEdit /></div>
+            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">My Drafts</h2>
+            <p className="mt-2 text-base leading-relaxed text-slate-300">
+              Continue working on your drafts with iterative refinement. Review history and make conversational improvements.
+            </p>
+            <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
+              View Drafts
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

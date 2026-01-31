@@ -3,8 +3,9 @@ import HomePage from './components/HomePage';
 import InterviewView from './components/InterviewView';
 import WriterView from './components/WriterView';
 import VoiceGeneratorView from './components/VoiceGeneratorView';
+import DraftsView from './components/DraftsView';
 
-type Page = 'home' | 'interview' | 'writer' | 'voice-generator';
+type Page = 'home' | 'interview' | 'writer' | 'voice-generator' | 'drafts';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -24,6 +25,9 @@ function App() {
       )}
       {currentPage === 'voice-generator' && (
         <VoiceGeneratorView onBack={() => handleNavigation('home')} />
+      )}
+      {currentPage === 'drafts' && (
+        <DraftsView onBack={() => handleNavigation('home')} />
       )}
 
       {/* Listen for navigation events */}
