@@ -219,15 +219,8 @@ export class FrontMatterService {
       // Write the file
       fs.writeFileSync(fileUri.fsPath, content, "utf-8");
 
-      // If Front Matter is available, integrate with it
-      if (await this.isFrontMatterAvailable()) {
-        await this.createContentItem(fileUri.fsPath);
-      } else {
-        // Just open the file normally
-        const document = await vscode.workspace.openTextDocument(fileUri);
-        await vscode.window.showTextDocument(document);
-        vscode.window.showInformationMessage("Article saved successfully!");
-      }
+      // Integrate with Front Matter - create content item and open in FM interface
+      await this.createContentItem(fileUri.fsPath);
 
       return fileUri.fsPath;
     } catch (error) {
