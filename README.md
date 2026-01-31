@@ -37,6 +37,8 @@ transcripts.
   complete
 - **Model Selection**: Choose from available GitHub Copilot models (GPT-4o,
   GPT-4o mini, etc.)
+- **Interviewer Agents**: Create, manage, and select custom interviewer prompts
+  stored in `.ghostwriter/interviewer`
 - **Transcript Management**: Automatically saves formatted transcripts to the
   `.ghostwriter` folder
 - **Hot Module Replacement**: Fast development with HMR support
@@ -48,6 +50,8 @@ transcripts.
   consistent tone
 - **Model Selection**: Choose specific GitHub Copilot models for content
   generation
+- **Writer Agents**: Create, manage, and select custom writer prompts stored in
+  `.ghostwriter/writer`
 - **Writing Style Options**:
   - Formal, Casual, or Conversational tone
   - Automatic heading generation
@@ -79,6 +83,10 @@ transcripts.
 - **Model Preferences**: Selected GitHub Copilot model persists across sessions
 - **Frontmatter Templates**: Save and reuse frontmatter templates for all
   articles
+- **Agent Selection**: Selected interviewer and writer agents persist across
+  sessions
+- **Prompt Configuration**: Selected prompt configuration persists across
+  sessions
 
 ## Getting Started
 
@@ -87,7 +95,7 @@ transcripts.
 3. Open a workspace folder in VS Code
 4. Use the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run
    `Ghostwriter: Open Ghostwriter`
-5. Choose between Interview or Writer mode
+5. Choose between Interview, Writer, or Voice Generator mode
 
 ## Usage
 
@@ -95,27 +103,29 @@ transcripts.
 
 1. Open the Ghostwriter panel
 2. Click on "Start Interview"
-3. Select your preferred GitHub Copilot model
-4. Answer the AI's questions in the chat interface
-5. The AI will automatically detect completion and generate a formatted
-   transcript
-6. Transcript is saved to `.ghostwriter/transcripts/` folder
+3. (Optional) Select or create an interviewer agent to shape the interview
+4. Select your preferred GitHub Copilot model
+5. Answer the AI's questions in the chat interface
+6. The AI will automatically detect completion and generate a formatted
+  transcript
+7. Transcript is saved to `.ghostwriter/transcripts/` folder
 
 ### Generating Content from Transcripts
 
 1. Open the Ghostwriter panel
 2. Click on "Write Article"
-3. Select a transcript from your workspace or browse for a custom file
-4. (Optional) Select a voice file to maintain consistent writing style
-5. Configure writing options:
-   - Choose writing style (Formal/Casual/Conversational)
-   - Enable/disable headings and SEO optimization
-   - Add target keywords for SEO
-   - Configure frontmatter template
-6. Select your preferred GitHub Copilot model
-7. Click "Start Writing"
-8. Watch the article generate in real-time
-9. Save the article to your workspace
+3. (Optional) Select or create a writer agent to guide generation
+4. Select a transcript from your workspace or browse for a custom file
+5. (Optional) Select a voice file to maintain consistent writing style
+6. Configure writing options:
+  - Choose writing style (Formal/Casual/Conversational)
+  - Enable/disable headings and SEO optimization
+  - Add target keywords for SEO
+  - Configure frontmatter template
+7. Select your preferred GitHub Copilot model
+8. Click "Start Writing"
+9. Watch the article generate in real-time
+10. Save the article to your workspace
 
 ### Setting Up Frontmatter Templates
 
@@ -152,7 +162,9 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 ```
 .ghostwriter/
 ├── transcripts/     # Interview transcripts (.md files)
-└── voices/          # Voice files for writing style (.md files)
+├── voices/          # Voice files for writing style (.md files)
+├── interviewer/     # Interviewer agents (.md files)
+└── writer/          # Writer agents (.md files)
 ```
 
 ## Commands
