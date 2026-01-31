@@ -5,6 +5,7 @@ import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
 import { PROMPTS } from "../constants";
 import { AgentService } from "./AgentService";
+import { FrontMatterService } from "./FrontMatterService";
 
 export interface WritingOptions {
   style?: "formal" | "casual" | "conversational";
@@ -208,45 +209,61 @@ ${frontmatter}
    */
   static async saveArticle(content: string): Promise<void> {
     try {
-      // Get the current workspace folder
-      const workspaceFolders = vscode.workspace.workspaceFolders;
-      const workspaceFolder = workspaceFolders?.[0];
+      // Check if Front Matter CMS is available
+      const isFrontMatterAvailable = await FrontMatterService.isFrontMatterAvailable();
 
-      if (!workspaceFolder) {
-        vscode.window.showErrorMessage("No workspace folder is open");
-        return;
+      if (isFrontMatterAvailable) {
+        // Use Front Matter integration for saving
+        await FrontMatterService.saveWithFrontMatter(content);
+      } else {
+        // Fallback to standard save
+        await this.saveArticleStandard(content);
       }
-
-      // Create default URI in the workspace folder
-      const defaultUri = vscode.Uri.joinPath(
-        workspaceFolder.uri,
-        `${new Date().getTime()}_article.md`,
-      );
-
-      // Show save dialog to let user choose where to save
-      const fileUri = await vscode.window.showSaveDialog({
-        defaultUri,
-        filters: {
-          "Markdown files": ["md"],
-          "All files": ["*"],
-        },
-      });
-
-      if (!fileUri) {
-        return; // User cancelled
-      }
-
-      // Write the file
-      fs.writeFileSync(fileUri.fsPath, content, "utf-8");
-
-      // Open the file in the editor
-      const document = await vscode.workspace.openTextDocument(fileUri);
-      await vscode.window.showTextDocument(document);
-
-      vscode.window.showInformationMessage("Article saved successfully!");
     } catch (error) {
       console.error("Error saving article:", error);
       vscode.window.showErrorMessage("Failed to save article");
     }
+  }
+
+  /**
+   * Save article using standard VS Code save dialog (no Front Matter integration)
+   */
+  private static async saveArticleStandard(content: string): Promise<void> {
+    // Get the current workspace folder
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    const workspaceFolder = workspaceFolders?.[0];
+
+    if (!workspaceFolder) {
+      vscode.window.showErrorMessage("No workspace folder is open");
+      return;
+    }
+
+    // Create default URI in the workspace folder
+    const defaultUri = vscode.Uri.joinPath(
+      workspaceFolder.uri,
+      `${new Date().getTime()}_article.md`,
+    );
+
+    // Show save dialog to let user choose where to save
+    const fileUri = await vscode.window.showSaveDialog({
+      defaultUri,
+      filters: {
+        "Markdown files": ["md"],
+        "All files": ["*"],
+      },
+    });
+
+    if (!fileUri) {
+      return; // User cancelled
+    }
+
+    // Write the file
+    fs.writeFileSync(fileUri.fsPath, content, "utf-8");
+
+    // Open the file in the editor
+    const document = await vscode.workspace.openTextDocument(fileUri);
+    await vscode.window.showTextDocument(document);
+
+    vscode.window.showInformationMessage("Article saved successfully!");
   }
 }

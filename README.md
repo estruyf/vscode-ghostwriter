@@ -60,6 +60,11 @@ transcripts.
   visibility
 - **Frontmatter Templates**: Create reusable YAML frontmatter templates for
   consistent article metadata
+- **Front Matter CMS Integration**: Seamlessly integrate with Front Matter CMS
+  for content management
+  - Automatically save articles to Front Matter's content directory
+  - Open saved articles in Front Matter's interface
+  - Leverage Front Matter's workflow and publishing features
 - **Real-time Streaming**: Watch your article being generated in real-time
 - **Direct File Save**: Save generated articles directly to your workspace
 
@@ -156,6 +161,31 @@ transcripts.
 8. Review and customize the generated profile if needed
 9. Use the voice file in Writer mode to maintain your unique style
 
+## Front Matter CMS Integration
+
+Ghostwriter integrates seamlessly with [Front Matter CMS](https://frontmatter.codes/), 
+a powerful content management system for VS Code. When Front Matter CMS is installed, 
+Ghostwriter automatically enhances the article saving workflow:
+
+### Features
+- **Automatic Detection**: Ghostwriter detects if Front Matter CMS is installed
+- **Smart Save Location**: Articles are saved to Front Matter's configured content 
+  directory when available
+- **Seamless Handoff**: Saved articles automatically open in Front Matter's interface
+- **Workflow Integration**: Leverage Front Matter's publishing and workflow features
+
+### How to Use
+1. Install [Front Matter CMS extension](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-front-matter)
+2. Configure Front Matter CMS in your workspace
+3. Generate articles using Ghostwriter as usual
+4. When saving, Ghostwriter will automatically:
+   - Use Front Matter's content directory
+   - Open the article in Front Matter's interface
+   - Enable Front Matter's metadata and workflow features
+
+This integration creates a complete content creation pipeline: conduct AI interviews, 
+generate articles with Ghostwriter, then manage and publish with Front Matter CMS.
+
 ## File Structure
 
 The extension creates a `.ghostwriter` folder in your workspace root:
@@ -177,6 +207,7 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 - GitHub Copilot subscription
 - GitHub Copilot extension installed
 - An open workspace folder
+- (Optional) [Front Matter CMS extension](https://marketplace.visualstudio.com/items?itemName=eliostruyf.vscode-front-matter) for enhanced content management
 
 ## Extension Settings
 
