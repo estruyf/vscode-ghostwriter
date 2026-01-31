@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { AgentFile } from '../types';
+import { AgentFile, Draft } from '../types';
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
 import ModelSelector from './ModelSelector';
@@ -10,6 +10,7 @@ import { WritingOptions } from './WritingOptions';
 import AgentDialog from './AgentManager/AgentDialog';
 import CreateAgentForm from './AgentManager/CreateAgentForm';
 import { useWriterData, useDialog } from '../hooks';
+import DraftIterationView from './DraftIterationView';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -35,6 +36,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [showFrontmatterEditor, setShowFrontmatterEditor] = useState(false);
   const [newAgentName, setNewAgentName] = useState('');
+  const [activeDraft, setActiveDraft] = useState<Draft | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when content updates
@@ -154,6 +156,49 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     }
   }, [writerHandlers]);
 
+  const enterDraftMode = useCallback(async () => {
+    if (!streamingContent || !isFinishedWriting) return;
+
+    const transcript = customTranscript || selectedTranscript;
+    const voice = customVoice || selectedVoice;
+
+    const title = `Draft ${new Date().toLocaleString()}`;
+    
+    const draft = await messageHandler.request<Draft>('createDraft', {
+      title,
+      transcript,
+      initialContent: streamingContent,
+      voice,
+      options: {
+        style: writingStyle,
+        includeHeadings,
+        includeSEO,
+        keywords: keywords.trim() || undefined
+      },
+      frontmatter: writerData.frontmatter.trim() || undefined,
+      writerAgentPath: writerData.selectedWriterAgent || undefined,
+    });
+
+    if (draft) {
+      setActiveDraft(draft);
+    }
+  }, [streamingContent, isFinishedWriting, customTranscript, selectedTranscript, customVoice, selectedVoice, writingStyle, includeHeadings, includeSEO, keywords, writerData]);
+
+  // Show Draft Iteration View if there's an active draft
+  if (activeDraft) {
+    return (
+      <DraftIterationView
+        draft={activeDraft}
+        onBack={() => setActiveDraft(null)}
+        onClose={() => {
+          setActiveDraft(null);
+          setIsWriting(false);
+          setStreamingContent('');
+        }}
+      />
+    );
+  }
+
   if (isWriting) {
     return (
       <div className="flex flex-col h-screen bg-slate-950">
@@ -178,12 +223,19 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
             </div>
           </div>
 
-          <div className='gap-4 grid grid-cols-2'>
+          <div className='gap-4 grid grid-cols-3'>
             <button
               onClick={onBack}
               className="px-4 py-2 bg-slate-700 text-slate-200 font-semibold rounded-lg hover:bg-slate-600 transition-all hover:cursor-pointer"
             >
               Back
+            </button>
+            <button
+              onClick={enterDraftMode}
+              disabled={!streamingContent || !isFinishedWriting}
+              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer"
+            >
+              Iterate Draft
             </button>
             <button
               onClick={saveArticle}
