@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { messageHandler } from '@estruyf/vscode/dist/client';
-import { TranscriptFile, VoiceFile, AgentFile } from '../types';
+import { useState, useEffect, useCallback } from "react";
+import { messageHandler } from "@estruyf/vscode/dist/client";
+import { TranscriptFile, VoiceFile, AgentFile } from "../types";
 
 export interface WriterData {
   transcripts: TranscriptFile[];
@@ -31,31 +31,49 @@ export function useWriterData(): [WriterData, WriterDataHandlers] {
   const [transcripts, setTranscripts] = useState<TranscriptFile[]>([]);
   const [voiceFiles, setVoiceFiles] = useState<VoiceFile[]>([]);
   const [writerAgents, setWriterAgents] = useState<AgentFile[]>([]);
-  const [frontmatter, setFrontmatter] = useState<string>('');
-  const [selectedPromptConfigId, setSelectedPromptConfigId] = useState<string>('');
-  const [selectedWriterAgent, setSelectedWriterAgent] = useState<string>('');
+  const [frontmatter, setFrontmatter] = useState<string>("");
+  const [selectedPromptConfigId, setSelectedPromptConfigId] =
+    useState<string>("");
+  const [selectedWriterAgent, setSelectedWriterAgent] = useState<string>("");
 
   // Load data on mount
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [transcriptsData, voiceFilesData, frontmatterData, promptConfigData, agentsData, selectedAgentData] = await Promise.all([
-          messageHandler.request<TranscriptFile[]>('getTranscripts').catch(() => []),
-          messageHandler.request<VoiceFile[]>('getVoiceFiles').catch(() => []),
-          messageHandler.request<string>('getFrontmatterTemplate').catch(() => ''),
-          messageHandler.request<string>('getSelectedPromptConfigId').catch(() => ''),
-          messageHandler.request<AgentFile[]>('getWriterAgents').catch(() => []),
-          messageHandler.request<string>('getSelectedWriterAgent').catch(() => ''),
+        const [
+          transcriptsData,
+          voiceFilesData,
+          frontmatterData,
+          promptConfigData,
+          agentsData,
+          selectedAgentData,
+        ] = await Promise.all([
+          messageHandler
+            .request<TranscriptFile[]>("getTranscripts")
+            .catch(() => []),
+          messageHandler.request<VoiceFile[]>("getVoiceFiles").catch(() => []),
+          messageHandler
+            .request<string>("getFrontmatterTemplate")
+            .catch(() => ""),
+          messageHandler
+            .request<string>("getSelectedPromptConfigId")
+            .catch(() => ""),
+          messageHandler
+            .request<AgentFile[]>("getWriterAgents")
+            .catch(() => []),
+          messageHandler
+            .request<string>("getSelectedWriterAgent")
+            .catch(() => ""),
         ]);
 
         setTranscripts(transcriptsData || []);
         setVoiceFiles(voiceFilesData || []);
-        setFrontmatter(frontmatterData || '');
-        setSelectedPromptConfigId(promptConfigData || '');
+        setFrontmatter(frontmatterData || "");
+        setSelectedPromptConfigId(promptConfigData || "");
         setWriterAgents(agentsData || []);
-        setSelectedWriterAgent(selectedAgentData || '');
+        setSelectedWriterAgent(selectedAgentData || "");
       } catch (error) {
-        console.error('Error loading writer data:', error);
+        console.error("Error loading writer data:", error);
       }
     };
 
@@ -64,53 +82,71 @@ export function useWriterData(): [WriterData, WriterDataHandlers] {
 
   const selectCustomTranscript = useCallback(async () => {
     try {
-      const response = await messageHandler.request<string>('selectCustomTranscript');
+      const response = await messageHandler.request<string>(
+        "selectCustomTranscript",
+      );
       return response ? Promise.resolve() : Promise.resolve();
     } catch (error) {
-      console.error('Error selecting custom transcript:', error);
+      console.error("Error selecting custom transcript:", error);
     }
   }, []);
 
   const selectCustomVoice = useCallback(async () => {
     try {
-      const response = await messageHandler.request<string>('selectCustomVoice');
+      const response =
+        await messageHandler.request<string>("selectCustomVoice");
       return response ? Promise.resolve() : Promise.resolve();
     } catch (error) {
-      console.error('Error selecting custom voice:', error);
+      console.error("Error selecting custom voice:", error);
     }
   }, []);
 
   const saveFrontmatter = useCallback((template: string) => {
-    messageHandler.send('setFrontmatterTemplate', { template: template.trim() || undefined });
+    messageHandler.send("setFrontmatterTemplate", {
+      template: template.trim() || undefined,
+    });
   }, []);
 
   const clearFrontmatter = useCallback(() => {
-    setFrontmatter('');
-    messageHandler.send('setFrontmatterTemplate', { template: undefined });
+    setFrontmatter("");
+    messageHandler.send("setFrontmatterTemplate", { template: undefined });
   }, []);
 
   const handleWriterAgentSelect = useCallback(async (agentPath: string) => {
     setSelectedWriterAgent(agentPath);
-    messageHandler.send('setSelectedWriterAgent', { agentPath });
+    messageHandler.send("setSelectedWriterAgent", { agentPath });
   }, []);
 
-  const handleCreateWriterAgent = useCallback(async (agentName: string): Promise<AgentFile> => {
-    if (!agentName.trim()) {
-      throw new Error('Agent name is required');
-    }
+  const handleCreateWriterAgent = useCallback(
+    async (agentName: string): Promise<AgentFile> => {
+      if (!agentName.trim()) {
+        throw new Error("Agent name is required");
+      }
 
-    const agent = await messageHandler.request<AgentFile>('createWriterAgent', { name: agentName });
-    setWriterAgents([...writerAgents, agent]);
-    await messageHandler.send('openAgentFile', { agentPath: agent.path });
-    return agent;
-  }, [writerAgents]);
+      const agent = await messageHandler.request<AgentFile>(
+        "createWriterAgent",
+        { name: agentName },
+      );
+      setWriterAgents([...writerAgents, agent]);
+      await messageHandler.send("openAgentFile", { agentPath: agent.path });
+      return agent;
+    },
+    [writerAgents],
+  );
 
   const handleEditWriterAgent = useCallback(async (agent: AgentFile) => {
-    await messageHandler.send('openAgentFile', { agentPath: agent.path });
+    await messageHandler.send("openAgentFile", { agentPath: agent.path });
   }, []);
 
   return [
-    { transcripts, voiceFiles, writerAgents, frontmatter, selectedPromptConfigId, selectedWriterAgent },
+    {
+      transcripts,
+      voiceFiles,
+      writerAgents,
+      frontmatter,
+      selectedPromptConfigId,
+      selectedWriterAgent,
+    },
     {
       selectCustomTranscript,
       selectCustomVoice,

@@ -83,7 +83,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     }
   }, []);
 
-const startWriting = useCallback(() => {
+  const startWriting = useCallback(() => {
     const transcript = customTranscript || selectedTranscript;
     const voice = customVoice || selectedVoice;
 
