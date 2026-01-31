@@ -107,7 +107,7 @@ transcripts.
 4. Select your preferred GitHub Copilot model
 5. Answer the AI's questions in the chat interface
 6. The AI will automatically detect completion and generate a formatted
-  transcript
+   transcript
 7. Transcript is saved to `.ghostwriter/transcripts/` folder
 
 ### Generating Content from Transcripts
