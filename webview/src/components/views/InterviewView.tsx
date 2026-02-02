@@ -1,13 +1,14 @@
 import { useCallback, useState } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { useDialog } from '../hooks/useDialog';
-import { useInterview } from '../hooks/useInterview';
-import ModelSelector from './ModelSelector';
-import ChatWindow from './ChatWindow';
-import ChatInput from './ChatInput';
-import { AgentDialog, CreateAgentForm } from './AgentManager';
-import { AgentFile, TranscriptFile } from '../types';
-import { TranscriptSelector } from './TranscriptSelector';
+import { useDialog } from '../../hooks/useDialog';
+import { useInterview } from '../../hooks/useInterview';
+import ModelSelector from '../ModelSelector';
+import ChatWindow from '../ChatWindow';
+import ChatInput from '../ChatInput';
+import { AgentDialog, CreateAgentForm } from '../AgentManager';
+import { AgentFile, TranscriptFile } from '../../types';
+import { VisitorBadge } from '../VisitorBadge';
+import { TranscriptSelector } from '../TranscriptSelector';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -233,7 +234,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
       )}
 
       {/* Chat Area */}
-      <ChatWindow messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef} />
+      <ChatWindow messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef as React.RefObject<HTMLDivElement>} />
 
       {/* Input Area */}
       <ChatInput
@@ -241,8 +242,9 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         setInputValue={setInputValue}
         onSubmit={sendMessage}
         isSending={isSending}
-        textareaRef={textareaRef}
+        textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
       />
+      <VisitorBadge viewType="interview" />
     </div>
   );
 }

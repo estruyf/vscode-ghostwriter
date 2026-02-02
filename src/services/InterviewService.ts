@@ -146,9 +146,14 @@ export class InterviewService {
       let systemPrompt = this.SYSTEM_PROMPT;
 
       // Initialize conversation with system prompt and request for first question
+      let finalSystemPrompt = systemPrompt.replace(
+        "{{date}}",
+        new Date().toLocaleDateString(),
+      );
+
       const conversationMessages = [
         LanguageModelChatMessage.User(
-          systemPrompt.replace("{{date}}", new Date().toLocaleDateString()) +
+          finalSystemPrompt +
             `\n\nThe interview topic is: "${session.topic}". Please start the interview with your first question.`,
         ),
       ];
@@ -161,7 +166,7 @@ export class InterviewService {
       if (response) {
         // Store the system prompt and assistant's response in conversation history
         session.conversationHistory.push(
-          LanguageModelChatMessage.User(systemPrompt),
+          LanguageModelChatMessage.User(finalSystemPrompt),
           LanguageModelChatMessage.User(`Interview topic: ${session.topic}`),
           LanguageModelChatMessage.Assistant(response),
         );
@@ -370,7 +375,8 @@ export class InterviewService {
   ): Promise<InterviewSession> {
     try {
       // Read the existing transcript
-      const transcriptContent = await FileService.readTranscript(transcriptPath);
+      const transcriptContent =
+        await FileService.readTranscript(transcriptPath);
       if (!transcriptContent) {
         throw new Error("Could not read transcript file");
       }
@@ -554,7 +560,7 @@ export class InterviewService {
 
     for (const message of session.messages) {
       const roleDisplay = message.role === "user" ? "You" : "Interviewer";
-      transcript += `## ${roleDisplay}\n\n${message.content}\n\n`;
+      transcript += `### ${roleDisplay}\n\n${message.content}\n\n`;
     }
 
     return transcript;

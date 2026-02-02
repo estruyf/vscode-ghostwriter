@@ -1,3 +1,5 @@
+import { LanguageSelector } from './LanguageSelector';
+
 interface WritingOptionsProps {
   writingStyle: 'formal' | 'casual' | 'conversational';
   onStyleChange: (style: 'formal' | 'casual' | 'conversational') => void;
@@ -13,6 +15,8 @@ interface WritingOptionsProps {
   hasVoiceFile: boolean;
   showFrontmatterEditor: boolean;
   setShowFrontmatterEditor: (value: boolean) => void;
+  language: string;
+  onLanguageChange: (language: string) => void;
 }
 
 export function WritingOptions({
@@ -30,6 +34,8 @@ export function WritingOptions({
   hasVoiceFile,
   showFrontmatterEditor,
   setShowFrontmatterEditor,
+  language,
+  onLanguageChange,
 }: WritingOptionsProps) {
   return (
     <div className="p-4 bg-slate-800 border border-slate-700 rounded-lg">
@@ -80,6 +86,17 @@ export function WritingOptions({
           />
           <span className={hasVoiceFile ? 'opacity-50' : ''}>Optimize for SEO</span>
         </label>
+      </div>
+
+
+
+      {/* Language Selector */}
+      <div className="mt-4 pt-4 border-t border-slate-700">
+        <LanguageSelector
+          value={language}
+          onChange={onLanguageChange}
+          className="mb-4"
+        />
       </div>
 
       {/* Keyword Optimization */}

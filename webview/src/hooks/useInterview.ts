@@ -17,8 +17,8 @@ interface UseInterviewReturn {
   selectedAgent: string;
   selectedModelId: string;
   hasUserStarted: boolean;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
   sendMessage: (e: React.FormEvent) => void;
   startInterview: (overrides?: {
     agentPath?: string;
@@ -224,7 +224,10 @@ export function useInterview(): UseInterviewReturn {
       setSelectedAgent(agentPath);
       messageHandler.send("setSelectedInterviewerAgent", { agentPath });
       if (hasStartedRef.current) {
-        startInterview({ agentPath, modelId: selectedModelId });
+        startInterview({
+          agentPath,
+          modelId: selectedModelId,
+        });
       }
     },
     [hasUserStarted, selectedModelId, startInterview],
@@ -235,7 +238,10 @@ export function useInterview(): UseInterviewReturn {
       if (hasUserStarted) return;
       setSelectedModelId(modelId);
       if (hasStartedRef.current) {
-        startInterview({ agentPath: selectedAgent, modelId });
+        startInterview({
+          agentPath: selectedAgent,
+          modelId,
+        });
       }
     },
     [hasUserStarted, selectedAgent, startInterview],
