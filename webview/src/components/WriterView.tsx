@@ -35,6 +35,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [showFrontmatterEditor, setShowFrontmatterEditor] = useState(false);
   const [newAgentName, setNewAgentName] = useState('');
+  const [language, setLanguage] = useState<string>('');
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when content updates
@@ -43,6 +44,21 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       contentRef.current.scrollTop = contentRef.current.scrollHeight;
     }
   }, [streamingContent]);
+
+  // Load saved language preference on mount
+  useEffect(() => {
+    const loadLanguage = async () => {
+      try {
+        const savedLanguage = await messageHandler.request<string>('getSelectedLanguage');
+        if (savedLanguage) {
+          setLanguage(savedLanguage);
+        }
+      } catch (error) {
+        console.error('Error loading language preference:', error);
+      }
+    };
+    loadLanguage();
+  }, []);
 
   // Handle messages from the extension
   useEffect(() => {
@@ -98,7 +114,8 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       style: writingStyle,
       includeHeadings,
       includeSEO,
-      keywords: keywords.trim() || undefined
+      keywords: keywords.trim() || undefined,
+      language: language.trim() || undefined
     };
 
     messageHandler.send('startWriting', {
@@ -110,7 +127,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       promptConfigId: writerData.selectedPromptConfigId || undefined,
       writerAgentPath: writerData.selectedWriterAgent || undefined,
     });
-  }, [customTranscript, selectedTranscript, customVoice, selectedVoice, writingStyle, includeHeadings, includeSEO, keywords, selectedModelId, writerData]);
+  }, [customTranscript, selectedTranscript, customVoice, selectedVoice, writingStyle, includeHeadings, includeSEO, keywords, language, selectedModelId, writerData]);
 
   const saveFrontmatter = useCallback(() => {
     writerHandlers.saveFrontmatter(writerData.frontmatter);
@@ -120,6 +137,11 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const clearFrontmatter = useCallback(() => {
     writerHandlers.clearFrontmatter();
   }, [writerHandlers]);
+
+  const handleLanguageChange = useCallback((newLanguage: string) => {
+    setLanguage(newLanguage);
+    messageHandler.send('setSelectedLanguage', { language: newLanguage });
+  }, []);
 
   const saveArticle = useCallback(() => {
     if (!streamingContent) return;
@@ -344,6 +366,8 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
             hasVoiceFile={!!(selectedVoice || customVoice)}
             showFrontmatterEditor={showFrontmatterEditor}
             setShowFrontmatterEditor={setShowFrontmatterEditor}
+            language={language}
+            onLanguageChange={handleLanguageChange}
           />
 
           {/* Start Writing Button */}

@@ -3,6 +3,11 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
+## [0.0.5] - 2026-02-02
+
+- [#8](https://github.com/estruyf/vscode-ghostwriter/issues/8): Multi-language
+  support for content generation
+
 ## [0.0.4] - 2026-01-31
 
 - [#5](https://github.com/estruyf/vscode-ghostwriter/issues/5): Allow
