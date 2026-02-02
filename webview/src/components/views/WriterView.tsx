@@ -3,6 +3,7 @@ import { messageHandler } from '@estruyf/vscode/dist/client';
 import { AgentFile, Draft } from '../../types';
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
+import { Save } from 'lucide-react';
 import ModelSelector from '../ModelSelector';
 import { TranscriptSelector } from '../TranscriptSelector';
 import { VoiceSelector } from '../VoiceSelector';
@@ -11,6 +12,7 @@ import AgentDialog from '../AgentManager/AgentDialog';
 import CreateAgentForm from '../AgentManager/CreateAgentForm';
 import { useWriterData, useDialog } from '../../hooks';
 import DraftIterationView from './DraftIterationView';
+import { VisitorBadge } from '../VisitorBadge';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -433,6 +435,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
           </button>
         </div>
       </div>
+      <VisitorBadge viewType="writer" />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { code } from "@streamdown/code";
 import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { useDialog } from '../../hooks/useDialog';
 import ConfirmDialog from '../ConfirmDialog';
+import { VisitorBadge } from '../VisitorBadge';
 
 interface DraftIterationViewProps {
   draft: Draft;
@@ -309,6 +310,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
         onConfirm={handleDeleteConfirm}
         onCancel={deleteDialog.close}
       />
+      <VisitorBadge viewType="draft-iteration" />
     </div>
   );
 }

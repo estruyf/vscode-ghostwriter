@@ -3,6 +3,7 @@ import { messageHandler } from '@estruyf/vscode/dist/client';
 import { Draft } from '../../types';
 import { FileEdit, Trash2, Clock } from 'lucide-react';
 import DraftIterationView from './DraftIterationView';
+import { VisitorBadge } from '../VisitorBadge';
 
 interface DraftsViewProps {
   onBack: () => void;
@@ -189,6 +190,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
           )}
         </div>
       </div>
+      <VisitorBadge viewType="drafts" />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { MessagesSquare, Signature, Sparkles, FileEdit } from 'lucide-react';
+import { VisitorBadge } from '../VisitorBadge';
 
 interface HomePageProps {
 }
@@ -157,6 +158,7 @@ export default function HomePage() {
           </p>
         </div>
       </div>
+      <VisitorBadge viewType="home" />
     </div>
   );
 }

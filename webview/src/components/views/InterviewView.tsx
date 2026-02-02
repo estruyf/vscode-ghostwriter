@@ -7,6 +7,7 @@ import ChatWindow from '../ChatWindow';
 import ChatInput from '../ChatInput';
 import { AgentDialog, CreateAgentForm } from '../AgentManager';
 import { AgentFile } from '../../types';
+import { VisitorBadge } from '../VisitorBadge';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -162,6 +163,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         isSending={isSending}
         textareaRef={textareaRef}
       />
+      <VisitorBadge viewType="interview" />
     </div>
   );
 }
