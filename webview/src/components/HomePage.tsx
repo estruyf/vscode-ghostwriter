@@ -94,8 +94,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <svg className='absolute -top-12 -right-12 h-80 w-80 opacity-60' version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        viewBox="0 0 1024 1024" enable-background="new 0 0 1024 1024" xml:space="preserve">
+      <svg className='absolute -top-12 -right-12 h-80 w-80 opacity-60' version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+        viewBox="0 0 1024 1024" enable-background="new 0 0 1024 1024" xmlSpace="preserve">
         <g>
           <g>
             <path className='fill-slate-50' d="M534,0c-0.1,0.1,1.5,0.8,2,0.9l11.7,0.9c255.8,19.8,457.2,222.6,474.5,477.1l0.9,12.9c0.1,0.8,0.8,2.4,0.9,2.3v31
@@ -131,6 +131,8 @@ export default function HomePage() {
           </g>
         </g>
       </svg>
+
+      <div className='absolute top-0 right-0 h-8 w-8 bg-slate-950'></div>
     </div>
   );
 }
