@@ -4,6 +4,8 @@ import { Draft, DraftRevision } from '../types';
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
 import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { useDialog } from '../hooks/useDialog';
+import ConfirmDialog from './ConfirmDialog';
 
 interface DraftIterationViewProps {
   draft: Draft;
@@ -19,6 +21,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
   const [showHistory, setShowHistory] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
+  const deleteDialog = useDialog();
   const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -66,6 +69,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
 
     setIsRefining(true);
     setStreamingContent('');
+    setRefinementPrompt('');
 
     messageHandler.send('refineDraft', {
       draftId: draft.id,
@@ -106,13 +110,15 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
     messageHandler.send('exportDraft', { draftId: draft.id });
   }, [draft.id]);
 
-  const handleDelete = useCallback(async () => {
-    const confirmed = confirm('Are you sure you want to delete this draft? This cannot be undone.');
-    if (confirmed) {
-      messageHandler.send('deleteDraft', { draftId: draft.id });
-      onClose();
-    }
-  }, [draft.id, onClose]);
+  const handleDeleteClick = useCallback(() => {
+    deleteDialog.open();
+  }, [deleteDialog]);
+
+  const handleDeleteConfirm = useCallback(() => {
+    messageHandler.send('deleteDraft', { draftId: draft.id });
+    deleteDialog.close();
+    onClose();
+  }, [draft.id, deleteDialog, onClose]);
 
   const displayContent = isRefining && streamingContent ? streamingContent : currentRevision?.content || '';
 
@@ -143,7 +149,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           <button
             onClick={goToPreviousRevision}
             disabled={!canGoBack}
-            className="p-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="p-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:cursor-pointer"
             title="Previous revision"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -151,7 +157,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           <button
             onClick={goToNextRevision}
             disabled={!canGoForward}
-            className="p-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="p-2 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:cursor-pointer"
             title="Next revision"
           >
             <ChevronRight className="w-5 h-5" />
@@ -160,7 +166,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           {/* History button */}
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className={`p-2 rounded-lg transition-all ${showHistory ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'}`}
+            className={`p-2 rounded-lg transition-all ${showHistory ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'} hover:cursor-pointer`}
             title="View revision history"
           >
             <History className="w-5 h-5" />
@@ -169,17 +175,17 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           {/* Export button */}
           <button
             onClick={handleExport}
-            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-all flex items-center gap-2 hover:cursor-pointer"
             title="Export as Markdown"
           >
             <Save className="w-4 h-4" />
-            Export
+            Save Article
           </button>
 
           {/* Delete button */}
           <button
-            onClick={handleDelete}
-            className="p-2 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded-lg transition-all"
+            onClick={handleDeleteClick}
+            className="p-2 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded-lg transition-all hover:cursor-pointer"
             title="Delete draft"
           >
             <Trash2 className="w-5 h-5" />
@@ -218,7 +224,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
                   ref={inputRef}
                   value={refinementPrompt}
                   onChange={(e) => setRefinementPrompt(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   placeholder="Refine your draft... (e.g., 'Make the intro more engaging', 'Add more technical depth to section 3')"
                   className="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
                   rows={2}
@@ -254,16 +260,15 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
                   const revisionIndex = draft.revisions.length - 1 - idx;
                   const isCurrent = revision.id === draft.currentRevisionId;
                   const date = new Date(revision.timestamp);
-                  
+
                   return (
                     <button
                       key={revision.id}
                       onClick={() => !isCurrent && switchRevision(revision.id)}
-                      className={`w-full text-left p-3 rounded-lg transition-all ${
-                        isCurrent
-                          ? 'bg-purple-600/20 border-2 border-purple-500'
-                          : 'bg-slate-800 hover:bg-slate-700 border-2 border-transparent'
-                      }`}
+                      className={`w-full text-left p-3 rounded-lg transition-all ${isCurrent
+                        ? 'bg-purple-600/20 border-2 border-purple-500'
+                        : 'bg-slate-800 hover:bg-slate-700 border-2 border-transparent'
+                        }`}
                     >
                       <div className="flex items-start justify-between mb-1">
                         <span className={`text-sm font-semibold ${isCurrent ? 'text-purple-300' : 'text-slate-300'}`}>
@@ -292,6 +297,18 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        title="Delete Draft"
+        message="Are you sure you want to delete this draft? This cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={deleteDialog.close}
+      />
     </div>
   );
 }

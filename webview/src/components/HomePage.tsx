@@ -26,7 +26,7 @@ export default function HomePage() {
 
   return (
     <div className="relative flex h-full items-center justify-center px-6 py-12">
-      <div className="w-full max-w-6xl">
+      <div className="w-full max-w-7xl">
         <div className="mb-12 text-center">
           <h1 className="text-5xl font-extrabold tracking-tight text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">Ghostwriter</h1>
           <p className="mt-3 text-xl text-slate-300">AI-powered content creation for writers</p>
@@ -35,7 +35,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 md:grid-cols-2">
           <button
             className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGetInterviewed}
@@ -117,7 +117,7 @@ export default function HomePage() {
       </div>
 
       <svg className='absolute -top-12 -right-12 h-80 w-80 opacity-60' version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        viewBox="0 0 1024 1024" enable-background="new 0 0 1024 1024" xmlSpace="preserve">
+        viewBox="0 0 1024 1024" enableBackground="new 0 0 1024 1024" xmlSpace="preserve">
         <g>
           <g>
             <path className='fill-slate-50' d="M534,0c-0.1,0.1,1.5,0.8,2,0.9l11.7,0.9c255.8,19.8,457.2,222.6,474.5,477.1l0.9,12.9c0.1,0.8,0.8,2.4,0.9,2.3v31

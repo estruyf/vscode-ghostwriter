@@ -264,6 +264,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
               disabled={isSaving || !streamingContent || !isFinishedWriting}
               className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer"
             >
+              <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save Article'}
             </button>
           </div>
