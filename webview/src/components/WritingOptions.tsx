@@ -1,5 +1,17 @@
 import { LanguageSelector } from './LanguageSelector';
 
+/**
+ * Unescape literal escape sequences in frontmatter text
+ * Converts \n to actual newlines, \" to quotes, etc.
+ */
+function unescapeFrontmatter(text: string): string {
+  return text
+    .replace(/\\n/g, '\n')
+    .replace(/\\"/g, '"')
+    .replace(/\\t/g, '\t')
+    .replace(/\\\\/g, '\\');
+}
+
 interface WritingOptionsProps {
   writingStyle: 'formal' | 'casual' | 'conversational';
   onStyleChange: (style: 'formal' | 'casual' | 'conversational') => void;
@@ -138,9 +150,9 @@ export function WritingOptions({
           <div className="space-y-2">
             {frontmatter ? (
               <>
-                <div className="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg">
-                  <pre className="text-sm text-slate-300 overflow-x-auto max-h-24 overflow-y-auto whitespace-pre-wrap">
-                    {frontmatter}
+                <div className="px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg">
+                  <pre className="text-sm text-slate-200 font-mono overflow-x-auto max-h-32 overflow-y-auto whitespace-pre-wrap break-words">
+                    {unescapeFrontmatter(frontmatter)}
                   </pre>
                 </div>
                 <button
