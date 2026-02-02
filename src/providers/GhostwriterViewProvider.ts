@@ -192,6 +192,14 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "interview:reset": {
+          if (this.currentInterviewId) {
+            await InterviewService.discardInterview(this.currentInterviewId);
+            this.currentInterviewId = null;
+          }
+          break;
+        }
+
         case "getModels": {
           const models = await CopilotService.getAllModels();
           const modelData = models.map((model) => ({

@@ -29,6 +29,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     messagesEndRef,
     sendMessage,
     resumeInterview,
+    resetInterview,
     handleAgentSelect,
     handleModelSelect,
   } = useInterview();
@@ -37,6 +38,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
   const agentDialog = useDialog();
   const createAgentDialog = useDialog();
   const resumeDialog = useDialog();
+  const resetDialog = useDialog();
   const alertDialog = useDialog();
   const [alertInfo, setAlertInfo] = useState({ title: '', message: '' });
 
@@ -116,6 +118,15 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     resumeDialog.close();
   }, [selectedTranscript, customTranscript, resumeInterview, resumeDialog, showAlert]);
 
+  const handleResetClick = useCallback(() => {
+    resetDialog.open();
+  }, [resetDialog]);
+
+  const handleResetConfirm = useCallback(() => {
+    resetInterview();
+    resetDialog.close();
+  }, [resetInterview, resetDialog]);
+
 
   return (
     <div className="flex flex-col h-screen bg-slate-950">
@@ -176,6 +187,14 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
             aria-label={hasUserStarted ? "Resume Interview (disabled during active interview)" : "Resume an Existing Interview"}
           >
             Resume Interview
+          </button>
+          <button
+            onClick={handleResetClick}
+            disabled={!hasUserStarted}
+            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+            title="Reset the current interview and delete the transcript"
+          >
+            Reset
           </button>
           <ModelSelector
             value={selectedModelId}
@@ -251,6 +270,18 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         onSubmit={sendMessage}
         isSending={isSending}
         textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
+      />
+
+      {/* Reset Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={resetDialog.isOpen}
+        title="Reset Interview"
+        message="Are you sure you want to reset this interview? This will delete the current transcript and all messages."
+        onConfirm={handleResetConfirm}
+        onCancel={resetDialog.close}
+        showCancel={true}
+        confirmText="Reset"
+        variant="danger"
       />
 
       <ConfirmDialog

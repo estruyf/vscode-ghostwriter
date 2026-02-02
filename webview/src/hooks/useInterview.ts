@@ -25,6 +25,7 @@ interface UseInterviewReturn {
     modelId?: string;
   }) => void;
   resumeInterview: (transcriptPath: string) => void;
+  resetInterview: () => void;
   handleAgentSelect: (agentPath: string) => void;
   handleModelSelect: (modelId: string) => void;
 }
@@ -198,6 +199,7 @@ export function useInterview(): UseInterviewReturn {
       setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
       setInputValue("");
       setIsSending(true);
+      setIsLoading(true);
 
       // First message is the topic
       if (!hasUserStarted) {
@@ -247,6 +249,16 @@ export function useInterview(): UseInterviewReturn {
     [hasUserStarted, selectedAgent, startInterview],
   );
 
+  const resetInterview = useCallback(() => {
+    setMessages([]);
+    setInputValue("");
+    setIsLoading(false);
+    setIsSending(false);
+    setHasUserStarted(false);
+    hasStartedRef.current = false;
+    messageHandler.send("interview:reset", {});
+  }, []);
+
   return {
     messages,
     inputValue,
@@ -262,6 +274,7 @@ export function useInterview(): UseInterviewReturn {
     sendMessage,
     startInterview,
     resumeInterview,
+    resetInterview,
     handleAgentSelect,
     handleModelSelect,
   };

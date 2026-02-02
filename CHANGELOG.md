@@ -3,6 +3,15 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
+## [0.0.6] - 2026-02-02
+
+- Fixed missing loading/thinking state indicator during AI response generation
+  in interview
+- [#14](https://github.com/estruyf/vscode-ghostwriter/issues/14): Improved the
+  header on the interview view
+- [#18](https://github.com/estruyf/vscode-ghostwriter/issues/18): Add the ability
+  to reset the interview with a warning/confirmation dialog
+
 ## [0.0.5] - 2026-02-02
 
 - [#6](https://github.com/estruyf/vscode-ghostwriter/issues/6): Draft Iteration
