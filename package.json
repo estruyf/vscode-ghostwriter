@@ -2,7 +2,7 @@
   "name": "vscode-ghostwriter",
   "displayName": "Ghostwriter for VSCode",
   "description": "AI-powered content creation tool that leverages GitHub Copilot to conduct intelligent interviews and transform transcripts into polished, SEO-optimized articles.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "eliostruyf",
   "author": "Elio Struyf <elio@struyfconsulting.be> (https://www.eliostruyf.com)",
   "license": "MIT",
