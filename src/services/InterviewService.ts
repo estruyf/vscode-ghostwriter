@@ -544,7 +544,17 @@ export class InterviewService {
    * @param sessionId - The interview session ID
    */
   static async discardInterview(sessionId: string): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (!session) {
+      return;
+    }
+
     try {
+      // If a transcript file was created, delete it
+      if (session.transcriptPath) {
+        await FileService.deleteFile(session.transcriptPath);
+      }
+
       this.sessions.delete(sessionId);
     } catch (error) {
       console.error("Error discarding interview:", error);

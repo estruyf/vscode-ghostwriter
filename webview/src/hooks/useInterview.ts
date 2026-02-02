@@ -257,7 +257,10 @@ export function useInterview(): UseInterviewReturn {
     setHasUserStarted(false);
     hasStartedRef.current = false;
     messageHandler.send("interview:reset", {});
-  }, []);
+
+    // Start a new interview immediately
+    startInterview();
+  }, [startInterview]);
 
   return {
     messages,

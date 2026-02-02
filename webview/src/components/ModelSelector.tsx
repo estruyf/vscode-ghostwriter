@@ -95,7 +95,7 @@ export default function ModelSelector({
       <select
         value={selectedModel}
         onChange={handleChange}
-        className="bg-slate-800 text-white rounded px-3 py-1 text-base border border-slate-700 focus:outline-none focus:border-purple-500"
+        className="bg-transparent text-white text-sm focus:outline-none border-none py-1 pr-2 cursor-pointer hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed max-w-50 truncate appearance-none"
       >
         {models.map((model) => (
           <option key={model.id} value={model.id}>

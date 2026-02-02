@@ -219,4 +219,17 @@ export class FileService {
 
     return undefined;
   }
+
+  /**
+   * Delete a file
+   */
+  static async deleteFile(filePath: string): Promise<void> {
+    try {
+      if (fs.existsSync(filePath)) {
+        await fs.promises.unlink(filePath);
+      }
+    } catch (error) {
+      console.error(`Error deleting file ${filePath}:`, error);
+    }
+  }
 }
