@@ -65,13 +65,6 @@ export function WritingOptions({
         </div>
       </div>
 
-      {/* Language Selector */}
-      <LanguageSelector
-        value={language}
-        onChange={onLanguageChange}
-        className="mb-4"
-      />
-
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-base text-slate-300">
           <input
@@ -93,6 +86,17 @@ export function WritingOptions({
           />
           <span className={hasVoiceFile ? 'opacity-50' : ''}>Optimize for SEO</span>
         </label>
+      </div>
+
+
+
+      {/* Language Selector */}
+      <div className="mt-4 pt-4 border-t border-slate-700">
+        <LanguageSelector
+          value={language}
+          onChange={onLanguageChange}
+          className="mb-4"
+        />
       </div>
 
       {/* Keyword Optimization */}
