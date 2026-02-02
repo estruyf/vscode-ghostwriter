@@ -129,7 +129,6 @@ export class GhostwriterViewProvider {
           const session = await InterviewService.startInterview(
             payload.agentPath,
             payload.modelId,
-            payload.language,
           );
           this.currentInterviewId = session.id;
           break;
