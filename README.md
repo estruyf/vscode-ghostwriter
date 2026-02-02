@@ -37,6 +37,8 @@ transcripts.
   complete
 - **Model Selection**: Choose from available GitHub Copilot models (GPT-4o,
   GPT-4o mini, etc.)
+- **Multi-Language Support**: Conduct interviews in over 20 languages including
+  Spanish, French, German, Chinese, Japanese, and more
 - **Interviewer Agents**: Create, manage, and select custom interviewer prompts
   stored in `.ghostwriter/interviewer`
 - **Transcript Management**: Automatically saves formatted transcripts to the
@@ -50,6 +52,8 @@ transcripts.
   consistent tone
 - **Model Selection**: Choose specific GitHub Copilot models for content
   generation
+- **Multi-Language Support**: Generate content in over 20 languages including
+  Spanish, French, German, Chinese, Japanese, and more
 - **Writer Agents**: Create, manage, and select custom writer prompts stored in
   `.ghostwriter/writer`
 - **Writing Style Options**:
@@ -98,6 +102,7 @@ transcripts.
 
 ### State Persistence
 - **Model Preferences**: Selected GitHub Copilot model persists across sessions
+- **Language Preferences**: Selected content language persists across sessions
 - **Frontmatter Templates**: Save and reuse frontmatter templates for all
   articles
 - **Agent Selection**: Selected interviewer and writer agents persist across
@@ -121,11 +126,12 @@ transcripts.
 1. Open the Ghostwriter panel
 2. Click on "Start Interview"
 3. (Optional) Select or create an interviewer agent to shape the interview
-4. Select your preferred GitHub Copilot model
-5. Answer the AI's questions in the chat interface
-6. The AI will automatically detect completion and generate a formatted
+4. (Optional) Select a language for the interview from the language dropdown
+5. Select your preferred GitHub Copilot model
+6. Answer the AI's questions in the chat interface
+7. The AI will automatically detect completion and generate a formatted
    transcript
-7. Transcript is saved to `.ghostwriter/transcripts/` folder
+8. Transcript is saved to `.ghostwriter/transcripts/` folder
 
 ### Generating Content from Transcripts
 
@@ -136,6 +142,7 @@ transcripts.
 5. (Optional) Select a voice file to maintain consistent writing style
 6. Configure writing options:
   - Choose writing style (Formal/Casual/Conversational)
+  - Select content language (English, Spanish, French, German, etc.)
   - Enable/disable headings and SEO optimization
   - Add target keywords for SEO
   - Configure frontmatter template
@@ -223,7 +230,9 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 
 This extension stores the following in workspace state:
 - Selected GitHub Copilot model ID
+- Selected content language
 - Frontmatter template for articles
+- Selected interviewer and writer agents
 
 ## Development
 

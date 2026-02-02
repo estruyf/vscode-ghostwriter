@@ -6,6 +6,7 @@ interface AppState {
   selectedPromptConfigId?: string;
   selectedInterviewerAgent?: string;
   selectedWriterAgent?: string;
+  selectedLanguage?: string;
 }
 
 export class StateService {
@@ -132,6 +133,27 @@ export class StateService {
     await this.context.workspaceState.update(this.STATE_KEY, {
       ...state,
       selectedWriterAgent: agentPath,
+    });
+  }
+
+  /**
+   * Get the selected language
+   */
+  public static getSelectedLanguage(): string | undefined {
+    const state = this.getState();
+    return state.selectedLanguage;
+  }
+
+  /**
+   * Set the selected language
+   */
+  public static async setSelectedLanguage(
+    language: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      selectedLanguage: language,
     });
   }
 }
