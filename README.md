@@ -14,7 +14,7 @@ transcripts.
 <div align="center">
 
 ### Home View
-<img alt="Ghostwriter Home View" src="./assets/screenshot/app-home.png" width="800" />
+<img alt="Ghostwriter Home View" src="./assets/screenshot/app-home-0.0.5.png" width="800" />
 
 ### Interview Mode
 <img alt="Ghostwriter Interview Mode" src="./assets/screenshot/app-interview.png" width="800" />

@@ -25,12 +25,12 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative flex h-full items-center justify-center px-6 py-12 overflow-auto">
+    <div className="relative flex h-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 md:py-12 overflow-auto">
       <div className="w-full max-w-7xl flex flex-col">
-        <div className="mb-12 text-center">
-          <h1 className="text-5xl font-extrabold tracking-tight text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">Ghostwriter</h1>
-          <p className="mt-3 text-xl text-slate-300">AI-powered content creation for writers</p>
-          <p className="mt-2 text-base text-slate-400">
+        <div className="mb-6 sm:mb-8 md:mb-12 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">Ghostwriter</h1>
+          <p className="mt-2 sm:mt-3 text-lg sm:text-xl text-slate-300">AI-powered content creation for writers</p>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-slate-400">
             Part of Ghostwriter Agents
           </p>
         </div>
@@ -77,14 +77,14 @@ export default function HomePage() {
           <div className='absolute top-0 right-0 h-8 w-8 bg-slate-950'></div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <button
-            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
+            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-4 sm:p-5 md:p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGetInterviewed}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/15 text-3xl text-purple-200 shadow-inner shadow-purple-500/20"><MessagesSquare /></div>
-            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Get Interviewed</h2>
-            <p className="mt-2 text-base leading-relaxed text-slate-300">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-purple-500/15 text-2xl sm:text-3xl text-purple-200 shadow-inner shadow-purple-500/20"><MessagesSquare /></div>
+            <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl md:text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Get Interviewed</h2>
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-slate-300">
               Start with an interactive interview. Answer questions and share your expertise while our AI assistant helps gather content material.
             </p>
             <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
@@ -96,12 +96,12 @@ export default function HomePage() {
           </button>
 
           <button
-            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
+            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-4 sm:p-5 md:p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleWriteArticle}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-400/20 text-3xl text-amber-100 shadow-inner shadow-amber-500/20"><Signature /></div>
-            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Write Article</h2>
-            <p className="mt-2 text-base leading-relaxed text-slate-300">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-amber-400/20 text-2xl sm:text-3xl text-amber-100 shadow-inner shadow-amber-500/20"><Signature /></div>
+            <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl md:text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Write Article</h2>
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-slate-300">
               Have an interview already? Upload your interview markdown and let our writer transform it into a polished, comprehensive article.
             </p>
             <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
@@ -113,12 +113,12 @@ export default function HomePage() {
           </button>
 
           <button
-            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
+            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-4 sm:p-5 md:p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGenerateVoice}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-3xl text-cyan-200 shadow-inner shadow-cyan-500/20"><Sparkles /></div>
-            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Generate Voice</h2>
-            <p className="mt-2 text-base leading-relaxed text-slate-300">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-2xl sm:text-3xl text-cyan-200 shadow-inner shadow-cyan-500/20"><Sparkles /></div>
+            <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl md:text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Generate Voice</h2>
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-slate-300">
               Analyze your existing writing to create a voice profile. Let AI learn your unique style and tone for consistent content.
             </p>
             <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
@@ -130,12 +130,12 @@ export default function HomePage() {
           </button>
 
           <button
-            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
+            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-4 sm:p-5 md:p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleViewDrafts}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15 text-3xl text-emerald-200 shadow-inner shadow-emerald-500/20"><FileEdit /></div>
-            <h2 className="mt-4 text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">My Drafts</h2>
-            <p className="mt-2 text-base leading-relaxed text-slate-300">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-emerald-500/15 text-2xl sm:text-3xl text-emerald-200 shadow-inner shadow-emerald-500/20"><FileEdit /></div>
+            <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl md:text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">My Drafts</h2>
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-slate-300">
               Continue working on your drafts with iterative refinement. Review history and make conversational improvements.
             </p>
             <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
@@ -147,9 +147,9 @@ export default function HomePage() {
           </button>
         </div>
 
-        <div className="mt-8 text-center text-base text-slate-400 space-y-2">
+        <div className="mt-6 sm:mt-8 text-center text-sm sm:text-base text-slate-400 space-y-1 sm:space-y-2">
           <p>Powered by GitHub Copilot</p>
-          <p className="text-base">
+          <p className="text-sm sm:text-base">
             Created by <a href="https://eliostruyf.com" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition" title="Visit Elio Struyf's website">Elio Struyf</a>
           </p>
           <p>

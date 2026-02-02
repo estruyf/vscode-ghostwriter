@@ -5,6 +5,8 @@ this file.
 
 ## [0.0.5] - 2026-02-02
 
+- [#6](https://github.com/estruyf/vscode-ghostwriter/issues/6): Draft Iteration
+  Mode. Conversational refinement instead of one-shot generation
 - [#8](https://github.com/estruyf/vscode-ghostwriter/issues/8): Multi-language
   support for content generation
 
