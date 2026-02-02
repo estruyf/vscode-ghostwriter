@@ -342,7 +342,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Writer Setup */}
-          <div className="rounded-xl bg-slate-900/50 border border-slate-800 p-6 space-y-4">
+          <div className="p-4 bg-slate-800 border border-slate-700 rounded-lg space-y-4">
             <h3 className="text-xl font-semibold text-white">Writer & Model</h3>
             <div className="flex flex-wrap items-center gap-3">
               <label className="text-slate-300">Writer:</label>
