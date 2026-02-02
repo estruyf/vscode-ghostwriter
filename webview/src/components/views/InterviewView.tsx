@@ -131,54 +131,78 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex flex-col h-screen bg-slate-950">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold text-white">Interview Session</h2>
-            <p className="text-base text-slate-400">Answer questions to gather content material</p>
+      <div className="px-6 py-4 border-b border-slate-700 bg-slate-900">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Title Section */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer flex-shrink-0"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div>
+              <h2 className="text-xl font-semibold text-white">Interview Session</h2>
+              <p className="text-base text-slate-400">Answer questions to gather content material</p>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-4 items-center">
-          {/* Agent Selection */}
-          <div className="flex gap-2 items-center">
-            <label className="text-base text-slate-300">Interviewer:</label>
-            <select
-              value={selectedAgent}
-              onChange={(e) => handleAgentSelect(e.target.value)}
-              disabled={hasUserStarted}
-              className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 disabled:opacity-50"
-            >
-              <option value="">Default Interviewer</option>
-              {agents.map((agent) => (
-                <option key={agent.path} value={agent.path}>
-                  {agent.name}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={agentDialog.open}
-              disabled={hasUserStarted}
-              className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
-              title="Manage Interviewer Agents"
-            >
-              Manage
-            </button>
-            <button
-              onClick={createAgentDialog.open}
-              disabled={hasUserStarted}
-              className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
-              title="Create New Interviewer Agent"
-            >
-              + New
-            </button>
+
+          {/* Controls Section */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
+            {/* Agent Selection */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <label className="text-base text-slate-300 whitespace-nowrap">Interviewer:</label>
+              <div className="flex gap-2 items-center flex-wrap">
+                <select
+                  value={selectedAgent}
+                  onChange={(e) => handleAgentSelect(e.target.value)}
+                  disabled={hasUserStarted}
+                  className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 disabled:opacity-50 flex-1 sm:flex-initial min-w-[160px]"
+                >
+                  <option value="">Default Interviewer</option>
+                  {agents.map((agent) => (
+                    <option key={agent.path} value={agent.path}>
+                      {agent.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={agentDialog.open}
+                  disabled={hasUserStarted}
+                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                  title="Manage Interviewer Agents"
+                >
+                  Manage
+                </button>
+                <button
+                  onClick={createAgentDialog.open}
+                  disabled={hasUserStarted}
+                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                  title="Create New Interviewer Agent"
+                >
+                  + New
+                </button>
+              </div>
+            </div>
+
+            {/* Resume and Model Selection */}
+            <div className="flex gap-3 items-center flex-wrap">
+              <button
+                onClick={handleResumeClick}
+                className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
+                title="Resume an Existing Interview"
+                aria-label={hasUserStarted ? "Resume Interview (disabled during active interview)" : "Resume an Existing Interview"}
+              >
+                Resume Interview
+              </button>
+              <ModelSelector
+                value={selectedModelId}
+                onChange={handleModelSelect}
+                className={hasUserStarted ? 'opacity-50 pointer-events-none' : ''}
+              />
+            </div>
           </div>
           <button
             onClick={handleResumeClick}
@@ -196,11 +220,6 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
           >
             Reset
           </button>
-          <ModelSelector
-            value={selectedModelId}
-            onChange={handleModelSelect}
-            className={hasUserStarted ? 'opacity-50 pointer-events-none' : ''}
-          />
         </div>
       </div>
 
