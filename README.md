@@ -33,6 +33,12 @@ transcripts.
 - **Interactive AI Interviews**: Conduct dynamic interviews with GitHub Copilot
   asking relevant questions
 - **Smart Conversation Flow**: AI adapts questions based on your responses
+- **Instant Transcript Creation**: Transcripts are created immediately when you
+  provide the interview topic and saved to `.ghostwriter/transcripts/`
+- **Real-time File Updates**: Each question and answer is written to the
+  transcript file as it happens, preventing data loss
+- **Resume Interrupted Interviews**: Resume an interview from where it left off
+  by selecting an existing transcript file
 - **Auto-completion Detection**: Automatically detects when the interview is
   complete
 - **Model Selection**: Choose from available GitHub Copilot models (GPT-4o,
@@ -126,12 +132,25 @@ transcripts.
 1. Open the Ghostwriter panel
 2. Click on "Start Interview"
 3. (Optional) Select or create an interviewer agent to shape the interview
-4. (Optional) Select a language for the interview from the language dropdown
-5. Select your preferred GitHub Copilot model
-6. Answer the AI's questions in the chat interface
-7. The AI will automatically detect completion and generate a formatted
-   transcript
-8. Transcript is saved to `.ghostwriter/transcripts/` folder
+4. Select your preferred GitHub Copilot model
+5. The AI will first ask you for the interview topic
+6. Once you provide the topic, a transcript file is immediately created in
+   `.ghostwriter/transcripts/`
+7. Answer the AI's questions in the chat interface
+8. Each question and answer is saved to the transcript file in real-time
+9. The AI will automatically detect completion and save the final transcript
+10. If the editor closes unexpectedly, your progress is saved in the transcript
+    file
+
+### Resuming an Interrupted Interview
+
+1. Open the Ghostwriter panel
+2. Click on "Start Interview"
+3. Click the "Resume Interview" button in the header
+4. Select the transcript file you want to continue from the dialog
+5. Click "Resume"
+6. The interview will continue from where it left off, with all previous Q&As
+   loaded
 
 ### Generating Content from Transcripts
 

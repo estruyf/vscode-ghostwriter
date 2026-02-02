@@ -6,8 +6,10 @@ import ModelSelector from '../ModelSelector';
 import ChatWindow from '../ChatWindow';
 import ChatInput from '../ChatInput';
 import { AgentDialog, CreateAgentForm } from '../AgentManager';
-import { AgentFile } from '../../types';
+import { AgentFile, TranscriptFile } from '../../types';
 import { VisitorBadge } from '../VisitorBadge';
+import { TranscriptSelector } from '../TranscriptSelector';
+import ConfirmDialog from '../ConfirmDialog';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -26,6 +28,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     textareaRef,
     messagesEndRef,
     sendMessage,
+    resumeInterview,
     handleAgentSelect,
     handleModelSelect,
   } = useInterview();
@@ -33,12 +36,24 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
   // Dialog state
   const agentDialog = useDialog();
   const createAgentDialog = useDialog();
+  const resumeDialog = useDialog();
+  const alertDialog = useDialog();
+  const [alertInfo, setAlertInfo] = useState({ title: '', message: '' });
+
   const [newAgentName, setNewAgentName] = useState('');
+  const [transcripts, setTranscripts] = useState<TranscriptFile[]>([]);
+  const [selectedTranscript, setSelectedTranscript] = useState<string>('');
+  const [customTranscript, setCustomTranscript] = useState<string>('');
+
+  const showAlert = useCallback((title: string, message: string) => {
+    setAlertInfo({ title, message });
+    alertDialog.open();
+  }, [alertDialog]);
 
   // Agent management handlers
   const handleCreateAgent = useCallback(async () => {
     if (!newAgentName.trim()) {
-      alert('Please enter an agent name');
+      showAlert('Input Required', 'Please enter an agent name');
       return;
     }
 
@@ -52,18 +67,54 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
       await messageHandler.send('openAgentFile', { agentPath: agent.path });
     } catch (error) {
       console.error('Error creating interviewer agent:', error);
-      alert('Failed to create agent');
+      showAlert('Error', 'Failed to create agent');
     }
-  }, [newAgentName, createAgentDialog]);
+  }, [newAgentName, createAgentDialog, showAlert]);
 
   const handleEditAgent = useCallback(async (agent: AgentFile) => {
     try {
       await messageHandler.send('openAgentFile', { agentPath: agent.path });
     } catch (error) {
       console.error('Error opening agent file:', error);
-      alert('Failed to open agent file');
+      showAlert('Error', 'Failed to open agent file');
+    }
+  }, [showAlert]);
+
+  const handleResumeClick = useCallback(async () => {
+    try {
+      const transcriptList = await messageHandler.request<TranscriptFile[]>('getTranscripts');
+      setTranscripts(transcriptList || []);
+      setSelectedTranscript('');
+      setCustomTranscript('');
+      resumeDialog.open();
+    } catch (error) {
+      console.error('Error loading transcripts:', error);
+      showAlert('Error', 'Failed to load transcripts');
+    }
+  }, [resumeDialog, showAlert]);
+
+  const handleCustomTranscriptSelect = useCallback(async () => {
+    try {
+      const path = await messageHandler.request<string>('selectCustomTranscript');
+      if (path) {
+        setCustomTranscript(path);
+        setSelectedTranscript('');
+      }
+    } catch (error) {
+      console.error('Error selecting custom transcript:', error);
     }
   }, []);
+
+  const handleResumeConfirm = useCallback(() => {
+    const transcriptPath = selectedTranscript || customTranscript;
+    if (!transcriptPath) {
+      showAlert('Selection Required', 'Please select a transcript to resume');
+      return;
+    }
+
+    resumeInterview(transcriptPath);
+    resumeDialog.close();
+  }, [selectedTranscript, customTranscript, resumeInterview, resumeDialog, showAlert]);
 
 
   return (
@@ -92,7 +143,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
               value={selectedAgent}
               onChange={(e) => handleAgentSelect(e.target.value)}
               disabled={hasUserStarted}
-              className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
+              className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 disabled:opacity-50"
             >
               <option value="">Default Interviewer</option>
               {agents.map((agent) => (
@@ -118,6 +169,14 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
               + New
             </button>
           </div>
+          <button
+            onClick={handleResumeClick}
+            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+            title="Resume an Existing Interview"
+            aria-label={hasUserStarted ? "Resume Interview (disabled during active interview)" : "Resume an Existing Interview"}
+          >
+            Resume Interview
+          </button>
           <ModelSelector
             value={selectedModelId}
             onChange={handleModelSelect}
@@ -152,8 +211,38 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         title="Create Interviewer Agent"
       />
 
+      {/* Resume Interview Dialog */}
+      {resumeDialog.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-slate-900 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <h2 className="text-2xl font-semibold text-white mb-4">Resume Interview</h2>
+            <TranscriptSelector
+              transcripts={transcripts}
+              selectedTranscript={selectedTranscript}
+              onTranscriptChange={setSelectedTranscript}
+              customTranscript={customTranscript}
+              onCustomSelect={handleCustomTranscriptSelect}
+            />
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleResumeConfirm}
+                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                Resume
+              </button>
+              <button
+                onClick={resumeDialog.close}
+                className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Chat Area */}
-      <ChatWindow messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef} />
+      <ChatWindow messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef as React.RefObject<HTMLDivElement>} />
 
       {/* Input Area */}
       <ChatInput
@@ -161,8 +250,19 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         setInputValue={setInputValue}
         onSubmit={sendMessage}
         isSending={isSending}
-        textareaRef={textareaRef}
+        textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
       />
+
+      <ConfirmDialog
+        isOpen={alertDialog.isOpen}
+        title={alertInfo.title}
+        message={alertInfo.message}
+        onConfirm={alertDialog.close}
+        showCancel={false}
+        confirmText="OK"
+        variant="info"
+      />
+
       <VisitorBadge viewType="interview" />
     </div>
   );

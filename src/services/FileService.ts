@@ -154,6 +154,36 @@ export class FileService {
   }
 
   /**
+   * Append content to an existing transcript file
+   */
+  static async appendToTranscript(
+    filePath: string,
+    content: string,
+  ): Promise<void> {
+    try {
+      fs.appendFileSync(filePath, content, "utf-8");
+    } catch (error) {
+      console.error("Error appending to transcript:", error);
+      vscode.window.showErrorMessage("Failed to update transcript file");
+    }
+  }
+
+  /**
+   * Read content from a transcript file
+   */
+  static async readTranscript(filePath: string): Promise<string | undefined> {
+    try {
+      if (!fs.existsSync(filePath)) {
+        return undefined;
+      }
+      return fs.readFileSync(filePath, "utf-8");
+    } catch (error) {
+      console.error("Error reading transcript:", error);
+      return undefined;
+    }
+  }
+
+  /**
    * Save interview session data
    */
   static async saveInterviewSession(
