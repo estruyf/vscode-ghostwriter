@@ -9,6 +9,8 @@ this file.
   Mode. Conversational refinement instead of one-shot generation
 - [#8](https://github.com/estruyf/vscode-ghostwriter/issues/8): Multi-language
   support for content generation
+- [#9](https://github.com/estruyf/vscode-ghostwriter/issues/9): Have the ability
+  to resume interviews
 
 ## [0.0.4] - 2026-01-31
 

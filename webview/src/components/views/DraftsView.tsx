@@ -14,7 +14,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeDraft, setActiveDraft] = useState<Draft | null>(null);
-  
+
   const [alertDialog, setAlertDialog] = useState<{
     isOpen: boolean;
     title: string;
