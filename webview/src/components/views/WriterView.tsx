@@ -227,44 +227,45 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     return (
       <div className="flex flex-col h-screen bg-slate-950">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900 gap-4">
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer"
+              className="p-2 -ml-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all hover:cursor-pointer"
+              title="Back to Configuration"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <div>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                 {streamingContent ? 'Article Generated' : 'Generating Article'}
+                {!isFinishedWriting && streamingContent && (
+                  <span className="flex h-3 w-3 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                  </span>
+                )}
               </h2>
-              <p className="text-base text-slate-400">
+              <p className="text-sm text-slate-400 hidden sm:block">
                 {streamingContent ? 'Review and save your generated article' : 'Creating your article from the transcript...'}
               </p>
             </div>
           </div>
 
-          <div className='gap-4 grid grid-cols-3'>
-            <button
-              onClick={onBack}
-              className="px-4 py-2 bg-slate-700 text-slate-200 font-semibold rounded-lg hover:bg-slate-600 transition-all hover:cursor-pointer"
-            >
-              Back
-            </button>
+          <div className='flex items-center gap-3 w-full sm:w-auto'>
             <button
               onClick={enterDraftMode}
               disabled={!streamingContent || !isFinishedWriting}
-              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2 bg-purple-500/10 border border-purple-500/50 hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-purple-200 font-semibold rounded-lg transition-all hover:cursor-pointer whitespace-nowrap"
             >
               Iterate Draft
             </button>
             <button
               onClick={saveArticle}
               disabled={isSaving || !streamingContent || !isFinishedWriting}
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer whitespace-nowrap shadow-lg shadow-orange-900/20"
             >
               <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save Article'}
@@ -339,100 +340,145 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       />
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-2xl mx-auto space-y-8">
-          {/* Writer Setup */}
-          <div className="p-4 bg-slate-800 border border-slate-700 rounded-lg space-y-4">
-            <h3 className="text-xl font-semibold text-white">Writer & Model</h3>
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="text-slate-300">Writer:</label>
-              <select
-                value={writerData.selectedWriterAgent}
-                onChange={(e) => writerHandlers.handleWriterAgentSelect(e.target.value)}
-                className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
-              >
-                <option value="">Default Writer</option>
-                {writerData.writerAgents.map((agent) => (
-                  <option key={agent.path} value={agent.path}>
-                    {agent.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={agentDialog.open}
-                className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg transition-colors"
-                title="Manage Writer Agents"
-              >
-                Manage
-              </button>
-              <button
-                onClick={createAgentDialog.open}
-                className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors"
-                title="Create New Writer Agent"
-              >
-                + New
-              </button>
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Left Column: Input Sources */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30">1</span>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Input Source</h3>
+              </div>
+
+              {/* Writer Setup */}
+              <div className="p-5 bg-slate-900/50 border border-slate-800 rounded-xl space-y-5 hover:border-purple-500/30 transition-colors">
+                <div className="flex items-start justify-between">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    Writer Configuration
+                  </h3>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-300">Writer Agent</label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        value={writerData.selectedWriterAgent}
+                        onChange={(e) => writerHandlers.handleWriterAgentSelect(e.target.value)}
+                        className="flex-1 px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
+                      >
+                        <option value="">Default Writer</option>
+                        {writerData.writerAgents.map((agent) => (
+                          <option key={agent.path} value={agent.path}>
+                            {agent.name}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={agentDialog.open}
+                        className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-colors border border-slate-700"
+                        title="Manage Writer Agents"
+                      >
+                        Manage
+                      </button>
+                      <button
+                        onClick={createAgentDialog.open}
+                        className="px-3 py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-300 text-xs font-semibold rounded-lg transition-colors border border-purple-500/30"
+                        title="Create New Writer Agent"
+                      >
+                        + New
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <ModelSelector
+                      value={selectedModelId}
+                      onChange={setSelectedModelId}
+                      showLabel={true}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Transcript Selection */}
+              <div className="p-5 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-purple-500/30 transition-colors">
+                <TranscriptSelector
+                  transcripts={writerData.transcripts}
+                  selectedTranscript={selectedTranscript}
+                  onTranscriptChange={(path) => {
+                    setSelectedTranscript(path);
+                    setCustomTranscript('');
+                  }}
+                  customTranscript={customTranscript}
+                  onCustomSelect={selectCustomTranscript}
+                />
+              </div>
+
+              {/* Voice File Selection */}
+              <div className="p-5 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-purple-500/30 transition-colors">
+                <VoiceSelector
+                  voiceFiles={writerData.voiceFiles}
+                  selectedVoice={selectedVoice}
+                  onVoiceChange={(path) => {
+                    setSelectedVoice(path);
+                    setCustomVoice('');
+                  }}
+                  customVoice={customVoice}
+                  onCustomSelect={selectCustomVoice}
+                />
+              </div>
             </div>
-            <ModelSelector
-              value={selectedModelId}
-              onChange={setSelectedModelId}
-              showLabel={true}
-              className="mt-1"
-            />
+
+            {/* Right Column: Configuration & Actions */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30">2</span>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Generation Settings</h3>
+              </div>
+
+              {/* Writing Options */}
+              <div className="p-5 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-purple-500/30 transition-colors">
+                <WritingOptions
+                  writingStyle={writingStyle}
+                  onStyleChange={setWritingStyle}
+                  includeHeadings={includeHeadings}
+                  onHeadingsChange={setIncludeHeadings}
+                  includeSEO={includeSEO}
+                  onSEOChange={setIncludeSEO}
+                  keywords={keywords}
+                  onKeywordsChange={setKeywords}
+                  frontmatter={writerData.frontmatter}
+                  onFrontmatterChange={writerHandlers.setFrontmatter}
+                  onFrontmatterClear={clearFrontmatter}
+                  hasVoiceFile={!!(selectedVoice || customVoice)}
+                  showFrontmatterEditor={showFrontmatterEditor}
+                  setShowFrontmatterEditor={setShowFrontmatterEditor}
+                  language={language}
+                  onLanguageChange={handleLanguageChange}
+                />
+              </div>
+
+              {/* Start Writing Button - Sticky on mobile, inline on desktop */}
+              <div className="sticky bottom-0 z-10 pt-4 pb-2 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent lg:static lg:bg-none lg:p-0">
+                <button
+                  onClick={startWriting}
+                  disabled={!selectedTranscript && !customTranscript}
+                  className="w-full group relative flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl shadow-lg shadow-purple-900/20 transition-all hover:shadow-purple-900/40 hover:-translate-y-0.5 hover:cursor-pointer"
+                >
+                  <span className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  Generate Article
+                </button>
+                <p className="mt-3 text-center text-xs text-slate-500">
+                  Select input sources and configure settings to start generation
+                </p>
+              </div>
+            </div>
           </div>
-
-          {/* Transcript Selection */}
-          <TranscriptSelector
-            transcripts={writerData.transcripts}
-            selectedTranscript={selectedTranscript}
-            onTranscriptChange={(path) => {
-              setSelectedTranscript(path);
-              setCustomTranscript('');
-            }}
-            customTranscript={customTranscript}
-            onCustomSelect={selectCustomTranscript}
-          />
-
-          {/* Voice File Selection */}
-          <VoiceSelector
-            voiceFiles={writerData.voiceFiles}
-            selectedVoice={selectedVoice}
-            onVoiceChange={(path) => {
-              setSelectedVoice(path);
-              setCustomVoice('');
-            }}
-            customVoice={customVoice}
-            onCustomSelect={selectCustomVoice}
-          />
-
-          {/* Writing Options */}
-          <WritingOptions
-            writingStyle={writingStyle}
-            onStyleChange={setWritingStyle}
-            includeHeadings={includeHeadings}
-            onHeadingsChange={setIncludeHeadings}
-            includeSEO={includeSEO}
-            onSEOChange={setIncludeSEO}
-            keywords={keywords}
-            onKeywordsChange={setKeywords}
-            frontmatter={writerData.frontmatter}
-            onFrontmatterChange={writerHandlers.setFrontmatter}
-            onFrontmatterClear={clearFrontmatter}
-            hasVoiceFile={!!(selectedVoice || customVoice)}
-            showFrontmatterEditor={showFrontmatterEditor}
-            setShowFrontmatterEditor={setShowFrontmatterEditor}
-            language={language}
-            onLanguageChange={handleLanguageChange}
-          />
-
-          {/* Start Writing Button */}
-          <button
-            onClick={startWriting}
-            disabled={!selectedTranscript && !customTranscript}
-            className="w-full px-6 py-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all hover:cursor-pointer"
-          >
-            Start Writing
-          </button>
         </div>
       </div>
       <VisitorBadge viewType="writer" />
