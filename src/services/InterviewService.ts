@@ -111,11 +111,11 @@ export class InterviewService {
       // Write the topic question and answer to the file
       await FileService.appendToTranscript(
         transcriptPath,
-        `## Interviewer\n\n${session.messages[0].content}\n\n`,
+        `### Interviewer\n\n${session.messages[0].content}\n\n`,
       );
       await FileService.appendToTranscript(
         transcriptPath,
-        `## You\n\n${topic}\n\n`,
+        `### You\n\n${topic}\n\n`,
       );
 
       return transcriptPath;
@@ -465,7 +465,7 @@ export class InterviewService {
         // Write the continuation to the transcript file
         await FileService.appendToTranscript(
           transcriptPath,
-          `${this.RESUME_SEPARATOR}\n\n${this.RESUME_NOTICE_PREFIX}${new Date().toLocaleString()}${this.RESUME_NOTICE_SUFFIX}\n\n## Interviewer\n\n${response}\n\n`,
+          `${this.RESUME_SEPARATOR}\n\n${this.RESUME_NOTICE_PREFIX}${new Date().toLocaleString()}${this.RESUME_NOTICE_SUFFIX}\n\n### Interviewer\n\n${response}\n\n`,
         );
 
         // Send the message to the webview
