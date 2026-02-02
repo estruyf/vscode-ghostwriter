@@ -20,7 +20,7 @@ transcripts.
 <img alt="Ghostwriter Interview Mode" src="./assets/screenshot/app-interview.png" width="800" />
 
 ### Writer Mode
-<img alt="Ghostwriter Writer Mode" src="./assets/screenshot/app-writer.png" width="800" />
+<img alt="Ghostwriter Writer Mode" src="./assets/screenshot/app-writer-0.0.5.png" width="800" />
 
 ### Voice Generator Mode
 <img alt="Ghostwriter Voice Generator Mode" src="./assets/screenshot/app-voice.png" width="800" />
