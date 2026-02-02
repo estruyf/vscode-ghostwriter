@@ -191,7 +191,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
                   <button
                     key={draft.id}
                     onClick={() => handleOpenDraft(draft)}
-                    className="text-left p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10"
+                    className="text-left p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10 hover:cursor-pointer"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
