@@ -9,6 +9,8 @@ this file.
   in interview
 - [#14](https://github.com/estruyf/vscode-ghostwriter/issues/14): Improved the
   header on the interview view
+- [#15](https://github.com/estruyf/vscode-ghostwriter/issues/15): Better and
+  cleaner rendering for the frontmatter section
 - [#18](https://github.com/estruyf/vscode-ghostwriter/issues/18): Add the
   ability to reset the interview with a warning/confirmation dialog
 
