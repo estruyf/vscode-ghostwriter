@@ -1,12 +1,13 @@
 import { useCallback, useState } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { useDialog } from '../hooks/useDialog';
-import { useInterview } from '../hooks/useInterview';
-import ModelSelector from './ModelSelector';
-import ChatWindow from './ChatWindow';
-import ChatInput from './ChatInput';
-import { AgentDialog, CreateAgentForm } from './AgentManager';
-import { AgentFile } from '../types';
+import { useDialog } from '../../hooks/useDialog';
+import { useInterview } from '../../hooks/useInterview';
+import ModelSelector from '../ModelSelector';
+import ChatWindow from '../ChatWindow';
+import ChatInput from '../ChatInput';
+import { AgentDialog, CreateAgentForm } from '../AgentManager';
+import { AgentFile } from '../../types';
+import { VisitorBadge } from '../VisitorBadge';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -162,6 +163,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         isSending={isSending}
         textareaRef={textareaRef}
       />
+      <VisitorBadge viewType="interview" />
     </div>
   );
 }

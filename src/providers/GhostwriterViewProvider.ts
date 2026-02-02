@@ -8,6 +8,7 @@ import { StateService } from "../services/StateService";
 import { VoiceService } from "../services/VoiceService";
 import { PromptConfigService } from "../services/PromptConfigService";
 import { AgentService } from "../services/AgentService";
+import { DraftService } from "../services/DraftService";
 import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
@@ -128,7 +129,6 @@ export class GhostwriterViewProvider {
           const session = await InterviewService.startInterview(
             payload.agentPath,
             payload.modelId,
-            payload.language,
           );
           this.currentInterviewId = session.id;
           break;
@@ -412,6 +412,73 @@ export class GhostwriterViewProvider {
             const doc = await vscode.workspace.openTextDocument(uri);
             await vscode.window.showTextDocument(doc);
           }
+          break;
+        }
+
+        case "createDraft": {
+          const draft = await DraftService.createDraft(
+            payload.title,
+            payload.transcript,
+            payload.initialContent,
+            payload.voice,
+            payload.options,
+            payload.frontmatter,
+            payload.writerAgentPath,
+          );
+          if (requestId) {
+            this.postRequestMessage(command, requestId, draft);
+          }
+          break;
+        }
+
+        case "refineDraft": {
+          await DraftService.refineDraft(
+            payload.draftId,
+            payload.refinementPrompt,
+            payload.modelId,
+          );
+          break;
+        }
+
+        case "getAllDrafts": {
+          const drafts = await DraftService.getAllDrafts();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, drafts);
+          }
+          break;
+        }
+
+        case "getActiveDraft": {
+          const draft = DraftService.getActiveDraft();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, draft);
+          }
+          break;
+        }
+
+        case "setActiveDraft": {
+          const draft = await DraftService.setActiveDraft(payload.draftId);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, draft);
+          }
+          break;
+        }
+
+        case "switchToRevision": {
+          await DraftService.switchToRevision(
+            payload.draftId,
+            payload.revisionId,
+          );
+          break;
+        }
+
+        case "deleteDraft": {
+          await DraftService.deleteDraft(payload.draftId);
+          break;
+        }
+
+        case "exportDraft": {
+          await DraftService.exportDraft(payload.draftId);
           break;
         }
       }

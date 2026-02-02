@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import HomePage from './components/HomePage';
-import InterviewView from './components/InterviewView';
-import WriterView from './components/WriterView';
-import VoiceGeneratorView from './components/VoiceGeneratorView';
+import HomePage from './components/views/HomePage';
+import InterviewView from './components/views/InterviewView';
+import WriterView from './components/views/WriterView';
+import VoiceGeneratorView from './components/views/VoiceGeneratorView';
+import DraftsView from './components/views/DraftsView';
 
-type Page = 'home' | 'interview' | 'writer' | 'voice-generator';
+type Page = 'home' | 'interview' | 'writer' | 'voice-generator' | 'drafts';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -24,6 +25,9 @@ function App() {
       )}
       {currentPage === 'voice-generator' && (
         <VoiceGeneratorView onBack={() => handleNavigation('home')} />
+      )}
+      {currentPage === 'drafts' && (
+        <DraftsView onBack={() => handleNavigation('home')} />
       )}
 
       {/* Listen for navigation events */}
