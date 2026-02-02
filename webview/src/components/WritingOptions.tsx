@@ -1,25 +1,5 @@
 import { LanguageSelector } from './LanguageSelector';
 
-/**
- * Unescape literal escape sequences in frontmatter text
- * Converts \n to actual newlines, \" to quotes, etc.
- * Handles escaped backslashes (\\) correctly by using a placeholder approach
- */
-function unescapeFrontmatter(text: string): string {
-  // Use a unique placeholder that won't appear in normal text
-  const BACKSLASH_PLACEHOLDER = '\u0000BACKSLASH\u0000';
-  
-  return text
-    // First, protect escaped backslashes by replacing \\ with a placeholder
-    .replace(/\\\\/g, BACKSLASH_PLACEHOLDER)
-    // Now safely replace other escape sequences
-    .replace(/\\n/g, '\n')
-    .replace(/\\"/g, '"')
-    .replace(/\\t/g, '\t')
-    // Finally, restore the escaped backslashes as single backslashes
-    .replace(new RegExp(BACKSLASH_PLACEHOLDER, 'g'), '\\');
-}
-
 interface WritingOptionsProps {
   writingStyle: 'formal' | 'casual' | 'conversational';
   onStyleChange: (style: 'formal' | 'casual' | 'conversational') => void;
@@ -158,9 +138,9 @@ export function WritingOptions({
           <div className="space-y-2">
             {frontmatter ? (
               <>
-                <div className="px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg">
-                  <pre className="text-sm text-slate-200 font-mono overflow-x-auto max-h-32 overflow-y-auto whitespace-pre-wrap break-words">
-                    {unescapeFrontmatter(frontmatter)}
+                <div className="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg">
+                  <pre className="text-sm text-slate-300 overflow-x-auto max-h-24 overflow-y-auto whitespace-pre-wrap">
+                    {frontmatter}
                   </pre>
                 </div>
                 <button

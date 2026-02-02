@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { Draft, DraftRevision } from '../../types';
+import { Draft } from '../../types';
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
 import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { useDialog } from '../../hooks/useDialog';
 import ConfirmDialog from '../ConfirmDialog';
 import { VisitorBadge } from '../VisitorBadge';
+import { parseContent } from '../../utils/markdown';
 
 interface DraftIterationViewProps {
   draft: Draft;
@@ -20,7 +21,6 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
   const [isRefining, setIsRefining] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [showHistory, setShowHistory] = useState(false);
-  const [showDiff, setShowDiff] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const deleteDialog = useDialog();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -123,6 +123,10 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
 
   const displayContent = isRefining && streamingContent ? streamingContent : currentRevision?.content || '';
 
+  const { frontmatter, markdown: markdownContent } = parseContent(displayContent);
+
+  console.log('Rendering DraftIterationView with draft:', displayContent);
+
   return (
     <div className="flex flex-col h-screen bg-slate-950">
       {/* Header */}
@@ -200,13 +204,22 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           {/* Content Display */}
           <div className="flex-1 overflow-y-auto p-6" ref={contentRef}>
             <div className="max-w-4xl mx-auto">
+              {frontmatter && (
+                <div className="mb-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Frontmatter</h3>
+                  <pre className="text-sm text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap">
+                    {frontmatter}
+                  </pre>
+                </div>
+              )}
+
               <div className="prose prose-invert max-w-none">
-                {displayContent ? (
+                {markdownContent ? (
                   <Streamdown
                     className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
                     plugins={{ code: code }}
                   >
-                    {displayContent}
+                    {markdownContent}
                   </Streamdown>
                 ) : (
                   <div className="text-slate-400 text-center py-12">

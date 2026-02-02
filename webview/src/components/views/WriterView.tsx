@@ -14,6 +14,7 @@ import ConfirmDialog from '../ConfirmDialog';
 import { useWriterData, useDialog } from '../../hooks';
 import DraftIterationView from './DraftIterationView';
 import { VisitorBadge } from '../VisitorBadge';
+import { parseContent } from '../../utils/markdown';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -179,7 +180,13 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     if (!streamingContent) return;
 
     setIsSaving(true);
-    messageHandler.send('saveArticle', { content: streamingContent });
+
+    const { frontmatter, markdown } = parseContent(streamingContent);
+    const contentToSave = frontmatter
+      ? `---\n${frontmatter}\n---\n\n${markdown}`
+      : markdown;
+
+    messageHandler.send('saveArticle', { content: contentToSave });
     setIsSaving(false);
   }, [streamingContent]);
 
@@ -216,10 +223,15 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
 
     const title = `Draft ${new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')}`;
 
+    const { frontmatter, markdown } = parseContent(streamingContent);
+    const initialContent = frontmatter
+      ? `---\n${frontmatter}\n---\n\n${markdown}`
+      : markdown;
+
     const draft = await messageHandler.request<Draft>('createDraft', {
       title,
       transcript,
-      initialContent: streamingContent,
+      initialContent,
       voice,
       options: {
         style: writingStyle,
@@ -304,22 +316,41 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto" ref={contentRef}>
           <div className="p-6 max-w-4xl mx-auto">
-            <div className="prose prose-invert max-w-none">
-              {streamingContent ? (
-                <Streamdown
-                  className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
-                  plugins={{ code: code }}
-                >
-                  {streamingContent}
-                </Streamdown>
-              ) : (
+            {streamingContent ? (
+              (() => {
+                const { frontmatter, markdown } = parseContent(streamingContent);
+
+                return (
+                  <>
+                    {frontmatter && (
+                      <div className="mb-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Frontmatter</h3>
+                        <pre className="text-sm text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap">
+                          {frontmatter}
+                        </pre>
+                      </div>
+                    )}
+
+                    <div className="prose prose-invert max-w-none">
+                      <Streamdown
+                        className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
+                        plugins={{ code: code }}
+                      >
+                        {markdown}
+                      </Streamdown>
+                    </div>
+                  </>
+                );
+              })()
+            ) : (
+              <div className="prose prose-invert max-w-none">
                 <div className="flex gap-2 py-12">
                   <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" />
                   <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
                   <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
