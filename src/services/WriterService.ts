@@ -13,6 +13,7 @@ export interface WritingOptions {
   includeHeadings?: boolean;
   includeSEO?: boolean;
   keywords?: string;
+  language?: string;
 }
 
 export class WriterService {
@@ -150,6 +151,14 @@ ${frontmatter}
         );
       } else {
         systemPrompt = systemPrompt.replace("{{frontmatterSection}}", "");
+      }
+
+      if (options?.language) {
+        systemPrompt += `
+## Language Instructions
+
+- Write the article in ${options.language}.
+        `;
       }
 
       const messages = [

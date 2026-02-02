@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import ModelSelector from './ModelSelector';
+import ModelSelector from '../ModelSelector';
+import { VisitorBadge } from '../VisitorBadge';
 
 export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -235,6 +236,7 @@ export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
           )}
         </div>
       </div>
+      <VisitorBadge viewType="voice-generator" />
     </div>
   );
 }

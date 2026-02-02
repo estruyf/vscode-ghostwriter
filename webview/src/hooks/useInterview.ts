@@ -17,13 +17,14 @@ interface UseInterviewReturn {
   selectedAgent: string;
   selectedModelId: string;
   hasUserStarted: boolean;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
   sendMessage: (e: React.FormEvent) => void;
   startInterview: (overrides?: {
     agentPath?: string;
     modelId?: string;
   }) => void;
+  resumeInterview: (transcriptPath: string) => void;
   handleAgentSelect: (agentPath: string) => void;
   handleModelSelect: (modelId: string) => void;
 }
@@ -147,6 +148,28 @@ export function useInterview(): UseInterviewReturn {
     [selectedAgent, selectedModelId],
   );
 
+  const resumeInterview = useCallback(
+    (transcriptPath: string) => {
+      if (!selectedModelId) {
+        return;
+      }
+
+      setIsLoading(true);
+      setIsSending(false);
+      setMessages([]);
+      setHasUserStarted(true); // Mark as started since we're resuming
+
+      messageHandler.send("interview:resume", {
+        transcriptPath,
+        agentPath: selectedAgent || undefined,
+        modelId: selectedModelId || undefined,
+      });
+
+      hasStartedRef.current = true;
+    },
+    [selectedAgent, selectedModelId],
+  );
+
   // Start interview once model is selected
   useEffect(() => {
     if (!hasStartedRef.current && selectedModelId) {
@@ -176,15 +199,21 @@ export function useInterview(): UseInterviewReturn {
       setInputValue("");
       setIsSending(true);
 
+      // First message is the topic
       if (!hasUserStarted) {
         setHasUserStarted(true);
+        // Send topic to create the transcript file
+        messageHandler.send("interview:setTopic", {
+          topic: userMessage,
+          modelId: selectedModelId || undefined,
+        });
+      } else {
+        // Regular interview message
+        messageHandler.send("interview:message", {
+          message: userMessage,
+          modelId: selectedModelId || undefined,
+        });
       }
-
-      // Send message to extension
-      messageHandler.send("interview:message", {
-        message: userMessage,
-        modelId: selectedModelId || undefined,
-      });
     },
     [inputValue, isSending, selectedModelId, hasUserStarted],
   );
@@ -195,7 +224,10 @@ export function useInterview(): UseInterviewReturn {
       setSelectedAgent(agentPath);
       messageHandler.send("setSelectedInterviewerAgent", { agentPath });
       if (hasStartedRef.current) {
-        startInterview({ agentPath, modelId: selectedModelId });
+        startInterview({
+          agentPath,
+          modelId: selectedModelId,
+        });
       }
     },
     [hasUserStarted, selectedModelId, startInterview],
@@ -206,7 +238,10 @@ export function useInterview(): UseInterviewReturn {
       if (hasUserStarted) return;
       setSelectedModelId(modelId);
       if (hasStartedRef.current) {
-        startInterview({ agentPath: selectedAgent, modelId });
+        startInterview({
+          agentPath: selectedAgent,
+          modelId,
+        });
       }
     },
     [hasUserStarted, selectedAgent, startInterview],
@@ -226,6 +261,7 @@ export function useInterview(): UseInterviewReturn {
     messagesEndRef,
     sendMessage,
     startInterview,
+    resumeInterview,
     handleAgentSelect,
     handleModelSelect,
   };

@@ -3,13 +3,14 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
-## [Unreleased]
+## [0.0.5] - 2026-02-02
 
-- Integration with Front Matter CMS for seamless content management
-  - Automatically detects Front Matter CMS installation
-  - Saves articles to Front Matter's content directory when available
-  - Opens saved articles in Front Matter's interface
-  - Enables Front Matter's workflow and publishing features
+- [#6](https://github.com/estruyf/vscode-ghostwriter/issues/6): Draft Iteration
+  Mode. Conversational refinement instead of one-shot generation
+- [#8](https://github.com/estruyf/vscode-ghostwriter/issues/8): Multi-language
+  support for content generation
+- [#9](https://github.com/estruyf/vscode-ghostwriter/issues/9): Have the ability
+  to resume interviews
 
 ## [0.0.4] - 2026-01-31
 

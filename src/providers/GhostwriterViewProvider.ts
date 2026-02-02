@@ -9,6 +9,7 @@ import { VoiceService } from "../services/VoiceService";
 import { PromptConfigService } from "../services/PromptConfigService";
 import { AgentService } from "../services/AgentService";
 import { FrontMatterService } from "../services/FrontMatterService";
+import { DraftService } from "../services/DraftService";
 import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
@@ -108,6 +109,19 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "getSelectedLanguage": {
+          const language = StateService.getSelectedLanguage();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, language);
+          }
+          break;
+        }
+
+        case "setSelectedLanguage": {
+          await StateService.setSelectedLanguage(payload.language);
+          break;
+        }
+
         case "interview:start": {
           if (this.currentInterviewId) {
             await InterviewService.discardInterview(this.currentInterviewId);
@@ -118,6 +132,39 @@ export class GhostwriterViewProvider {
             payload.modelId,
           );
           this.currentInterviewId = session.id;
+          break;
+        }
+
+        case "interview:resume": {
+          if (this.currentInterviewId) {
+            await InterviewService.discardInterview(this.currentInterviewId);
+            this.currentInterviewId = null;
+          }
+          const session = await InterviewService.resumeInterview(
+            payload.transcriptPath,
+            payload.agentPath,
+            payload.modelId,
+          );
+          this.currentInterviewId = session.id;
+          break;
+        }
+
+        case "interview:setTopic": {
+          if (!this.currentInterviewId) {
+            throw new Error("No active interview session");
+          }
+          const transcriptPath = await InterviewService.setInterviewTopic(
+            this.currentInterviewId,
+            payload.topic,
+          );
+          await InterviewService.startInterviewQuestions(
+            this.currentInterviewId,
+            payload.modelId,
+          );
+          // Send transcript path to webview
+          if (transcriptPath) {
+            this.postMessage("transcriptCreated", { transcriptPath });
+          }
           break;
         }
 
@@ -410,11 +457,78 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "createDraft": {
+          const draft = await DraftService.createDraft(
+            payload.title,
+            payload.transcript,
+            payload.initialContent,
+            payload.voice,
+            payload.options,
+            payload.frontmatter,
+            payload.writerAgentPath,
+          );
+          if (requestId) {
+            this.postRequestMessage(command, requestId, draft);
+          }
+          break;
+        }
+
         case "getFrontMatterContentDirectory": {
           const contentDir = await FrontMatterService.getContentDirectory();
           if (requestId) {
             this.postRequestMessage(command, requestId, contentDir);
           }
+          break;
+        }
+
+        case "refineDraft": {
+          await DraftService.refineDraft(
+            payload.draftId,
+            payload.refinementPrompt,
+            payload.modelId,
+          );
+          break;
+        }
+
+        case "getAllDrafts": {
+          const drafts = await DraftService.getAllDrafts();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, drafts);
+          }
+          break;
+        }
+
+        case "getActiveDraft": {
+          const draft = DraftService.getActiveDraft();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, draft);
+          }
+          break;
+        }
+
+        case "setActiveDraft": {
+          const draft = await DraftService.setActiveDraft(payload.draftId);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, draft);
+          }
+          break;
+        }
+
+        case "switchToRevision": {
+          await DraftService.switchToRevision(
+            payload.draftId,
+            payload.revisionId,
+          );
+          break;
+        }
+
+        case "deleteDraft": {
+          await DraftService.deleteDraft(payload.draftId);
+          break;
+        }
+
+        case "exportDraft": {
+          await DraftService.exportDraft(payload.draftId);
           break;
         }
       }

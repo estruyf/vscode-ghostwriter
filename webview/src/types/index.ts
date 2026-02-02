@@ -34,4 +34,30 @@ export interface AgentFile {
   content: string;
 }
 
+export interface DraftRevision {
+  id: string;
+  content: string;
+  prompt?: string;
+  timestamp: number;
+}
+
+export interface Draft {
+  id: string;
+  title: string;
+  transcript: string;
+  voice?: string;
+  currentRevisionId: string;
+  revisions: DraftRevision[];
+  createdAt: number;
+  updatedAt: number;
+  options?: {
+    style?: "formal" | "casual" | "conversational";
+    includeHeadings?: boolean;
+    includeSEO?: boolean;
+    keywords?: string;
+  };
+  frontmatter?: string;
+  writerAgentPath?: string;
+}
+
 export type ViewMode = "interview" | "writer";

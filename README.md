@@ -14,13 +14,13 @@ transcripts.
 <div align="center">
 
 ### Home View
-<img alt="Ghostwriter Home View" src="./assets/screenshot/app-home.png" width="800" />
+<img alt="Ghostwriter Home View" src="./assets/screenshot/app-home-0.0.5.png" width="800" />
 
 ### Interview Mode
 <img alt="Ghostwriter Interview Mode" src="./assets/screenshot/app-interview.png" width="800" />
 
 ### Writer Mode
-<img alt="Ghostwriter Writer Mode" src="./assets/screenshot/app-writer.png" width="800" />
+<img alt="Ghostwriter Writer Mode" src="./assets/screenshot/app-writer-0.0.5.png" width="800" />
 
 ### Voice Generator Mode
 <img alt="Ghostwriter Voice Generator Mode" src="./assets/screenshot/app-voice.png" width="800" />
@@ -33,10 +33,18 @@ transcripts.
 - **Interactive AI Interviews**: Conduct dynamic interviews with GitHub Copilot
   asking relevant questions
 - **Smart Conversation Flow**: AI adapts questions based on your responses
+- **Instant Transcript Creation**: Transcripts are created immediately when you
+  provide the interview topic and saved to `.ghostwriter/transcripts/`
+- **Real-time File Updates**: Each question and answer is written to the
+  transcript file as it happens, preventing data loss
+- **Resume Interrupted Interviews**: Resume an interview from where it left off
+  by selecting an existing transcript file
 - **Auto-completion Detection**: Automatically detects when the interview is
   complete
 - **Model Selection**: Choose from available GitHub Copilot models (GPT-4o,
   GPT-4o mini, etc.)
+- **Multi-Language Support**: Conduct interviews in over 20 languages including
+  Spanish, French, German, Chinese, Japanese, and more
 - **Interviewer Agents**: Create, manage, and select custom interviewer prompts
   stored in `.ghostwriter/interviewer`
 - **Transcript Management**: Automatically saves formatted transcripts to the
@@ -50,6 +58,8 @@ transcripts.
   consistent tone
 - **Model Selection**: Choose specific GitHub Copilot models for content
   generation
+- **Multi-Language Support**: Generate content in over 20 languages including
+  Spanish, French, German, Chinese, Japanese, and more
 - **Writer Agents**: Create, manage, and select custom writer prompts stored in
   `.ghostwriter/writer`
 - **Writing Style Options**:
@@ -67,6 +77,23 @@ transcripts.
   - Leverage Front Matter's workflow and publishing features
 - **Real-time Streaming**: Watch your article being generated in real-time
 - **Direct File Save**: Save generated articles directly to your workspace
+- **Draft Iteration Mode**: Refine your articles conversationally with iterative
+  improvements
+
+### Draft Iteration Mode
+- **Conversational Refinement**: Instead of one-shot generation, refine your
+  articles with natural language prompts
+  - "Make the intro more engaging"
+  - "Add more technical depth to section 3"
+  - "This sounds too formal, make it more like my other posts"
+- **Revision History**: Track all changes with automatic revision management
+- **Version Navigation**: Browse through previous versions with prev/next
+  controls
+- **Side-by-side History**: View revision history sidebar showing all refinement
+  prompts
+- **Persistent Drafts**: Drafts saved to `.ghostwriter/drafts/` and accessible
+  from home page
+- **Export Options**: Export final version as markdown at any time
 
 ### Voice Generator Mode
 - **Writing Style Analysis**: Automatically analyze your existing writing to
@@ -86,6 +113,7 @@ transcripts.
 
 ### State Persistence
 - **Model Preferences**: Selected GitHub Copilot model persists across sessions
+- **Language Preferences**: Selected content language persists across sessions
 - **Frontmatter Templates**: Save and reuse frontmatter templates for all
   articles
 - **Agent Selection**: Selected interviewer and writer agents persist across
@@ -110,10 +138,24 @@ transcripts.
 2. Click on "Start Interview"
 3. (Optional) Select or create an interviewer agent to shape the interview
 4. Select your preferred GitHub Copilot model
-5. Answer the AI's questions in the chat interface
-6. The AI will automatically detect completion and generate a formatted
-   transcript
-7. Transcript is saved to `.ghostwriter/transcripts/` folder
+5. The AI will first ask you for the interview topic
+6. Once you provide the topic, a transcript file is immediately created in
+   `.ghostwriter/transcripts/`
+7. Answer the AI's questions in the chat interface
+8. Each question and answer is saved to the transcript file in real-time
+9. The AI will automatically detect completion and save the final transcript
+10. If the editor closes unexpectedly, your progress is saved in the transcript
+    file
+
+### Resuming an Interrupted Interview
+
+1. Open the Ghostwriter panel
+2. Click on "Start Interview"
+3. Click the "Resume Interview" button in the header
+4. Select the transcript file you want to continue from the dialog
+5. Click "Resume"
+6. The interview will continue from where it left off, with all previous Q&As
+   loaded
 
 ### Generating Content from Transcripts
 
@@ -124,13 +166,37 @@ transcripts.
 5. (Optional) Select a voice file to maintain consistent writing style
 6. Configure writing options:
   - Choose writing style (Formal/Casual/Conversational)
+  - Select content language (English, Spanish, French, German, etc.)
   - Enable/disable headings and SEO optimization
   - Add target keywords for SEO
   - Configure frontmatter template
 7. Select your preferred GitHub Copilot model
 8. Click "Start Writing"
 9. Watch the article generate in real-time
-10. Save the article to your workspace
+10. Choose to either:
+    - Click "Iterate Draft" to enter Draft Iteration Mode for refinement
+    - Click "Save Article" to save directly to your workspace
+
+### Using Draft Iteration Mode
+
+1. After generating an article in Writer mode, click "Iterate Draft"
+2. The draft is automatically saved to `.ghostwriter/drafts/`
+3. Use the refinement input to conversationally improve your content:
+   - Example: "Make the intro more engaging"
+   - Example: "Add more technical depth to section 3"
+   - Example: "This sounds too formal, make it more conversational"
+4. Each refinement creates a new revision with full history
+5. Navigate between revisions using prev/next buttons
+6. View all revisions in the history sidebar (toggle with History button)
+7. Export the final version using the "Export" button
+8. Access saved drafts anytime from the "My Drafts" card on the home page
+
+### Managing Drafts
+
+1. From the home page, click "My Drafts"
+2. View all saved drafts with preview and metadata
+3. Click on any draft to continue working on it
+4. Delete drafts you no longer need
 
 ### Setting Up Frontmatter Templates
 
@@ -194,7 +260,8 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 ├── transcripts/     # Interview transcripts (.md files)
 ├── voices/          # Voice files for writing style (.md files)
 ├── interviewer/     # Interviewer agents (.md files)
-└── writer/          # Writer agents (.md files)
+├── writer/          # Writer agents (.md files)
+└── drafts/          # Draft iterations (.json files)
 ```
 
 ## Commands
@@ -213,7 +280,9 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 
 This extension stores the following in workspace state:
 - Selected GitHub Copilot model ID
+- Selected content language
 - Frontmatter template for articles
+- Selected interviewer and writer agents
 
 ## Development
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
 import { PromptConfig, PromptConfigInput } from '../types';
+import ConfirmDialog from './ConfirmDialog';
 
 interface PromptConfigManagerProps {
   selectedConfigId?: string;
@@ -23,6 +24,50 @@ export default function PromptConfigManager({
   });
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  const [alertDialog, setAlertDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+    showCancel: boolean;
+    confirmText?: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: () => { },
+    showCancel: false
+  });
+
+  const showAlert = (message: string, title = 'Error') => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      message,
+      type: 'info',
+      onConfirm: () => setAlertDialog(prev => ({ ...prev, isOpen: false })),
+      showCancel: false,
+      confirmText: 'OK'
+    });
+  };
+
+  const showConfirm = (message: string, onConfirmAction: () => void, title = 'Confirm Action') => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      message,
+      type: 'warning',
+      onConfirm: () => {
+        onConfirmAction();
+        setAlertDialog(prev => ({ ...prev, isOpen: false }));
+      },
+      showCancel: true,
+      confirmText: 'Confirm'
+    });
+  };
+
   useEffect(() => {
     loadConfigs();
   }, []);
@@ -38,7 +83,7 @@ export default function PromptConfigManager({
 
   const handleCreate = async () => {
     if (!formData.name || !formData.domain || !formData.systemPrompt) {
-      alert('Please fill in all required fields');
+      showAlert('Please fill in all required fields', 'Validation Error');
       return;
     }
 
@@ -48,17 +93,17 @@ export default function PromptConfigManager({
           id: editingId,
           updates: formData,
         });
-        setConfigs(configs.map(c => c.id === editingId ? updated : c));
+        setConfigs(prev => prev.map(c => c.id === editingId ? updated : c));
         setEditingId(null);
       } else {
         const created = await messageHandler.request<PromptConfig>('createPromptConfig', formData);
-        setConfigs([...configs, created]);
+        setConfigs(prev => [...prev, created]);
       }
       resetForm();
       setShowForm(false);
     } catch (error) {
       console.error('Error saving prompt config:', error);
-      alert('Failed to save prompt configuration');
+      showAlert('Failed to save prompt configuration');
     }
   };
 
@@ -74,21 +119,19 @@ export default function PromptConfigManager({
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this configuration?')) {
-      return;
-    }
-
-    try {
-      await messageHandler.request('deletePromptConfig', { id });
-      setConfigs(configs.filter(c => c.id !== id));
-      if (selectedConfigId === id) {
-        onSelect('');
+  const handleDelete = (id: string) => {
+    showConfirm('Are you sure you want to delete this configuration?', async () => {
+      try {
+        await messageHandler.request('deletePromptConfig', { id });
+        setConfigs(prev => prev.filter(c => c.id !== id));
+        if (selectedConfigId === id) {
+          onSelect('');
+        }
+      } catch (error) {
+        console.error('Error deleting prompt config:', error);
+        showAlert('Failed to delete prompt configuration');
       }
-    } catch (error) {
-      console.error('Error deleting prompt config:', error);
-      alert('Failed to delete prompt configuration');
-    }
+    });
   };
 
   const handleExport = async (config: PromptConfig) => {
@@ -103,7 +146,7 @@ export default function PromptConfigManager({
       document.body.removeChild(element);
     } catch (error) {
       console.error('Error exporting prompt config:', error);
-      alert('Failed to export configuration');
+      showAlert('Failed to export configuration');
     }
   };
 
@@ -118,13 +161,13 @@ export default function PromptConfigManager({
         if (file) {
           const text = await file.text();
           const imported = await messageHandler.request<PromptConfig>('importPromptConfig', { json: text });
-          setConfigs([...configs, imported]);
+          setConfigs(prev => [...prev, imported]);
         }
       };
       input.click();
     } catch (error) {
       console.error('Error importing prompt config:', error);
-      alert('Failed to import configuration');
+      showAlert('Failed to import configuration');
     }
   };
 
@@ -359,6 +402,17 @@ export default function PromptConfigManager({
           ))
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={alertDialog.isOpen}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        onConfirm={alertDialog.onConfirm}
+        onCancel={() => setAlertDialog(prev => ({ ...prev, isOpen: false }))}
+        variant={alertDialog.type}
+        showCancel={alertDialog.showCancel}
+        confirmText={alertDialog.confirmText}
+      />
     </div>
   );
 }
