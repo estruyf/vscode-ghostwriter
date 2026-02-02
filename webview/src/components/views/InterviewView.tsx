@@ -143,7 +143,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
               value={selectedAgent}
               onChange={(e) => handleAgentSelect(e.target.value)}
               disabled={hasUserStarted}
-              className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
+              className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 disabled:opacity-50"
             >
               <option value="">Default Interviewer</option>
               {agents.map((agent) => (
@@ -171,7 +171,6 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
           </div>
           <button
             onClick={handleResumeClick}
-            disabled={hasUserStarted}
             className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
             title="Resume an Existing Interview"
             aria-label={hasUserStarted ? "Resume Interview (disabled during active interview)" : "Resume an Existing Interview"}
