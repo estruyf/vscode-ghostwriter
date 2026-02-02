@@ -3,13 +3,21 @@ import { LanguageSelector } from './LanguageSelector';
 /**
  * Unescape literal escape sequences in frontmatter text
  * Converts \n to actual newlines, \" to quotes, etc.
+ * Handles escaped backslashes (\\) correctly by using a placeholder approach
  */
 function unescapeFrontmatter(text: string): string {
+  // Use a unique placeholder that won't appear in normal text
+  const BACKSLASH_PLACEHOLDER = '\u0000BACKSLASH\u0000';
+  
   return text
+    // First, protect escaped backslashes by replacing \\ with a placeholder
+    .replace(/\\\\/g, BACKSLASH_PLACEHOLDER)
+    // Now safely replace other escape sequences
     .replace(/\\n/g, '\n')
     .replace(/\\"/g, '"')
     .replace(/\\t/g, '\t')
-    .replace(/\\\\/g, '\\');
+    // Finally, restore the escaped backslashes as single backslashes
+    .replace(new RegExp(BACKSLASH_PLACEHOLDER, 'g'), '\\');
 }
 
 interface WritingOptionsProps {
