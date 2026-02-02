@@ -5,8 +5,9 @@ interface ConfirmDialogProps {
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
   variant?: 'danger' | 'warning' | 'info';
+  showCancel?: boolean;
 }
 
 /**
@@ -22,6 +23,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   variant = 'danger',
+  showCancel = true,
 }: ConfirmDialogProps) {
   if (!isOpen) return null;
 
@@ -46,12 +48,14 @@ export default function ConfirmDialog({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-700 flex gap-3 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition-colors hover:cursor-pointer"
-          >
-            {cancelText}
-          </button>
+          {showCancel && onCancel && (
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition-colors hover:cursor-pointer"
+            >
+              {cancelText}
+            </button>
+          )}
           <button
             onClick={onConfirm}
             className={`px-4 py-2 ${variantStyles[variant]} text-white font-semibold rounded-lg transition-colors hover:cursor-pointer`}

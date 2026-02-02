@@ -499,7 +499,7 @@ export class InterviewService {
     }
 
     // Split content by ## headers (role markers)
-    const sections = content.split(/^## /m).filter((s) => s.trim());
+    const sections = content.split(/^### /m).filter((s) => s.trim());
 
     for (const section of sections) {
       const lines = section.split("\n");

@@ -4,6 +4,7 @@ import { Draft } from '../../types';
 import { FileEdit, Trash2, Clock } from 'lucide-react';
 import DraftIterationView from './DraftIterationView';
 import { VisitorBadge } from '../VisitorBadge';
+import ConfirmDialog from '../ConfirmDialog';
 
 interface DraftsViewProps {
   onBack: () => void;
@@ -13,6 +14,50 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeDraft, setActiveDraft] = useState<Draft | null>(null);
+  
+  const [alertDialog, setAlertDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+    showCancel: boolean;
+    confirmText?: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: () => { },
+    showCancel: false
+  });
+
+  const showAlert = useCallback((message: string, title = 'Error') => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      message,
+      type: 'info',
+      onConfirm: () => setAlertDialog(prev => ({ ...prev, isOpen: false })),
+      showCancel: false,
+      confirmText: 'OK'
+    });
+  }, []);
+
+  const showConfirm = useCallback((message: string, onConfirmAction: () => void, title = 'Confirm Action') => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      message,
+      type: 'warning',
+      onConfirm: () => {
+        onConfirmAction();
+        setAlertDialog(prev => ({ ...prev, isOpen: false }));
+      },
+      showCancel: true,
+      confirmText: 'Delete'
+    });
+  }, []);
 
   useEffect(() => {
     loadDrafts();
@@ -40,24 +85,23 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
       }
     } catch (error) {
       console.error('Failed to open draft:', error);
-      alert('Failed to open draft');
+      showAlert('Failed to open draft');
     }
-  }, []);
+  }, [showAlert]);
 
-  const handleDeleteDraft = useCallback(async (draftId: string, e: React.MouseEvent) => {
+  const handleDeleteDraft = useCallback((draftId: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    const confirmed = confirm('Are you sure you want to delete this draft? This cannot be undone.');
-    if (!confirmed) return;
-
-    try {
-      await messageHandler.send('deleteDraft', { draftId });
-      setDrafts(drafts.filter(d => d.id !== draftId));
-    } catch (error) {
-      console.error('Failed to delete draft:', error);
-      alert('Failed to delete draft');
-    }
-  }, [drafts]);
+    showConfirm('Are you sure you want to delete this draft? This cannot be undone.', async () => {
+      try {
+        await messageHandler.send('deleteDraft', { draftId });
+        setDrafts(prev => prev.filter(d => d.id !== draftId));
+      } catch (error) {
+        console.error('Failed to delete draft:', error);
+        showAlert('Failed to delete draft');
+      }
+    });
+  }, [showConfirm, showAlert]);
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -191,6 +235,17 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
         </div>
       </div>
       <VisitorBadge viewType="drafts" />
+
+      <ConfirmDialog
+        isOpen={alertDialog.isOpen}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        onConfirm={alertDialog.onConfirm}
+        onCancel={() => setAlertDialog(prev => ({ ...prev, isOpen: false }))}
+        variant={alertDialog.type}
+        showCancel={alertDialog.showCancel}
+        confirmText={alertDialog.confirmText}
+      />
     </div>
   );
 }

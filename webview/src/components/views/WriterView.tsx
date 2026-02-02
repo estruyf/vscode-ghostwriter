@@ -10,6 +10,7 @@ import { VoiceSelector } from '../VoiceSelector';
 import { WritingOptions } from '../WritingOptions';
 import AgentDialog from '../AgentManager/AgentDialog';
 import CreateAgentForm from '../AgentManager/CreateAgentForm';
+import ConfirmDialog from '../ConfirmDialog';
 import { useWriterData, useDialog } from '../../hooks';
 import DraftIterationView from './DraftIterationView';
 import { VisitorBadge } from '../VisitorBadge';
@@ -41,6 +42,33 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [activeDraft, setActiveDraft] = useState<Draft | null>(null);
   const [language, setLanguage] = useState<string>('');
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const [alertDialog, setAlertDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+    showCancel: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: () => { },
+    showCancel: false
+  });
+
+  const showAlert = useCallback((message: string, title = 'Error') => {
+    setAlertDialog({
+      isOpen: true,
+      title,
+      message,
+      type: 'info',
+      onConfirm: () => setAlertDialog(prev => ({ ...prev, isOpen: false })),
+      showCancel: false
+    });
+  }, []);
 
   // Scroll to bottom when content updates
   useEffect(() => {
@@ -157,7 +185,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
 
   const handleCreateWriterAgent = useCallback(async () => {
     if (!newAgentName.trim()) {
-      alert('Please enter an agent name');
+      showAlert('Please enter an agent name', 'Validation Error');
       return;
     }
 
@@ -167,18 +195,18 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       setNewAgentName('');
     } catch (error) {
       console.error('Error creating writer agent:', error);
-      alert('Failed to create agent');
+      showAlert('Failed to create agent');
     }
-  }, [newAgentName, writerHandlers, createAgentDialog]);
+  }, [newAgentName, writerHandlers, createAgentDialog, showAlert]);
 
   const handleEditWriterAgent = useCallback(async (agent: AgentFile) => {
     try {
       await writerHandlers.handleEditWriterAgent(agent);
     } catch (error) {
       console.error('Error opening agent file:', error);
-      alert('Failed to open agent file');
+      showAlert('Failed to open agent file');
     }
-  }, [writerHandlers]);
+  }, [writerHandlers, showAlert]);
 
   const enterDraftMode = useCallback(async () => {
     if (!streamingContent || !isFinishedWriting) return;
@@ -327,6 +355,17 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
         onNew={createAgentDialog.open}
         title="Manage Writer Agents"
         emptyMessage="No writer agents yet. Create one to get started."
+      />
+
+      <ConfirmDialog
+        isOpen={alertDialog.isOpen}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        onConfirm={alertDialog.onConfirm}
+        onCancel={() => setAlertDialog(prev => ({ ...prev, isOpen: false }))}
+        variant={alertDialog.type}
+        showCancel={alertDialog.showCancel}
+        confirmText="OK"
       />
 
       {/* Create Agent Form */}

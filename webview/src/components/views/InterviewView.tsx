@@ -9,6 +9,7 @@ import { AgentDialog, CreateAgentForm } from '../AgentManager';
 import { AgentFile, TranscriptFile } from '../../types';
 import { VisitorBadge } from '../VisitorBadge';
 import { TranscriptSelector } from '../TranscriptSelector';
+import ConfirmDialog from '../ConfirmDialog';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -36,15 +37,23 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
   const agentDialog = useDialog();
   const createAgentDialog = useDialog();
   const resumeDialog = useDialog();
+  const alertDialog = useDialog();
+  const [alertInfo, setAlertInfo] = useState({ title: '', message: '' });
+
   const [newAgentName, setNewAgentName] = useState('');
   const [transcripts, setTranscripts] = useState<TranscriptFile[]>([]);
   const [selectedTranscript, setSelectedTranscript] = useState<string>('');
   const [customTranscript, setCustomTranscript] = useState<string>('');
 
+  const showAlert = useCallback((title: string, message: string) => {
+    setAlertInfo({ title, message });
+    alertDialog.open();
+  }, [alertDialog]);
+
   // Agent management handlers
   const handleCreateAgent = useCallback(async () => {
     if (!newAgentName.trim()) {
-      alert('Please enter an agent name');
+      showAlert('Input Required', 'Please enter an agent name');
       return;
     }
 
@@ -58,18 +67,18 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
       await messageHandler.send('openAgentFile', { agentPath: agent.path });
     } catch (error) {
       console.error('Error creating interviewer agent:', error);
-      alert('Failed to create agent');
+      showAlert('Error', 'Failed to create agent');
     }
-  }, [newAgentName, createAgentDialog]);
+  }, [newAgentName, createAgentDialog, showAlert]);
 
   const handleEditAgent = useCallback(async (agent: AgentFile) => {
     try {
       await messageHandler.send('openAgentFile', { agentPath: agent.path });
     } catch (error) {
       console.error('Error opening agent file:', error);
-      alert('Failed to open agent file');
+      showAlert('Error', 'Failed to open agent file');
     }
-  }, []);
+  }, [showAlert]);
 
   const handleResumeClick = useCallback(async () => {
     try {
@@ -80,9 +89,9 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
       resumeDialog.open();
     } catch (error) {
       console.error('Error loading transcripts:', error);
-      alert('Failed to load transcripts');
+      showAlert('Error', 'Failed to load transcripts');
     }
-  }, [resumeDialog]);
+  }, [resumeDialog, showAlert]);
 
   const handleCustomTranscriptSelect = useCallback(async () => {
     try {
@@ -99,13 +108,13 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
   const handleResumeConfirm = useCallback(() => {
     const transcriptPath = selectedTranscript || customTranscript;
     if (!transcriptPath) {
-      alert('Please select a transcript to resume');
+      showAlert('Selection Required', 'Please select a transcript to resume');
       return;
     }
 
     resumeInterview(transcriptPath);
     resumeDialog.close();
-  }, [selectedTranscript, customTranscript, resumeInterview, resumeDialog]);
+  }, [selectedTranscript, customTranscript, resumeInterview, resumeDialog, showAlert]);
 
 
   return (
@@ -244,6 +253,17 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         isSending={isSending}
         textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
       />
+
+      <ConfirmDialog
+        isOpen={alertDialog.isOpen}
+        title={alertInfo.title}
+        message={alertInfo.message}
+        onConfirm={alertDialog.close}
+        showCancel={false}
+        confirmText="OK"
+        variant="info"
+      />
+
       <VisitorBadge viewType="interview" />
     </div>
   );
