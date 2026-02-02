@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { Draft, DraftRevision } from '../types';
+import { Draft, DraftRevision } from '../../types';
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
 import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
-import { useDialog } from '../hooks/useDialog';
-import ConfirmDialog from './ConfirmDialog';
+import { useDialog } from '../../hooks/useDialog';
+import ConfirmDialog from '../ConfirmDialog';
 
 interface DraftIterationViewProps {
   draft: Draft;

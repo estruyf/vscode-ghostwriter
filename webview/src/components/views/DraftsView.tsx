@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { Draft } from '../types';
+import { Draft } from '../../types';
 import { FileEdit, Trash2, Clock } from 'lucide-react';
 import DraftIterationView from './DraftIterationView';
 
@@ -45,7 +45,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
 
   const handleDeleteDraft = useCallback(async (draftId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     const confirmed = confirm('Are you sure you want to delete this draft? This cannot be undone.');
     if (!confirmed) return;
 
@@ -73,10 +73,10 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
     } else if (diffDays < 7) {
       return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
     } else {
-      return date.toLocaleDateString(undefined, { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
       });
     }
   };
@@ -141,7 +141,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
               {drafts.map((draft) => {
                 const currentRevision = draft.revisions.find(r => r.id === draft.currentRevisionId);
                 const preview = currentRevision?.content.substring(0, 200) || '';
-                
+
                 return (
                   <button
                     key={draft.id}

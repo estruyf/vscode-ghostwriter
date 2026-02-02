@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { useDialog } from '../hooks/useDialog';
-import { useInterview } from '../hooks/useInterview';
-import ModelSelector from './ModelSelector';
-import ChatWindow from './ChatWindow';
-import ChatInput from './ChatInput';
-import { AgentDialog, CreateAgentForm } from './AgentManager';
-import { AgentFile } from '../types';
+import { useDialog } from '../../hooks/useDialog';
+import { useInterview } from '../../hooks/useInterview';
+import ModelSelector from '../ModelSelector';
+import ChatWindow from '../ChatWindow';
+import ChatInput from '../ChatInput';
+import { AgentDialog, CreateAgentForm } from '../AgentManager';
+import { AgentFile } from '../../types';
 
 declare const acquireVsCodeApi: () => any;
 

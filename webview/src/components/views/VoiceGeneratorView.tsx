@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import ModelSelector from './ModelSelector';
+import ModelSelector from '../ModelSelector';
 
 export default function VoiceGeneratorView({ onBack }: { onBack: () => void }) {
   const [isGenerating, setIsGenerating] = useState(false);

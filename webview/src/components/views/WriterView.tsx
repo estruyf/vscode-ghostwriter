@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
-import { AgentFile, Draft } from '../types';
+import { AgentFile, Draft } from '../../types';
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
-import ModelSelector from './ModelSelector';
-import { TranscriptSelector } from './TranscriptSelector';
-import { VoiceSelector } from './VoiceSelector';
-import { WritingOptions } from './WritingOptions';
-import AgentDialog from './AgentManager/AgentDialog';
-import CreateAgentForm from './AgentManager/CreateAgentForm';
-import { useWriterData, useDialog } from '../hooks';
+import ModelSelector from '../ModelSelector';
+import { TranscriptSelector } from '../TranscriptSelector';
+import { VoiceSelector } from '../VoiceSelector';
+import { WritingOptions } from '../WritingOptions';
+import AgentDialog from '../AgentManager/AgentDialog';
+import CreateAgentForm from '../AgentManager/CreateAgentForm';
+import { useWriterData, useDialog } from '../../hooks';
 import DraftIterationView from './DraftIterationView';
 
 declare const acquireVsCodeApi: () => any;
