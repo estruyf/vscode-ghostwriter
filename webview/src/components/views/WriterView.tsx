@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
 import { AgentFile, Draft } from '../../types';
-import { Streamdown } from 'streamdown';
-import { code } from "@streamdown/code";
 import { Save } from 'lucide-react';
 import ModelSelector from '../ModelSelector';
 import { TranscriptSelector } from '../TranscriptSelector';
@@ -15,7 +13,7 @@ import { useWriterData, useDialog } from '../../hooks';
 import DraftIterationView from './DraftIterationView';
 import { VisitorBadge } from '../VisitorBadge';
 import { parseContent } from '../../utils/markdown';
-import { CustomLinkModal } from '../CustomLinkModal';
+import { MarkdownRenderer } from '../MarkdownRenderer';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -332,21 +330,9 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
                       </div>
                     )}
 
-                    <div className="prose prose-invert max-w-none">
-                      <Streamdown
-                        className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
-                        plugins={{ code: code }}
-                        controls={{
-                          table: false,
-                        }}
-                        linkSafety={{
-                          enabled: true,
-                          renderModal: (props) => <CustomLinkModal {...props} />,
-                        }}
-                      >
-                        {markdown}
-                      </Streamdown>
-                    </div>
+                    <MarkdownRenderer
+                      content={markdown}
+                    />
                   </>
                 );
               })()

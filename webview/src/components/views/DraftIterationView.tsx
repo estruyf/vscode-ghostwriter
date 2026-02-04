@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
 import { Draft } from '../../types';
-import { Streamdown } from 'streamdown';
-import { code } from "@streamdown/code";
 import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { useDialog } from '../../hooks/useDialog';
 import ConfirmDialog from '../ConfirmDialog';
 import { VisitorBadge } from '../VisitorBadge';
+import { MarkdownRenderer } from '../MarkdownRenderer';
 import { parseContent } from '../../utils/markdown';
-import { CustomLinkModal } from '../CustomLinkModal';
 
 interface DraftIterationViewProps {
   draft: Draft;
@@ -212,27 +210,9 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
                 </div>
               )}
 
-              <div className="prose prose-invert max-w-none">
-                {markdownContent ? (
-                  <Streamdown
-                    className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed [&_button]:cursor-pointer"
-                    plugins={{ code: code }}
-                    controls={{
-                      table: false,
-                    }}
-                    linkSafety={{
-                      enabled: true,
-                      renderModal: (props) => <CustomLinkModal {...props} />,
-                    }}
-                  >
-                    {markdownContent}
-                  </Streamdown>
-                ) : (
-                  <div className="text-slate-400 text-center py-12">
-                    No content available
-                  </div>
-                )}
-              </div>
+              <MarkdownRenderer
+                content={markdownContent}
+              />
             </div>
           </div>
 
