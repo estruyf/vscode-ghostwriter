@@ -11,7 +11,6 @@ this file.
 - [#22](https://github.com/estruyf/vscode-ghostwriter/issues/22): Fix in the
   override of the transcript when the interview completed
 
-
 ## [0.0.6] - 2026-02-02
 
 - Fixed missing loading/thinking state indicator during AI response generation
