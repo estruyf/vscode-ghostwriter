@@ -193,7 +193,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
               value={selectedAgent}
               onChange={(e) => handleAgentSelect(e.target.value)}
               disabled={hasUserStarted}
-              className="bg-transparent text-white text-sm focus:outline-none border-none py-1 pr-2 cursor-pointer hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed max-w-50 truncate appearance-none"
+              className="bg-transparent text-white text-sm focus:outline-none border-none py-1 pr-2 cursor-pointer hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed max-w-50 truncate"
             >
               <option value="">Default Interviewer</option>
               {agents.map((agent) => (
@@ -223,16 +223,12 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
           </div>
 
           {/* Model Selection */}
-          <div className="flex items-center gap-2 bg-slate-800/50 p-1 pl-3 pr-2 rounded-lg border border-slate-700/50">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Model</span>
-            <div className="h-4 w-px bg-slate-700 mx-1"></div>
-            <ModelSelector
-              value={selectedModelId}
-              onChange={handleModelSelect}
-              className={hasUserStarted ? 'opacity-50 pointer-events-none' : ''}
-              showLabel={false}
-            />
-          </div>
+          <ModelSelector
+            value={selectedModelId}
+            onChange={handleModelSelect}
+            className={hasUserStarted ? 'opacity-50 pointer-events-none' : ''}
+            showLabel={false}
+          />
         </div>
       </div>
 

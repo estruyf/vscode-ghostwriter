@@ -3,6 +3,7 @@ import { messageHandler } from '@estruyf/vscode/dist/client';
 import { AgentFile, Draft } from '../../types';
 import { Save } from 'lucide-react';
 import ModelSelector from '../ModelSelector';
+import AgentSelector from '../AgentSelector';
 import { TranscriptSelector } from '../TranscriptSelector';
 import { VoiceSelector } from '../VoiceSelector';
 import { WritingOptions } from '../WritingOptions';
@@ -423,46 +424,18 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Writer Agent</label>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <select
-                        value={writerData.selectedWriterAgent}
-                        onChange={(e) => writerHandlers.handleWriterAgentSelect(e.target.value)}
-                        className="flex-1 px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
-                      >
-                        <option value="">Default Writer</option>
-                        {writerData.writerAgents.map((agent) => (
-                          <option key={agent.path} value={agent.path}>
-                            {agent.name}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={agentDialog.open}
-                        className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-colors border border-slate-700"
-                        title="Manage Writer Agents"
-                      >
-                        Manage
-                      </button>
-                      <button
-                        onClick={createAgentDialog.open}
-                        className="px-3 py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-300 text-xs font-semibold rounded-lg transition-colors border border-purple-500/30"
-                        title="Create New Writer Agent"
-                      >
-                        + New
-                      </button>
-                    </div>
-                  </div>
+                  <AgentSelector
+                    value={writerData.selectedWriterAgent}
+                    onChange={writerHandlers.handleWriterAgentSelect}
+                    agents={writerData.writerAgents}
+                    onManage={agentDialog.open}
+                    onCreateNew={createAgentDialog.open}
+                  />
 
-                  <div className="space-y-2">
-                    <ModelSelector
-                      value={selectedModelId}
-                      onChange={setSelectedModelId}
-                      showLabel={true}
-                      className="w-full"
-                    />
-                  </div>
+                  <ModelSelector
+                    value={selectedModelId}
+                    onChange={setSelectedModelId}
+                  />
                 </div>
               </div>
 

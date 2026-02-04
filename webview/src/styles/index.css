@@ -2,52 +2,89 @@
 
 @source "../../../node_modules/streamdown/dist/*.js";
 
-@theme {
-  --color-background: var(--vscode-editor-background);
-  --color-foreground: var(--vscode-editor-foreground);
-
-  --color-card: var(--vscode-editor-background);
-  --color-card-foreground: var(--vscode-editor-foreground);
-
-  --color-popover: var(--vscode-editorWidget-background);
-  --color-popover-foreground: var(--vscode-editorWidget-foreground);
-
-  --color-primary: var(--vscode-button-background);
-  --color-primary-foreground: var(--vscode-button-foreground);
-
-  --color-secondary: var(--vscode-button-secondaryBackground);
-  --color-secondary-foreground: var(--vscode-button-secondaryForeground);
-
-  --color-muted: var(--vscode-editorWidget-background);
-  --color-muted-foreground: var(--vscode-descriptionForeground);
-
-  --color-accent: var(--vscode-list-hoverBackground);
-  --color-accent-foreground: var(--vscode-list-hoverForeground);
-
-  --color-destructive: var(--vscode-inputValidation-errorBackground);
-  --color-destructive-foreground: var(--vscode-inputValidation-errorForeground);
-
-  --color-border: var(--vscode-panel-border);
-  --color-input: var(--vscode-input-border);
-  --color-ring: var(--vscode-focusBorder);
-
-  --radius: 0.25rem;
-
-  /* Legacy/Direct VS Code mappings if used */
-  --color-vscode-foreground: var(--vscode-foreground);
-  --color-vscode-background: var(--vscode-editor-background);
-  --color-vscode-button: var(--vscode-button-background);
-  --color-vscode-button-hover: var(--vscode-button-hoverBackground);
-  --color-vscode-input: var(--vscode-input-background);
-  --color-vscode-border: var(--vscode-panel-border);
-}
-
 :root {
   font-family: var(--vscode-font-family);
   font-size: var(--vscode-font-size);
   font-weight: var(--vscode-font-weight);
-  color: var(--vscode-foreground);
-  background-color: var(--vscode-editor-background);
+
+  /* Slate 950 */
+  --background: hsl(222 47% 5%);
+  /* Slate 50 */
+  --foreground: hsl(210 40% 98%);
+
+  /* Slate 900 */
+  --card: hsl(215 28% 11%);
+  --card-foreground: hsl(210 40% 98%);
+
+  /* Slate 900 */
+  --popover: hsl(215 28% 11%);
+  --popover-foreground: hsl(210 40% 98%);
+
+  /* Purple 400 */
+  --primary: hsl(271 91% 65%);
+  /* White */
+  --primary-foreground: hsl(0 0% 100%);
+
+  /* Slate 800 */
+  --secondary: hsl(215 16% 17%);
+  /* Slate 50 */
+  --secondary-foreground: hsl(210 40% 98%);
+
+  /* Slate 900 */
+  --muted: hsl(215 28% 11%);
+  /* Slate 400 */
+  --muted-foreground: hsl(215 20% 65%);
+
+  /* Slate 800 */
+  --accent: hsl(215 16% 17%);
+  /* Slate 50 */
+  --accent-foreground: hsl(210 40% 98%);
+
+  /* Red 900 */
+  --destructive: hsl(0 63% 31%);
+  /* Red 50 */
+  --destructive-foreground: hsl(210 40% 98%);
+
+  /* Slate 800 */
+  --border: hsl(215 16% 17%);
+  /* Slate 800 */
+  --input: hsl(215 16% 17%);
+  /* Purple 500 */
+  --ring: hsl(271 91% 65%);
+
+  --radius: 0.5rem;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius: 0.5rem;
 }
 
 body {

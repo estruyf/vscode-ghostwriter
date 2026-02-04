@@ -98,23 +98,6 @@ export default function HomePage() {
 
           <button
             className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-4 sm:p-5 md:p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
-            onClick={handleWriteArticle}
-          >
-            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-amber-400/20 text-2xl sm:text-3xl text-amber-100 shadow-inner shadow-amber-500/20"><Signature /></div>
-            <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl md:text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Write Article</h2>
-            <p className="mt-2 text-sm sm:text-base leading-relaxed text-slate-300">
-              Have an interview already? Upload your interview markdown and let our writer transform it into a polished, comprehensive article.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
-              Start Writing
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
-          </button>
-
-          <button
-            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-4 sm:p-5 md:p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
             onClick={handleGenerateVoice}
           >
             <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-cyan-500/15 text-2xl sm:text-3xl text-cyan-200 shadow-inner shadow-cyan-500/20"><Sparkles /></div>
@@ -124,6 +107,23 @@ export default function HomePage() {
             </p>
             <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
               Create Voice Profile
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </button>
+
+          <button
+            className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/85 via-slate-900/75 to-slate-950/85 p-4 sm:p-5 md:p-6 text-left shadow-[0_15px_50px_rgba(0,0,0,0.45)] transition duration-200 hover:-translate-y-1 hover:border-purple-400/80 hover:shadow-[0_22px_65px_rgba(124,58,237,0.35)] focus:outline-none focus:ring-2 focus:ring-purple-500/40 hover:cursor-pointer"
+            onClick={handleWriteArticle}
+          >
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-amber-400/20 text-2xl sm:text-3xl text-amber-100 shadow-inner shadow-amber-500/20"><Signature /></div>
+            <h2 className="mt-3 sm:mt-4 text-xl sm:text-2xl md:text-3xl font-semibold text-slate-50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">Write Article</h2>
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-slate-300">
+              Have an interview already? Upload your interview markdown and let our writer transform it into a polished, comprehensive article.
+            </p>
+            <span className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-purple-200 transition group-hover:text-cyan-200">
+              Start Writing
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

@@ -22,7 +22,7 @@ export function TranscriptSelector({
       {transcripts.length > 0 ? (
         <div className="space-y-3 mb-4">
           <label className="block text-base font-medium text-slate-300 mb-2">
-            From Workspace (.ghostwriter folder)
+            From Workspace (<code>.ghostwriter/transcripts</code> folder)
           </label>
           <select
             value={selectedTranscript}

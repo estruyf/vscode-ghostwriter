@@ -12,7 +12,6 @@ interface ModelSelectorProps {
   onChange?: (modelId: string) => void;
   className?: string;
   label?: string;
-  showLabel?: boolean;
 }
 
 const DEFAULT_MODEL_NAME = 'GPT-5 mini';
@@ -21,8 +20,7 @@ export default function ModelSelector({
   value,
   onChange,
   className = '',
-  label = 'Model:',
-  showLabel = true
+  label = 'Model',
 }: ModelSelectorProps) {
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>(value || '');
@@ -90,19 +88,22 @@ export default function ModelSelector({
   }
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      {showLabel && <span className="text-base text-slate-300">{label}</span>}
-      <select
-        value={selectedModel}
-        onChange={handleChange}
-        className="bg-transparent text-white text-sm focus:outline-none border-none py-1 pr-2 cursor-pointer hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed max-w-50 truncate appearance-none"
-      >
-        {models.map((model) => (
-          <option key={model.id} value={model.id}>
-            {model.id}
-          </option>
-        ))}
-      </select>
+    <div className="flex items-center gap-2 bg-slate-800/50 p-1 pl-3 pr-2 rounded-lg border border-slate-700/50">
+      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label || 'Model'}</span>
+      <div className="h-4 w-px bg-slate-700 mx-1"></div>
+      <div className={`flex items-center gap-2 flex-1 ${className}`}>
+        <select
+          value={selectedModel}
+          onChange={handleChange}
+          className="flex-1 bg-transparent text-white text-sm focus:outline-none border-none py-1 pr-2 cursor-pointer hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed truncate"
+        >
+          {models.map((model) => (
+            <option key={model.id} value={model.id}>
+              {model.id}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

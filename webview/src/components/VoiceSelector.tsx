@@ -22,7 +22,7 @@ export function VoiceSelector({
       {voiceFiles.length > 0 ? (
         <div className="space-y-3 mb-4">
           <label className="block text-base font-medium text-slate-300 mb-2">
-            {voiceFiles.length === 1 ? 'Default Voice (.ghostwriter folder)' : 'Select Voice'}
+            {voiceFiles.length === 1 ? 'Default Voice' : 'Select Voice'} (<code>.ghostwriter/voices</code> folder)
           </label>
           <select
             value={selectedVoice}
@@ -39,7 +39,7 @@ export function VoiceSelector({
         </div>
       ) : (
         <p className="text-base text-slate-400 mb-4">
-          No voice files found in .ghostwriter folder
+          No voice files found in <code>.ghostwriter/voices</code> folder
         </p>
       )}
 
