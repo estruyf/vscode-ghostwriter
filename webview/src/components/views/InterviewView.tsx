@@ -227,7 +227,6 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
             value={selectedModelId}
             onChange={handleModelSelect}
             className={hasUserStarted ? 'opacity-50 pointer-events-none' : ''}
-            showLabel={false}
           />
         </div>
       </div>
