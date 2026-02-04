@@ -10,6 +10,8 @@ this file.
   content
 - [#20](https://github.com/estruyf/vscode-ghostwriter/issues/20): Sanitize and
   shorten transcript filenames, using AI-assisted slugs for long topics
+- [#21](https://github.com/estruyf/vscode-ghostwriter/issues/21): Allow resizing
+  the interview input textarea
 - [#22](https://github.com/estruyf/vscode-ghostwriter/issues/22): Fix in the
   override of the transcript when the interview completed
 
