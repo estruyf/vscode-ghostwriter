@@ -101,7 +101,11 @@ export class InterviewService {
       session.topic = topic;
 
       // Create the transcript file immediately
-      const transcriptPath = await FileService.createTranscript(topic);
+      const transcriptPath = await FileService.createTranscript(
+        topic,
+        "",
+        session.modelId,
+      );
       if (!transcriptPath) {
         throw new Error("Failed to create transcript file");
       }
@@ -308,25 +312,8 @@ export class InterviewService {
       }
 
       // Fallback: If no transcript path (shouldn't happen with new flow), create it
-      // For natural end, try to extract transcript from the last assistant message
-      // (where AI provides complete formatted transcript)
-      // For manual stop, always generate transcript from all messages
-      let transcript = "";
-
-      if (!isManualStop) {
-        // Natural end - extract from last assistant message
-        for (let i = session.messages.length - 1; i >= 0; i--) {
-          if (session.messages[i].role === "assistant") {
-            transcript = session.messages[i].content;
-            break;
-          }
-        }
-      }
-
-      // If manual stop or no transcript found, generate it from messages
-      if (!transcript || isManualStop) {
-        transcript = this.generateTranscript(session);
-      }
+      // We generate the transcript from the documented messages
+      const transcript = this.generateTranscript(session);
 
       // Generate a title for the interview
       const interviewTopic = session.topic || topic || "Interview";
@@ -565,8 +552,13 @@ export class InterviewService {
    * Generate a markdown transcript from the interview messages
    */
   private static generateTranscript(session: InterviewSession): string {
-    let transcript = `# Interview:\n\n`;
-    transcript += `Date: ${new Date(session.createdAt).toLocaleDateString()}\n\n`;
+    let transcript = `# Interview:
+    
+Date: ${new Date(session.createdAt).toLocaleDateString()}
+Topic: ${session.topic || "N/A"}
+AI Model: ${session.modelId || "N/A"}
+
+`;
 
     for (const message of session.messages) {
       const roleDisplay = message.role === "user" ? "You" : "Interviewer";

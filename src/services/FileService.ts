@@ -126,6 +126,7 @@ export class FileService {
   static async createTranscript(
     topic: string,
     content: string = "",
+    modelId?: string,
   ): Promise<string | undefined> {
     const transcriptsPath = await this.getTranscriptsFolder();
     if (!transcriptsPath) {
@@ -141,7 +142,15 @@ export class FileService {
 
     const initialContent =
       content ||
-      `# Interview Transcript: ${topic}\n\nDate: ${new Date().toLocaleDateString()}\n\n## Interview Content\n\n`;
+      `# Interview Transcript: ${topic}
+      
+Date: ${new Date().toLocaleDateString()}
+Topic: ${topic || "N/A"}
+AI Model: ${modelId || "N/A"}
+
+## Interview Content
+
+`;
 
     try {
       fs.writeFileSync(filePath, initialContent, "utf-8");

@@ -15,6 +15,7 @@ import { useWriterData, useDialog } from '../../hooks';
 import DraftIterationView from './DraftIterationView';
 import { VisitorBadge } from '../VisitorBadge';
 import { parseContent } from '../../utils/markdown';
+import { CustomLinkModal } from '../CustomLinkModal';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -335,6 +336,13 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
                       <Streamdown
                         className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
                         plugins={{ code: code }}
+                        controls={{
+                          table: false,
+                        }}
+                        linkSafety={{
+                          enabled: true,
+                          renderModal: (props) => <CustomLinkModal {...props} />,
+                        }}
                       >
                         {markdown}
                       </Streamdown>

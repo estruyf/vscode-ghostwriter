@@ -183,11 +183,13 @@ export class GhostwriterViewProvider {
           if (!this.currentInterviewId) {
             throw new Error("No active interview session");
           }
+
           await InterviewService.endInterview(
             this.currentInterviewId,
             payload.topic,
             payload.isManualStop ?? false,
           );
+
           this.currentInterviewId = null;
           break;
         }

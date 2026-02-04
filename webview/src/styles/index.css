@@ -3,6 +3,37 @@
 @source "../../../node_modules/streamdown/dist/*.js";
 
 @theme {
+  --color-background: var(--vscode-editor-background);
+  --color-foreground: var(--vscode-editor-foreground);
+
+  --color-card: var(--vscode-editor-background);
+  --color-card-foreground: var(--vscode-editor-foreground);
+
+  --color-popover: var(--vscode-editorWidget-background);
+  --color-popover-foreground: var(--vscode-editorWidget-foreground);
+
+  --color-primary: var(--vscode-button-background);
+  --color-primary-foreground: var(--vscode-button-foreground);
+
+  --color-secondary: var(--vscode-button-secondaryBackground);
+  --color-secondary-foreground: var(--vscode-button-secondaryForeground);
+
+  --color-muted: var(--vscode-editorWidget-background);
+  --color-muted-foreground: var(--vscode-descriptionForeground);
+
+  --color-accent: var(--vscode-list-hoverBackground);
+  --color-accent-foreground: var(--vscode-list-hoverForeground);
+
+  --color-destructive: var(--vscode-inputValidation-errorBackground);
+  --color-destructive-foreground: var(--vscode-inputValidation-errorForeground);
+
+  --color-border: var(--vscode-panel-border);
+  --color-input: var(--vscode-input-border);
+  --color-ring: var(--vscode-focusBorder);
+
+  --radius: 0.25rem;
+
+  /* Legacy/Direct VS Code mappings if used */
   --color-vscode-foreground: var(--vscode-foreground);
   --color-vscode-background: var(--vscode-editor-background);
   --color-vscode-button: var(--vscode-button-background);

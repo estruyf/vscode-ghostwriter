@@ -8,6 +8,7 @@ import { useDialog } from '../../hooks/useDialog';
 import ConfirmDialog from '../ConfirmDialog';
 import { VisitorBadge } from '../VisitorBadge';
 import { parseContent } from '../../utils/markdown';
+import { CustomLinkModal } from '../CustomLinkModal';
 
 interface DraftIterationViewProps {
   draft: Draft;
@@ -125,8 +126,6 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
 
   const { frontmatter, markdown: markdownContent } = parseContent(displayContent);
 
-  console.log('Rendering DraftIterationView with draft:', displayContent);
-
   return (
     <div className="flex flex-col h-screen bg-slate-950">
       {/* Header */}
@@ -216,8 +215,15 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
               <div className="prose prose-invert max-w-none">
                 {markdownContent ? (
                   <Streamdown
-                    className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed"
+                    className="text-slate-100 whitespace-pre-wrap prose prose-invert prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed [&_button]:cursor-pointer"
                     plugins={{ code: code }}
+                    controls={{
+                      table: false,
+                    }}
+                    linkSafety={{
+                      enabled: true,
+                      renderModal: (props) => <CustomLinkModal {...props} />,
+                    }}
                   >
                     {markdownContent}
                   </Streamdown>
