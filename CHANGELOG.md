@@ -5,7 +5,7 @@ this file.
 
 ## [0.0.7] - 2026-02-04
 
-- Style updated
+- Style updates
 - Dialog for the external link safety warning updated with new design and
   content
 - [#22](https://github.com/estruyf/vscode-ghostwriter/issues/22): Fix in the
