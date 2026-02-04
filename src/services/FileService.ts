@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import { CopilotService } from "./CopilotService";
 
 export class FileService {
   private static GHOSTWRITER_FOLDER = ".ghostwriter";
@@ -137,7 +138,8 @@ export class FileService {
       .toISOString()
       .replace(/[:.]/g, "-")
       .slice(0, -5); // YYYY-MM-DDTHH-MM-SS
-    const fileName = `transcript-${topic.toLowerCase().replace(/\s+/g, "-")}-${timestamp}.md`;
+    const slug = await this.generateTranscriptSlug(topic);
+    const fileName = `transcript-${slug}-${timestamp}.md`;
     const filePath = path.join(transcriptsPath, fileName);
 
     const initialContent =
@@ -160,6 +162,46 @@ AI Model: ${modelId || "N/A"}
       vscode.window.showErrorMessage("Failed to create transcript file");
       return undefined;
     }
+  }
+
+  private static sanitizeSlug(value: string): string {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  private static async generateTranscriptSlug(topic: string): Promise<string> {
+    if (!topic?.trim()) {
+      return "untitled";
+    }
+
+    const fallback = this.sanitizeSlug(topic);
+    const wordCount = topic.trim().split(/\s+/).length;
+
+    if (wordCount > 4) {
+      try {
+        const response = await CopilotService.promptCopilot(
+          'Create a short, descriptive slug for a filename. Return only the slug, lowercase, hyphen-separated, max 60 characters, only letters a-z, digits 0-9, and hyphens. Topic: "' +
+            topic +
+            '".',
+        );
+        const aiSlug = response ? this.sanitizeSlug(response) : "";
+        if (aiSlug) {
+          return aiSlug.slice(0, 60);
+        }
+      } catch (error) {
+        console.error("Error generating transcript slug:", error);
+      }
+    }
+
+    if (fallback) {
+      return fallback.slice(0, 60);
+    }
+
+    return "untitled";
   }
 
   /**
