@@ -183,15 +183,23 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
             </div>
           ) : (
             <div className="grid gap-4">
-              {drafts.map((draft) => {
+              {drafts.map((draft, index) => {
                 const currentRevision = draft.revisions.find(r => r.id === draft.currentRevisionId);
                 const preview = currentRevision?.content.substring(0, 200) || '';
 
                 return (
-                  <button
-                    key={draft.id}
+                  <div
+                    key={`${draft.id}-${draft.updatedAt}-${index}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleOpenDraft(draft)}
-                    className="text-left p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10 hover:cursor-pointer"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleOpenDraft(draft);
+                      }
+                    }}
+                    className="text-left p-6 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10 hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -227,7 +235,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
                         </p>
                       </div>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
