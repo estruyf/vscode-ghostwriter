@@ -202,6 +202,9 @@ export class GhostwriterViewProvider {
           );
 
           this.currentInterviewId = null;
+
+          // Notify webview that interview has ended
+          this.postMessage("interviewEnded", {});
           break;
         }
 

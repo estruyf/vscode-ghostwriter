@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
 
-interface Message {
+export interface Message {
   role: 'user' | 'assistant';
   content: string;
 }

@@ -12,6 +12,8 @@ this file.
     - Image support in markdown rendering with proper webview URI handling
     - MarkdownRenderer now processes and displays local image files correctly
 - Improved ChatMessage component with image display and captions
+- Webview now automatically returns to home view when interview ends (manually
+  or automatically)
 
 ## [0.0.7] - 2026-02-04
 

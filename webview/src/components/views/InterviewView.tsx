@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
 import { useDialog } from '../../hooks/useDialog';
 import { useInterview } from '../../hooks/useInterview';
+import { useMessageListener } from '../../hooks/useMessageListener';
 import ModelSelector from '../ModelSelector';
 import ChatWindow from '../ChatWindow';
 import ChatInput from '../ChatInput';
@@ -128,6 +129,12 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     resetDialog.close();
   }, [resetInterview, resetDialog]);
 
+  // Listen for interview ended event
+  useMessageListener({
+    interviewEnded: () => {
+      onBack();
+    },
+  });
 
   return (
     <div className="flex flex-col h-screen bg-slate-950">
