@@ -8,6 +8,7 @@ import { StateService } from "../services/StateService";
 import { VoiceService } from "../services/VoiceService";
 import { PromptConfigService } from "../services/PromptConfigService";
 import { AgentService } from "../services/AgentService";
+import { FrontMatterService } from "../services/FrontMatterService";
 import { DraftService } from "../services/DraftService";
 import { ImageService } from "../services/ImageService";
 import { Uri } from "vscode";
@@ -497,6 +498,14 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "isFrontMatterAvailable": {
+          const isAvailable = FrontMatterService.isFrontMatterInstalled();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, isAvailable);
+          }
+          break;
+        }
+
         case "createDraft": {
           const draft = await DraftService.createDraft(
             payload.title,
@@ -509,6 +518,14 @@ export class GhostwriterViewProvider {
           );
           if (requestId) {
             this.postRequestMessage(command, requestId, draft);
+          }
+          break;
+        }
+
+        case "getFrontMatterContentDirectory": {
+          const contentDir = await FrontMatterService.getContentDirectory();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, contentDir);
           }
           break;
         }
