@@ -5,10 +5,22 @@ import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
 import { PROMPTS } from "../constants";
 import { AgentService } from "./AgentService";
+import { ImageService } from "./ImageService";
 
 export interface InterviewMessage {
   role: "user" | "assistant";
-  content: string;
+  content:
+    | string
+    | {
+        text?: string;
+        images?: Array<{
+          data: string;
+          mimeType: string;
+          name?: string;
+          width?: number;
+          height?: number;
+        }>;
+      };
 }
 
 export interface InterviewSession {
@@ -19,6 +31,7 @@ export interface InterviewSession {
   modelId?: string;
   topic?: string;
   transcriptPath?: string;
+  isNewSession?: boolean; // Track if this is a new session (should delete transcript on discard) or loaded from existing file
 }
 
 export class InterviewService {
@@ -57,6 +70,7 @@ export class InterviewService {
         conversationHistory: [],
         createdAt: Date.now(),
         modelId,
+        isNewSession: true, // Mark as new so transcript will be deleted on discard if needed
       };
 
       // Store the session
@@ -91,6 +105,7 @@ export class InterviewService {
   static async setInterviewTopic(
     sessionId: string,
     topic: string,
+    images?: Array<{ data: string; mimeType: string; name?: string }>,
   ): Promise<string | undefined> {
     try {
       const session = this.sessions.get(sessionId);
@@ -117,9 +132,26 @@ export class InterviewService {
         transcriptPath,
         `### Interviewer\n\n${session.messages[0].content}\n\n`,
       );
+
+      // Save images if provided and add references to transcript
+      let topicContent = topic;
+      if (images && images.length > 0) {
+        const savedImagePaths = await ImageService.saveImageAttachments(images);
+        if (savedImagePaths.length > 0) {
+          topicContent += "\n\n";
+          for (const imagePath of savedImagePaths) {
+            const relativePath =
+              await FileService.getRelativeImagePath(imagePath);
+            if (relativePath) {
+              topicContent += `![Image](${relativePath})\n`;
+            }
+          }
+        }
+      }
+
       await FileService.appendToTranscript(
         transcriptPath,
-        `### You\n\n${topic}\n\n`,
+        `### You\n\n${topicContent}\n\n`,
       );
 
       return transcriptPath;
@@ -185,7 +217,7 @@ export class InterviewService {
         if (session.transcriptPath) {
           await FileService.appendToTranscript(
             session.transcriptPath,
-            `## Interviewer\n\n${response}\n\n`,
+            `### Interviewer\n\n${response}\n\n`,
           );
         }
 
@@ -208,6 +240,7 @@ export class InterviewService {
     sessionId: string,
     message: string,
     modelId?: string,
+    images?: Array<{ data: string; mimeType: string; name?: string }>,
   ): Promise<string> {
     try {
       const session = this.sessions.get(sessionId);
@@ -223,11 +256,27 @@ export class InterviewService {
 
       session.conversationHistory.push(LanguageModelChatMessage.User(message));
 
+      // Save images if provided and add references to transcript
+      let messageContent = message;
+      if (images && images.length > 0) {
+        const savedImagePaths = await ImageService.saveImageAttachments(images);
+        if (savedImagePaths.length > 0) {
+          messageContent += "\n\n";
+          for (const imagePath of savedImagePaths) {
+            const relativePath =
+              await FileService.getRelativeImagePath(imagePath);
+            if (relativePath) {
+              messageContent += `![Image](${relativePath})\n`;
+            }
+          }
+        }
+      }
+
       // Write user message to transcript file
       if (session.transcriptPath) {
         await FileService.appendToTranscript(
           session.transcriptPath,
-          `## You\n\n${message}\n\n`,
+          `### You\n\n${messageContent}\n\n`,
         );
       }
 
@@ -257,7 +306,7 @@ export class InterviewService {
         if (session.transcriptPath) {
           await FileService.appendToTranscript(
             session.transcriptPath,
-            `## Interviewer\n\n${response}\n\n`,
+            `### Interviewer\n\n${response}\n\n`,
           );
         }
 
@@ -369,7 +418,7 @@ export class InterviewService {
       }
 
       // Parse the transcript to extract messages
-      const { topic, messages } = this.parseTranscript(transcriptContent);
+      const { topic, messages } = await this.parseTranscript(transcriptContent);
 
       // Create a new session
       const sessionId =
@@ -382,6 +431,7 @@ export class InterviewService {
         modelId,
         topic,
         transcriptPath,
+        isNewSession: false, // Mark as existing session so transcript won't be deleted on discard
       };
 
       // Store the session
@@ -407,13 +457,18 @@ export class InterviewService {
       // Add all messages to the session
       for (const message of messages) {
         session.messages.push(message);
+        const textContent =
+          typeof message.content === "string"
+            ? message.content
+            : message.content.text || "";
+
         if (message.role === "user") {
           session.conversationHistory.push(
-            LanguageModelChatMessage.User(message.content),
+            LanguageModelChatMessage.User(textContent),
           );
         } else {
           session.conversationHistory.push(
-            LanguageModelChatMessage.Assistant(message.content),
+            LanguageModelChatMessage.Assistant(textContent),
           );
         }
       }
@@ -472,10 +527,10 @@ export class InterviewService {
   /**
    * Parse a transcript file to extract the topic and messages
    */
-  private static parseTranscript(content: string): {
+  private static async parseTranscript(content: string): Promise<{
     topic: string;
     messages: InterviewMessage[];
-  } {
+  }> {
     const messages: InterviewMessage[] = [];
     let topic = "Resumed Interview";
 
@@ -506,7 +561,7 @@ export class InterviewService {
           `${this.RESUME_NOTICE_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}.*?${this.RESUME_NOTICE_SUFFIX.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
           "g",
         );
-        const messageContent = lines
+        let messageContent = lines
           .slice(1)
           .join("\n")
           .trim()
@@ -515,10 +570,66 @@ export class InterviewService {
           .trim();
 
         if (messageContent) {
-          messages.push({
-            role,
-            content: messageContent,
-          });
+          // Check for images
+          const images: Array<{
+            data: string;
+            mimeType: string;
+            name?: string;
+          }> = [];
+
+          // Regex to find markdown images: ![alt](path)
+          const imageRegex = /!\[(.*?)\]\((.*?)\)/g;
+          let match;
+          const imageReplacements: {
+            start: number;
+            end: number;
+            path: string;
+          }[] = [];
+
+          while ((match = imageRegex.exec(messageContent)) !== null) {
+            imageReplacements.push({
+              start: match.index,
+              end: match.index + match[0].length,
+              path: match[2],
+            });
+
+            // Read the image
+            const imagePath = match[2];
+            const imageData = await FileService.readImage(imagePath);
+            if (imageData) {
+              const mimeType = imageData.split(";")[0].split(":")[1];
+              images.push({
+                data: imageData,
+                mimeType,
+                name: match[1] || undefined,
+              });
+            }
+          }
+
+          // Remove images from text content (in reverse order to preserve indices)
+          for (let i = imageReplacements.length - 1; i >= 0; i--) {
+            const replacement = imageReplacements[i];
+            messageContent =
+              messageContent.substring(0, replacement.start) +
+              messageContent.substring(replacement.end);
+          }
+
+          messageContent = messageContent.trim();
+
+          if (images.length > 0) {
+            messages.push({
+              role,
+              content: {
+                text: messageContent,
+                images,
+              },
+            });
+          } else {
+            messages.push({
+              role,
+              content: messageContent,
+            });
+          }
         }
       }
     }
@@ -537,8 +648,9 @@ export class InterviewService {
     }
 
     try {
-      // If a transcript file was created, delete it
-      if (session.transcriptPath) {
+      // Only delete transcript file if this is a new session being discarded.
+      // Don't delete transcripts from resumed/existing sessions.
+      if (session.isNewSession && session.transcriptPath) {
         await FileService.deleteFile(session.transcriptPath);
       }
 
@@ -562,7 +674,13 @@ AI Model: ${session.modelId || "N/A"}
 
     for (const message of session.messages) {
       const roleDisplay = message.role === "user" ? "You" : "Interviewer";
-      transcript += `### ${roleDisplay}\n\n${message.content}\n\n`;
+      const content =
+        typeof message.content === "string"
+          ? message.content
+          : message.content.text || "";
+      // Note: Images are currently not re-serialized to the transcript in this method
+      // They are presumed to be already in the file or handled elsewhere if this method is used for fresh transcripts
+      transcript += `### ${roleDisplay}\n\n${content}\n\n`;
     }
 
     return transcript;

@@ -60,4 +60,18 @@ export interface Draft {
   writerAgentPath?: string;
 }
 
+export interface ImageAttachment {
+  data: string; // Base64 data URI (for sending to AI) or file path (for persistence)
+  mimeType: string; // e.g., "image/png", "image/jpeg", "image/gif"
+  name?: string; // Optional filename
+  width?: number;
+  height?: number;
+  filePath?: string; // Optional: absolute file path if image is saved to disk
+}
+
+export interface MessageContent {
+  text?: string;
+  images?: ImageAttachment[];
+}
+
 export type ViewMode = "interview" | "writer";

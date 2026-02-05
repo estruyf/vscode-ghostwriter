@@ -50,7 +50,7 @@ export function TranscriptSelector({
         )}
         <button
           onClick={onCustomSelect}
-          className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors"
+          className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition-colors hover:cursor-pointer"
         >
           Browse for Transcript...
         </button>

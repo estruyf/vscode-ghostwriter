@@ -34,7 +34,7 @@ export default function AgentDialog({
           <h3 className="text-lg font-semibold text-white">{title}</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors"
+            className="text-slate-400 hover:text-slate-200 transition-colors hover:cursor-pointer"
             aria-label="Close"
           >
             ✕
@@ -58,7 +58,7 @@ export default function AgentDialog({
                   </div>
                   <button
                     onClick={() => onEdit(agent)}
-                    className="ml-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors whitespace-nowrap"
+                    className="ml-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors whitespace-nowrap hover:cursor-pointer"
                   >
                     Edit
                   </button>
@@ -72,13 +72,13 @@ export default function AgentDialog({
         <div className="px-6 py-4 border-t border-slate-700 flex gap-2 justify-end">
           <button
             onClick={onNew}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors"
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors hover:cursor-pointer"
           >
             + New
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition-colors"
+            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg transition-colors hover:cursor-pointer"
           >
             Close
           </button>

@@ -47,7 +47,7 @@ export default function AgentSelector({
       {onManage && (
         <button
           onClick={onManage}
-          className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-colors border border-slate-700"
+          className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-colors border border-slate-700 hover:cursor-pointer"
           title="Manage Writer Agents"
         >
           Manage
@@ -56,7 +56,7 @@ export default function AgentSelector({
       {onCreateNew && (
         <button
           onClick={onCreateNew}
-          className="px-3 py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-300 text-xs font-semibold rounded-lg transition-colors border border-purple-500/30"
+          className="px-3 py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-300 text-xs font-semibold rounded-lg transition-colors border border-purple-500/30 hover:cursor-pointer"
           title="Create New Writer Agent"
         >
           + New

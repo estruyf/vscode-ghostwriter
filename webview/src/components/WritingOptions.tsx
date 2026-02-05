@@ -127,7 +127,7 @@ export function WritingOptions({
           {frontmatter && (
             <button
               onClick={onFrontmatterClear}
-              className="text-sm text-red-400 hover:text-red-300 transition-colors"
+              className="text-sm text-red-400 hover:text-red-300 transition-colors hover:cursor-pointer"
             >
               Clear
             </button>
@@ -145,7 +145,7 @@ export function WritingOptions({
                 </div>
                 <button
                   onClick={() => setShowFrontmatterEditor(true)}
-                  className="w-full px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 text-base transition-colors"
+                  className="w-full px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 text-base transition-colors hover:cursor-pointer"
                 >
                   Edit Frontmatter
                 </button>
@@ -153,7 +153,7 @@ export function WritingOptions({
             ) : (
               <button
                 onClick={() => setShowFrontmatterEditor(true)}
-                className="w-full px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 text-base transition-colors"
+                className="w-full px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 text-base transition-colors hover:cursor-pointer"
               >
                 Add Frontmatter Template
               </button>
@@ -177,13 +177,13 @@ export function WritingOptions({
                   onFrontmatterChange(frontmatter);
                   setShowFrontmatterEditor(false);
                 }}
-                className="flex-1 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-base transition-colors"
+                className="flex-1 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-base transition-colors hover:cursor-pointer"
               >
                 Save Template
               </button>
               <button
                 onClick={() => setShowFrontmatterEditor(false)}
-                className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-base transition-colors"
+                className="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-base transition-colors hover:cursor-pointer"
               >
                 Cancel
               </button>

@@ -7,6 +7,7 @@ export class FileService {
   private static GHOSTWRITER_FOLDER = ".ghostwriter";
   private static TRANSCRIPTS_FOLDER = "transcripts";
   private static VOICES_FOLDER = "voices";
+  private static ATTACHMENTS_FOLDER = "attachments";
 
   /**
    * Get or create the .ghostwriter folder in the workspace
@@ -61,6 +62,23 @@ export class FileService {
     }
 
     return voicesPath;
+  }
+
+  /**
+   * Get or create the attachments folder
+   */
+  private static async getAttachmentsFolder(): Promise<string | undefined> {
+    const ghostwriterPath = await this.getGhostwriterFolder();
+    if (!ghostwriterPath) {
+      return undefined;
+    }
+
+    const attachmentsPath = path.join(ghostwriterPath, this.ATTACHMENTS_FOLDER);
+    if (!fs.existsSync(attachmentsPath)) {
+      fs.mkdirSync(attachmentsPath, { recursive: true });
+    }
+
+    return attachmentsPath;
   }
 
   /**
@@ -281,6 +299,124 @@ AI Model: ${modelId || "N/A"}
       }
     } catch (error) {
       console.error(`Error deleting file ${filePath}:`, error);
+    }
+  }
+
+  /**
+   * Save an image to the .ghostwriter/attachments folder
+   * @param base64Data - Base64 encoded image data (with or without data URI prefix)
+   * @param fileName - Optional filename, will generate one if not provided
+   * @returns The absolute path to the saved image file
+   */
+  static async saveImage(
+    base64Data: string,
+    fileName?: string,
+  ): Promise<string | undefined> {
+    try {
+      const imagesPath = await this.getAttachmentsFolder();
+      if (!imagesPath) {
+        return undefined;
+      }
+
+      // Remove data URI prefix if present
+      const base64Regex = /^data:image\/[a-zA-Z+]+;base64,/;
+      const cleanBase64 = base64Data.replace(base64Regex, "");
+
+      // Generate filename if not provided
+      let finalFileName = fileName;
+      if (!finalFileName) {
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")
+          .slice(0, -5);
+        const randomId = Math.random().toString(36).substring(2, 9);
+
+        // Try to detect image format from data URI
+        const formatMatch = base64Data.match(
+          /^data:image\/([a-zA-Z+]+);base64,/,
+        );
+        const format = formatMatch ? formatMatch[1].replace("+", "") : "png";
+
+        finalFileName = `image-${timestamp}-${randomId}.${format}`;
+      }
+
+      const filePath = path.join(imagesPath, finalFileName);
+
+      // Write the image file
+      const buffer = Buffer.from(cleanBase64, "base64");
+      fs.writeFileSync(filePath, buffer);
+
+      return filePath;
+    } catch (error) {
+      console.error("Error saving image:", error);
+      vscode.window.showErrorMessage(
+        `Failed to save image: ${(error as Error).message}`,
+      );
+      return undefined;
+    }
+  }
+
+  /**
+   * Get the relative path from the ghostwriter folder to an image
+   * @param absolutePath - The absolute path to the image
+   * @returns The relative path from the .ghostwriter folder
+   */
+  static async getRelativeImagePath(
+    absolutePath: string,
+  ): Promise<string | undefined> {
+    const ghostwriterPath = await this.getGhostwriterFolder();
+    if (!ghostwriterPath) {
+      return undefined;
+    }
+
+    return path.relative(ghostwriterPath, absolutePath);
+  }
+
+  /**
+   * Get the absolute path to an image from a relative path
+   * @param relativePath - The relative path from the .ghostwriter folder
+   * @returns The absolute path to the image
+   */
+  static async getAbsoluteImagePath(
+    relativePath: string,
+  ): Promise<string | undefined> {
+    const ghostwriterPath = await this.getGhostwriterFolder();
+    if (!ghostwriterPath) {
+      return undefined;
+    }
+
+    return path.join(ghostwriterPath, relativePath);
+  }
+
+  /**
+   * Read an image file and return its base64 data URI
+   * @param filePath - The absolute or relative path to the image file
+   * @returns The base64 data URI string
+   */
+  static async readImage(filePath: string): Promise<string | undefined> {
+    try {
+      let absolutePath = filePath;
+
+      if (filePath.startsWith(this.GHOSTWRITER_FOLDER)) {
+        filePath = filePath.replace(`${this.GHOSTWRITER_FOLDER}/`, "");
+      }
+
+      // If path is relative to ghostwriter folder (e.g. starts with attachments/), resolve it
+      if (!path.isAbsolute(filePath)) {
+        const ghostwriterPath = await this.getGhostwriterFolder();
+        if (ghostwriterPath) {
+          absolutePath = path.join(ghostwriterPath, filePath);
+        }
+      }
+
+      if (!fs.existsSync(absolutePath)) {
+        return undefined;
+      }
+
+      return absolutePath;
+    } catch (error) {
+      console.error(`Error reading image ${filePath}:`, error);
+      return undefined;
     }
   }
 }

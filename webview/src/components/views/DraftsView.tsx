@@ -219,7 +219,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
                       </div>
                       <button
                         onClick={(e) => handleDeleteDraft(draft.id, e)}
-                        className="p-2 text-red-400 hover:bg-red-600/20 rounded-lg transition-all"
+                        className="p-2 text-red-400 hover:bg-red-600/20 rounded-lg transition-all hover:cursor-pointer"
                         title="Delete draft"
                       >
                         <Trash2 className="w-5 h-5" />

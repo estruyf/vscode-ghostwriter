@@ -231,7 +231,8 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 ├── voices/          # Voice files for writing style (.md files)
 ├── interviewer/     # Interviewer agents (.md files)
 ├── writer/          # Writer agents (.md files)
-└── drafts/          # Draft iterations (.json files)
+├── drafts/          # Draft iterations (.json files)
+└── attachments/     # Uploaded images and files
 ```
 
 ## Commands

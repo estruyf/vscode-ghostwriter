@@ -3,6 +3,16 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
+## [0.0.8] - 2026-02-05
+
+- [#19](https://github.com/estruyf/vscode-ghostwriter/issues/19): Add image
+  support during the interview and writing process
+    - Image persistence in .ghostwriter/attachments folder with automatic
+      markdown image reference insertion
+    - Image support in markdown rendering with proper webview URI handling
+    - MarkdownRenderer now processes and displays local image files correctly
+- Improved ChatMessage component with image display and captions
+
 ## [0.0.7] - 2026-02-04
 
 - Style updates

@@ -35,14 +35,14 @@ export function CustomLinkModal({ url, isOpen, onClose, onConfirm }: LinkSafetyM
         <div className="px-6 py-4 border-t border-border flex gap-3 justify-end items-center bg-muted/20">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-secondary text-secondary-foreground hover:opacity-80 font-medium rounded-lg transition-all cursor-pointer text-sm"
+            className="px-4 py-2 bg-secondary text-secondary-foreground hover:opacity-80 font-medium rounded-lg transition-all hover:cursor-pointer text-sm"
           >
             Cancel
           </button>
           <a
             href={url}
             onClick={() => onConfirm()}
-            className="px-4 py-2 bg-primary text-primary-foreground hover:opacity-90 font-medium rounded-lg transition-all cursor-pointer flex items-center gap-2 text-sm shadow-sm no-underline"
+            className="px-4 py-2 bg-primary text-primary-foreground hover:opacity-90 font-medium rounded-lg transition-all hover:cursor-pointer flex items-center gap-2 text-sm shadow-sm no-underline"
           >
             <span>Open Link</span>
             <ExternalLink className="w-4 h-4" />

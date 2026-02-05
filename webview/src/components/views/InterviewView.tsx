@@ -10,6 +10,7 @@ import { AgentFile, TranscriptFile } from '../../types';
 import { VisitorBadge } from '../VisitorBadge';
 import { TranscriptSelector } from '../TranscriptSelector';
 import ConfirmDialog from '../ConfirmDialog';
+import type { Message } from '../ChatWindow';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -272,13 +273,13 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={handleResumeConfirm}
-                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors hover:cursor-pointer"
               >
                 Resume
               </button>
               <button
                 onClick={resumeDialog.close}
-                className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors hover:cursor-pointer"
               >
                 Cancel
               </button>
@@ -288,7 +289,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
       )}
 
       {/* Chat Area */}
-      <ChatWindow messages={messages} isLoading={isLoading} messagesEndRef={messagesEndRef as React.RefObject<HTMLDivElement>} />
+      <ChatWindow messages={messages as Message[]} isLoading={isLoading} messagesEndRef={messagesEndRef as React.RefObject<HTMLDivElement>} />
 
       {/* Input Area */}
       <ChatInput

@@ -61,14 +61,14 @@ export default function CreateAgentForm({
             <button
               onClick={onCancel}
               disabled={isLoading}
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-slate-300 font-semibold rounded-lg transition-colors"
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-slate-300 font-semibold rounded-lg transition-colors hover:cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={onSubmit}
               disabled={!agentName.trim() || isLoading}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors"
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors hover:cursor-pointer"
             >
               {isLoading ? 'Creating...' : 'Create'}
             </button>

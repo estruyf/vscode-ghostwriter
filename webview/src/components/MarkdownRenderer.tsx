@@ -1,6 +1,8 @@
 import { Streamdown } from 'streamdown';
 import { code } from "@streamdown/code";
 import { CustomLinkModal } from './CustomLinkModal';
+import { useState, useEffect } from 'react';
+import { messageHandler } from '@estruyf/vscode/dist/client';
 
 interface MarkdownRendererProps {
   content: string;
@@ -9,6 +11,52 @@ interface MarkdownRendererProps {
 }
 
 export function MarkdownRenderer({ content, className = '', mdClassname = '' }: MarkdownRendererProps) {
+  const [processedContent, setProcessedContent] = useState(content);
+
+  useEffect(() => {
+    // Process image paths in markdown to convert relative file paths to data URIs
+    const processImages = async () => {
+      let processed = content;
+
+      // Find all markdown image patterns: ![alt](path)
+      const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+      const matches = Array.from(content.matchAll(imageRegex));
+
+      // Process each image
+      for (const match of matches) {
+        const fullMatch = match[0];
+        const alt = match[1];
+        const path = match[2];
+
+        // Only process relative file paths (not http URLs)
+        if (!path.startsWith('http://') && !path.startsWith('https://')) {
+          try {
+            // Request the image data from the backend
+            const imageData = await messageHandler.request<string>('readImageFile', {
+              filePath: path,
+            });
+
+            if (imageData) {
+              // Replace the markdown image syntax with the same syntax but using data URI
+              const escapedMatch = fullMatch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              processed = processed.replace(
+                new RegExp(escapedMatch, 'g'),
+                `![${alt}](${imageData})`
+              );
+            }
+          } catch (error) {
+            console.error(`Failed to load image from ${path}:`, error);
+            // Keep the original markdown if loading fails
+          }
+        }
+      }
+
+      setProcessedContent(processed);
+    };
+
+    processImages();
+  }, [content]);
+
   if (!content) {
     return (
       <div className="text-slate-400 text-center py-12">
@@ -30,7 +78,7 @@ export function MarkdownRenderer({ content, className = '', mdClassname = '' }: 
           renderModal: (props) => <CustomLinkModal {...props} />,
         }}
       >
-        {content}
+        {processedContent}
       </Streamdown>
     </div>
   );

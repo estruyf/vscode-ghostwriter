@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { messageHandler } from "@estruyf/vscode/dist/client";
-import { AgentFile } from "../types";
+import { AgentFile, MessageContent, ImageAttachment } from "../types";
 
 interface Message {
   role: "user" | "assistant";
-  content: string;
+  content: string | MessageContent;
 }
 
 interface UseInterviewReturn {
@@ -19,7 +19,7 @@ interface UseInterviewReturn {
   hasUserStarted: boolean;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
-  sendMessage: (e: React.FormEvent) => void;
+  sendMessage: (e: React.FormEvent, images?: ImageAttachment[]) => void;
   startInterview: (overrides?: {
     agentPath?: string;
     modelId?: string;
@@ -179,9 +179,9 @@ export function useInterview(): UseInterviewReturn {
   }, [selectedModelId, startInterview]);
 
   const sendMessage = useCallback(
-    (e: React.FormEvent) => {
+    (e: React.FormEvent, images?: ImageAttachment[]) => {
       e.preventDefault();
-      if (!inputValue.trim() || isSending) return;
+      if ((!inputValue.trim() && !images?.length) || isSending) return;
 
       const userMessage = inputValue.trim();
 
@@ -195,8 +195,20 @@ export function useInterview(): UseInterviewReturn {
         return;
       }
 
+      // Create message content
+      const messageContent: MessageContent = {
+        text: userMessage || undefined,
+        images: images && images.length > 0 ? images : undefined,
+      };
+
       // Add user message to chat
-      setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "user",
+          content: images && images.length > 0 ? messageContent : userMessage,
+        },
+      ]);
       setInputValue("");
       setIsSending(true);
       setIsLoading(true);
@@ -208,12 +220,14 @@ export function useInterview(): UseInterviewReturn {
         messageHandler.send("interview:setTopic", {
           topic: userMessage,
           modelId: selectedModelId || undefined,
+          images: images,
         });
       } else {
         // Regular interview message
         messageHandler.send("interview:message", {
           message: userMessage,
           modelId: selectedModelId || undefined,
+          images: images,
         });
       }
     },

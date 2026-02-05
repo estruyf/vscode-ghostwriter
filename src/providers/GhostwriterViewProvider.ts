@@ -9,6 +9,7 @@ import { VoiceService } from "../services/VoiceService";
 import { PromptConfigService } from "../services/PromptConfigService";
 import { AgentService } from "../services/AgentService";
 import { DraftService } from "../services/DraftService";
+import { ImageService } from "../services/ImageService";
 import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
@@ -38,6 +39,16 @@ export class GhostwriterViewProvider {
       return;
     }
 
+    // Get workspace root folder for localResourceRoots
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    const localResourceRoots = [
+      vscode.Uri.joinPath(extensionUri, "out", "webview"),
+    ];
+
+    if (workspaceFolders && workspaceFolders.length > 0) {
+      localResourceRoots.push(workspaceFolders[0].uri);
+    }
+
     // Create the editor webview
     this.webview = vscode.window.createWebviewPanel(
       this.viewType,
@@ -46,9 +57,7 @@ export class GhostwriterViewProvider {
       {
         enableScripts: true,
         retainContextWhenHidden: true,
-        localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, "out", "webview"),
-        ],
+        localResourceRoots,
       },
     );
 
@@ -155,6 +164,7 @@ export class GhostwriterViewProvider {
           const transcriptPath = await InterviewService.setInterviewTopic(
             this.currentInterviewId,
             payload.topic,
+            payload.images,
           );
           await InterviewService.startInterviewQuestions(
             this.currentInterviewId,
@@ -175,6 +185,7 @@ export class GhostwriterViewProvider {
             this.currentInterviewId,
             payload.message,
             payload.modelId,
+            payload.images,
           );
           break;
         }
@@ -244,6 +255,31 @@ export class GhostwriterViewProvider {
           const voicePath = await FileService.selectCustomFile("Voice");
           if (requestId) {
             this.postRequestMessage(command, requestId, voicePath);
+          }
+          break;
+        }
+
+        case "selectImageFile": {
+          const imageData = await ImageService.selectImageFile();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, imageData);
+          }
+          break;
+        }
+
+        case "readImageFile": {
+          const imagePath = await FileService.readImage(payload.filePath);
+          let webviewImageUri: string | undefined = undefined;
+
+          if (imagePath && this.webview) {
+            const fileUri = vscode.Uri.file(imagePath);
+            webviewImageUri = this.webview.webview
+              .asWebviewUri(fileUri)
+              .toString();
+          }
+
+          if (requestId) {
+            this.postRequestMessage(command, requestId, webviewImageUri);
           }
           break;
         }
