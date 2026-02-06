@@ -3,7 +3,7 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
-## [0.0.8] - 2026-02-05
+## [0.0.8] - 2026-02-06
 
 - [#19](https://github.com/estruyf/vscode-ghostwriter/issues/19): Add image
   support during the interview and writing process
