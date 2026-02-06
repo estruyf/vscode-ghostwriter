@@ -27,6 +27,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     selectedAgent,
     selectedModelId,
     hasUserStarted,
+    attachmentFolder,
     textareaRef,
     messagesEndRef,
     sendMessage,
@@ -34,6 +35,8 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
     resetInterview,
     handleAgentSelect,
     handleModelSelect,
+    handleAttachmentFolderSelect,
+    handleAttachmentFolderClear,
   } = useInterview();
 
   // Dialog state
@@ -193,6 +196,33 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="px-6 pb-4 flex flex-wrap items-center justify-end gap-4 border-t border-slate-800/50 pt-3">
+          {/* Attachment Folder */}
+          <div className="flex items-center gap-2 bg-slate-800/50 p-1 pl-3 pr-1 rounded-lg border border-slate-700/50">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attachments</span>
+            <div className="h-4 w-px bg-slate-700 mx-1"></div>
+            <span className="text-sm text-white max-w-40 truncate" title={attachmentFolder || '.ghostwriter/attachments'}>
+              {attachmentFolder || 'Default'}
+            </span>
+            <div className="flex items-center gap-px ml-1 border-l border-slate-700 pl-1">
+              <button
+                onClick={handleAttachmentFolderSelect}
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/80 rounded transition-colors shrink-0 hover:cursor-pointer"
+                title="Select attachment folder"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+              </button>
+              {attachmentFolder && (
+                <button
+                  onClick={handleAttachmentFolderClear}
+                  className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700/80 rounded transition-colors shrink-0 hover:cursor-pointer"
+                  title="Reset to default folder"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Agent Selection */}
           <div className="flex items-center gap-2 bg-slate-800/50 p-1 pl-3 pr-1 rounded-lg border border-slate-700/50">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Interviewer</span>

@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
+import { FileService } from "./FileService";
 import { v4 as uuidv4 } from "uuid";
 
 export interface DraftRevision {
@@ -137,9 +138,13 @@ export class DraftService {
 
 ${currentRevision.content}
 
-${this.activeDraft.voice && fs.existsSync(this.activeDraft.voice) ? `Please maintain the writing style from this voice profile:
+${
+  this.activeDraft.voice && fs.existsSync(this.activeDraft.voice)
+    ? `Please maintain the writing style from this voice profile:
 
-${fs.readFileSync(this.activeDraft.voice, "utf-8")}` : ""}
+${fs.readFileSync(this.activeDraft.voice, "utf-8")}`
+    : ""
+}
 
 Apply the user's refinement request while maintaining the overall structure and quality of the article. Only modify the parts that need to be changed based on the request.`,
       ),
@@ -210,10 +215,7 @@ Apply the user's refinement request while maintaining the overall structure and 
     const drafts: Draft[] = [];
     for (const file of files) {
       if (file.endsWith(".json")) {
-        const content = fs.readFileSync(
-          path.join(draftsFolder, file),
-          "utf-8",
-        );
+        const content = fs.readFileSync(path.join(draftsFolder, file), "utf-8");
         drafts.push(JSON.parse(content) as Draft);
       }
     }
@@ -290,8 +292,15 @@ Apply the user's refinement request while maintaining the overall structure and 
 
   /**
    * Export draft as markdown
+   * @param draftId - The draft ID to export
+   * @param imageTargetFolder - Optional target folder for images (relative to workspace root)
+   * @param imageProductionPath - Optional path for production image links (e.g., "/uploads/2026/02")
    */
-  static async exportDraft(draftId: string): Promise<void> {
+  static async exportDraft(
+    draftId: string,
+    imageTargetFolder?: string,
+    imageProductionPath?: string,
+  ): Promise<void> {
     const draft = await this.loadDraft(draftId);
     if (!draft) {
       throw new Error("Draft not found");
@@ -305,36 +314,17 @@ Apply the user's refinement request while maintaining the overall structure and 
       throw new Error("Current revision not found");
     }
 
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    const workspaceFolder = workspaceFolders?.[0];
+    const defaultFileName = `${draft.title
+      .replace(/[^a-zA-Z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .toLowerCase()}.md`;
 
-    if (!workspaceFolder) {
-      vscode.window.showErrorMessage("No workspace folder is open");
-      return;
-    }
-
-    const defaultUri = vscode.Uri.joinPath(
-      workspaceFolder.uri,
-      `${draft.title.replace(/[^a-zA-Z0-9\s-]/g, "").replace(/\s+/g, "-").toLowerCase()}.md`,
+    await FileService.saveMarkdownFile(
+      currentRevision.content,
+      defaultFileName,
+      imageTargetFolder,
+      imageProductionPath,
+      "Draft exported successfully!",
     );
-
-    const fileUri = await vscode.window.showSaveDialog({
-      defaultUri,
-      filters: {
-        "Markdown files": ["md"],
-        "All files": ["*"],
-      },
-    });
-
-    if (!fileUri) {
-      return;
-    }
-
-    fs.writeFileSync(fileUri.fsPath, currentRevision.content, "utf-8");
-
-    const document = await vscode.workspace.openTextDocument(fileUri);
-    await vscode.window.showTextDocument(document);
-
-    vscode.window.showInformationMessage("Draft exported successfully!");
   }
 }

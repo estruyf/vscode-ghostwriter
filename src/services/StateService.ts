@@ -7,6 +7,8 @@ interface AppState {
   selectedInterviewerAgent?: string;
   selectedWriterAgent?: string;
   selectedLanguage?: string;
+  attachmentFolder?: string;
+  imageProductionPath?: string;
 }
 
 export class StateService {
@@ -154,6 +156,48 @@ export class StateService {
     await this.context.workspaceState.update(this.STATE_KEY, {
       ...state,
       selectedLanguage: language,
+    });
+  }
+
+  /**
+   * Get the attachment folder path (relative to workspace root)
+   */
+  public static getAttachmentFolder(): string | undefined {
+    const state = this.getState();
+    return state.attachmentFolder;
+  }
+
+  /**
+   * Set the attachment folder path (relative to workspace root)
+   */
+  public static async setAttachmentFolder(
+    folderPath: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      attachmentFolder: folderPath,
+    });
+  }
+
+  /**
+   * Get the image production path
+   */
+  public static getImageProductionPath(): string | undefined {
+    const state = this.getState();
+    return state.imageProductionPath;
+  }
+
+  /**
+   * Set the image production path
+   */
+  public static async setImageProductionPath(
+    path: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      imageProductionPath: path,
     });
   }
 }

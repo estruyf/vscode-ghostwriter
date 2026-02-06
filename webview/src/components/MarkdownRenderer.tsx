@@ -11,7 +11,7 @@ interface MarkdownRendererProps {
 }
 
 export function MarkdownRenderer({ content, className = '', mdClassname = '' }: MarkdownRendererProps) {
-  const [processedContent, setProcessedContent] = useState(content);
+  const [processedContent, setProcessedContent] = useState('');
 
   useEffect(() => {
     // Process image paths in markdown to convert relative file paths to data URIs

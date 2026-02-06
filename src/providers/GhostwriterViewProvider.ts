@@ -130,6 +130,47 @@ export class GhostwriterViewProvider {
           break;
         }
 
+        case "getAttachmentFolder": {
+          // First check workspace state, then fall back to settings
+          let folderPath = StateService.getAttachmentFolder();
+          if (!folderPath) {
+            const config = vscode.workspace.getConfiguration();
+            folderPath = config.get<string>(
+              "vscode-ghostwriter.attachmentFolder",
+            );
+          }
+          if (requestId) {
+            this.postRequestMessage(command, requestId, folderPath);
+          }
+          break;
+        }
+
+        case "setAttachmentFolder": {
+          await StateService.setAttachmentFolder(payload.folderPath);
+          break;
+        }
+
+        case "getImageProductionPath": {
+          const path = StateService.getImageProductionPath();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, path);
+          }
+          break;
+        }
+
+        case "setImageProductionPath": {
+          await StateService.setImageProductionPath(payload.path);
+          break;
+        }
+
+        case "selectAttachmentFolder": {
+          const folderPath = await FileService.selectFolder();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, folderPath);
+          }
+          break;
+        }
+
         case "interview:start": {
           if (this.currentInterviewId) {
             await InterviewService.discardInterview(this.currentInterviewId);
@@ -305,7 +346,21 @@ export class GhostwriterViewProvider {
         }
 
         case "saveArticle": {
-          await WriterService.saveArticle(payload.content);
+          const imageTargetFolder = StateService.getAttachmentFolder();
+
+          await WriterService.saveArticle(
+            payload.content,
+            imageTargetFolder || undefined,
+            payload.imageProductionPath,
+          );
+          break;
+        }
+
+        case "selectImageTargetFolder": {
+          const imageFolder = await FileService.selectFolder();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, imageFolder);
+          }
           break;
         }
 
@@ -498,8 +553,19 @@ export class GhostwriterViewProvider {
         }
 
         case "createDraft": {
+          // Try to extract the topic from the transcript session file
+          let title = payload.title;
+          if (payload.transcript) {
+            const topic = await FileService.getTranscriptTopic(
+              payload.transcript,
+            );
+            if (topic) {
+              title = topic;
+            }
+          }
+
           const draft = await DraftService.createDraft(
-            payload.title,
+            title,
             payload.transcript,
             payload.initialContent,
             payload.voice,
@@ -560,7 +626,13 @@ export class GhostwriterViewProvider {
         }
 
         case "exportDraft": {
-          await DraftService.exportDraft(payload.draftId);
+          const imageTargetFolder = StateService.getAttachmentFolder();
+
+          await DraftService.exportDraft(
+            payload.draftId,
+            imageTargetFolder || undefined,
+            payload.imageProductionPath,
+          );
           break;
         }
       }

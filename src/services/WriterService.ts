@@ -1,10 +1,12 @@
 import * as vscode from "vscode";
 import { LanguageModelChatMessage } from "vscode";
 import * as fs from "fs";
+import * as path from "path";
 import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
 import { PROMPTS } from "../constants";
 import { AgentService } from "./AgentService";
+import { FileService } from "./FileService";
 
 export interface WritingOptions {
   style?: "formal" | "casual" | "conversational";
@@ -214,48 +216,22 @@ ${frontmatter}
 
   /**
    * Save the generated article to a file
+   * @param content - The article content
+   * @param imageTargetFolder - Optional target folder for images (relative to workspace root)
+   * @param imageProductionPath - Optional path for production image links (e.g., "/uploads/2026/02")
    */
-  static async saveArticle(content: string): Promise<void> {
-    try {
-      // Get the current workspace folder
-      const workspaceFolders = vscode.workspace.workspaceFolders;
-      const workspaceFolder = workspaceFolders?.[0];
-
-      if (!workspaceFolder) {
-        vscode.window.showErrorMessage("No workspace folder is open");
-        return;
-      }
-
-      // Create default URI in the workspace folder
-      const defaultUri = vscode.Uri.joinPath(
-        workspaceFolder.uri,
-        `${new Date().getTime()}_article.md`,
-      );
-
-      // Show save dialog to let user choose where to save
-      const fileUri = await vscode.window.showSaveDialog({
-        defaultUri,
-        filters: {
-          "Markdown files": ["md"],
-          "All files": ["*"],
-        },
-      });
-
-      if (!fileUri) {
-        return; // User cancelled
-      }
-
-      // Write the file
-      fs.writeFileSync(fileUri.fsPath, content, "utf-8");
-
-      // Open the file in the editor
-      const document = await vscode.workspace.openTextDocument(fileUri);
-      await vscode.window.showTextDocument(document);
-
-      vscode.window.showInformationMessage("Article saved successfully!");
-    } catch (error) {
-      console.error("Error saving article:", error);
-      vscode.window.showErrorMessage("Failed to save article");
-    }
+  static async saveArticle(
+    content: string,
+    imageTargetFolder?: string,
+    imageProductionPath?: string,
+  ): Promise<void> {
+    const defaultFileName = `${new Date().getTime()}_article.md`;
+    await FileService.saveMarkdownFile(
+      content,
+      defaultFileName,
+      imageTargetFolder,
+      imageProductionPath,
+      "Article saved successfully!",
+    );
   }
 }

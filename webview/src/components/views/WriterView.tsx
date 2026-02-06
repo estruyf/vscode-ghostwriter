@@ -10,6 +10,7 @@ import { WritingOptions } from '../WritingOptions';
 import AgentDialog from '../AgentManager/AgentDialog';
 import CreateAgentForm from '../AgentManager/CreateAgentForm';
 import ConfirmDialog from '../ConfirmDialog';
+import ImageRemapModal from '../ImageRemapModal';
 import { useWriterData, useDialog } from '../../hooks';
 import DraftIterationView from './DraftIterationView';
 import { VisitorBadge } from '../VisitorBadge';
@@ -42,6 +43,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [newAgentName, setNewAgentName] = useState('');
   const [activeDraft, setActiveDraft] = useState<Draft | null>(null);
   const [language, setLanguage] = useState<string>('');
+  const [showRemapModal, setShowRemapModal] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [alertDialog, setAlertDialog] = useState<{
@@ -162,11 +164,6 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     });
   }, [customTranscript, selectedTranscript, customVoice, selectedVoice, writingStyle, includeHeadings, includeSEO, keywords, language, selectedModelId, writerData]);
 
-  const saveFrontmatter = useCallback(() => {
-    writerHandlers.saveFrontmatter(writerData.frontmatter);
-    setShowFrontmatterEditor(false);
-  }, [writerData.frontmatter, writerHandlers]);
-
   const clearFrontmatter = useCallback(() => {
     writerHandlers.clearFrontmatter();
   }, [writerHandlers]);
@@ -176,19 +173,37 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     messageHandler.send('setSelectedLanguage', { language: newLanguage });
   }, []);
 
-  const saveArticle = useCallback(() => {
+  const handleSaveArticle = useCallback((imageProductionPath: string) => {
     if (!streamingContent) return;
 
     setIsSaving(true);
+    setShowRemapModal(false);
 
     const { frontmatter, markdown } = parseContent(streamingContent);
     const contentToSave = frontmatter
       ? `---\n${frontmatter}\n---\n\n${markdown}`
       : markdown;
 
-    messageHandler.send('saveArticle', { content: contentToSave });
+    messageHandler.send('saveArticle', {
+      content: contentToSave,
+      imageProductionPath: imageProductionPath || undefined,
+    });
     setIsSaving(false);
   }, [streamingContent]);
+
+  const saveArticle = useCallback(() => {
+    if (!streamingContent) return;
+
+    // Check if content has images (markdown image syntax)
+    const hasImages = /!\[([^\]]*)\]\(([^)]+)\)/g.test(streamingContent);
+
+    if (hasImages) {
+      setShowRemapModal(true);
+    } else {
+      // No images, save directly
+      handleSaveArticle('');
+    }
+  }, [streamingContent, handleSaveArticle]);
 
   const handleCreateWriterAgent = useCallback(async () => {
     if (!newAgentName.trim()) {
@@ -348,6 +363,13 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
             )}
           </div>
         </div>
+
+        {/* Image Remap Modal */}
+        <ImageRemapModal
+          isOpen={showRemapModal}
+          onConfirm={(data) => handleSaveArticle(data.imageProductionPath)}
+          onCancel={() => setShowRemapModal(false)}
+        />
       </div>
     );
   }
@@ -402,6 +424,13 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
         onSubmit={handleCreateWriterAgent}
         onCancel={createAgentDialog.close}
         title="Create Writer Agent"
+      />
+
+      {/* Image Remap Modal */}
+      <ImageRemapModal
+        isOpen={showRemapModal}
+        onConfirm={(data) => handleSaveArticle(data.imageProductionPath)}
+        onCancel={() => setShowRemapModal(false)}
       />
 
       {/* Content */}

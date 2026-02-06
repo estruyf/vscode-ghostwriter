@@ -11,9 +11,17 @@ this file.
       markdown image reference insertion
     - Image support in markdown rendering with proper webview URI handling
     - MarkdownRenderer now processes and displays local image files correctly
+    - Image remapping support during article saving, allowing users to specify
+      the production path for images in the final markdown output
 - Improved ChatMessage component with image display and captions
 - Webview now automatically returns to home view when interview ends (manually
   or automatically)
+- Added configurable attachment folder for image storage
+    - VS Code workspace setting `vscode-ghostwriter.attachmentFolder` for
+      default folder
+    - Per-interview override via `StateService` for custom attachment locations
+    - Interactive folder selection UI in interview view
+- Smart draft titles
 
 ## [0.0.7] - 2026-02-04
 

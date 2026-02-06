@@ -4,6 +4,7 @@ import { Draft } from '../../types';
 import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { useDialog } from '../../hooks/useDialog';
 import ConfirmDialog from '../ConfirmDialog';
+import ImageRemapModal from '../ImageRemapModal';
 import { VisitorBadge } from '../VisitorBadge';
 import { MarkdownRenderer } from '../MarkdownRenderer';
 import { parseContent } from '../../utils/markdown';
@@ -21,6 +22,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
   const [streamingContent, setStreamingContent] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
+  const [showRemapModal, setShowRemapModal] = useState(false);
   const deleteDialog = useDialog();
   const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -106,9 +108,26 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
     }
   }, [canGoForward, currentRevisionIndex, draft.revisions, switchRevision]);
 
-  const handleExport = useCallback(async () => {
-    messageHandler.send('exportDraft', { draftId: draft.id });
+  const handleExportDraft = useCallback((imageProductionPath: string) => {
+    messageHandler.send('exportDraft', {
+      draftId: draft.id,
+      imageProductionPath: imageProductionPath || undefined,
+    });
+    setShowRemapModal(false);
   }, [draft.id]);
+
+  const handleExport = useCallback(async () => {
+    // Check if content has images (markdown image syntax)
+    const content = currentRevision?.content || '';
+    const hasImages = /!\[([^\]]*)\]\(([^)]+)\)/g.test(content);
+
+    if (hasImages) {
+      setShowRemapModal(true);
+    } else {
+      // No images, export directly
+      handleExportDraft('');
+    }
+  }, [currentRevision, handleExportDraft]);
 
   const handleDeleteClick = useCallback(() => {
     deleteDialog.open();
@@ -146,7 +165,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           {/* Navigation buttons */}
           <button
             onClick={goToPreviousRevision}
@@ -297,6 +316,15 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
           </div>
         )}
       </div>
+
+      {/* Image Remap Modal */}
+      <ImageRemapModal
+        isOpen={showRemapModal}
+        onConfirm={(data) => handleExportDraft(data.imageProductionPath)}
+        onCancel={() => setShowRemapModal(false)}
+        confirmButtonText="Export Draft"
+        title="Image Link Remapping"
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog

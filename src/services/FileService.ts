@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import { CopilotService } from "./CopilotService";
+import { StateService } from "./StateService";
 
 export class FileService {
   private static GHOSTWRITER_FOLDER = ".ghostwriter";
@@ -66,8 +67,38 @@ export class FileService {
 
   /**
    * Get or create the attachments folder
+   * Resolution priority: StateService override > VS Code setting > .ghostwriter/attachments
    */
   private static async getAttachmentsFolder(): Promise<string | undefined> {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+      return undefined;
+    }
+    const rootPath = workspaceFolders[0].uri.fsPath;
+
+    // Priority 1: Per-interview override from StateService
+    const stateFolder = StateService.getAttachmentFolder();
+    if (stateFolder) {
+      const attachmentsPath = path.join(rootPath, stateFolder);
+      if (!fs.existsSync(attachmentsPath)) {
+        fs.mkdirSync(attachmentsPath, { recursive: true });
+      }
+      return attachmentsPath;
+    }
+
+    // Priority 2: VS Code workspace setting
+    const configFolder = vscode.workspace
+      .getConfiguration("vscode-ghostwriter")
+      .get<string>("attachmentFolder");
+    if (configFolder) {
+      const attachmentsPath = path.join(rootPath, configFolder);
+      if (!fs.existsSync(attachmentsPath)) {
+        fs.mkdirSync(attachmentsPath, { recursive: true });
+      }
+      return attachmentsPath;
+    }
+
+    // Priority 3: Default .ghostwriter/attachments
     const ghostwriterPath = await this.getGhostwriterFolder();
     if (!ghostwriterPath) {
       return undefined;
@@ -268,6 +299,29 @@ AI Model: ${modelId || "N/A"}
   }
 
   /**
+   * Get the topic from a transcript's session file
+   * @param transcriptPath - Path to the transcript .md file
+   * @returns The topic string if found, undefined otherwise
+   */
+  static async getTranscriptTopic(
+    transcriptPath: string,
+  ): Promise<string | undefined> {
+    try {
+      const sessionPath = transcriptPath.replace(/\.md$/, ".json");
+      if (!fs.existsSync(sessionPath)) {
+        return undefined;
+      }
+
+      const sessionContent = fs.readFileSync(sessionPath, "utf-8");
+      const session = JSON.parse(sessionContent);
+      return session.topic;
+    } catch (error) {
+      console.error("Error reading transcript topic:", error);
+      return undefined;
+    }
+  }
+
+  /**
    * Select a custom file using file picker
    */
   static async selectCustomFile(fileType: string): Promise<string | undefined> {
@@ -300,6 +354,31 @@ AI Model: ${modelId || "N/A"}
     } catch (error) {
       console.error(`Error deleting file ${filePath}:`, error);
     }
+  }
+
+  /**
+   * Open a folder picker and return the selected path relative to workspace root
+   */
+  static async selectFolder(): Promise<string | undefined> {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+      return undefined;
+    }
+
+    const result = await vscode.window.showOpenDialog({
+      canSelectFiles: false,
+      canSelectFolders: true,
+      canSelectMany: false,
+      defaultUri: workspaceFolders[0].uri,
+      title: "Select Attachment Folder",
+    });
+
+    if (result && result.length > 0) {
+      const rootPath = workspaceFolders[0].uri.fsPath;
+      return path.relative(rootPath, result[0].fsPath);
+    }
+
+    return undefined;
   }
 
   /**
@@ -417,6 +496,183 @@ AI Model: ${modelId || "N/A"}
     } catch (error) {
       console.error(`Error reading image ${filePath}:`, error);
       return undefined;
+    }
+  }
+
+  /**
+   * Resolve an image path to an absolute path.
+   * Tries: absolute path, relative to .ghostwriter/, relative to workspace root.
+   */
+  private static async resolveImagePath(
+    imagePath: string,
+  ): Promise<string | undefined> {
+    if (path.isAbsolute(imagePath) && fs.existsSync(imagePath)) {
+      return imagePath;
+    }
+
+    // Try relative to .ghostwriter folder (the transcript format)
+    const ghostwriterPath = await this.getGhostwriterFolder();
+    if (ghostwriterPath) {
+      let cleanPath = imagePath;
+      if (cleanPath.startsWith(`${this.GHOSTWRITER_FOLDER}/`)) {
+        cleanPath = cleanPath.replace(`${this.GHOSTWRITER_FOLDER}/`, "");
+      }
+      const absPath = path.join(ghostwriterPath, cleanPath);
+      if (fs.existsSync(absPath)) {
+        return absPath;
+      }
+    }
+
+    // Try relative to workspace root
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders && workspaceFolders.length > 0) {
+      const rootPath = workspaceFolders[0].uri.fsPath;
+      const absPath = path.join(rootPath, imagePath);
+      if (fs.existsSync(absPath)) {
+        return absPath;
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Remap image references in markdown content.
+   * Replaces image paths that match the targetImageFolder with the imageProductionPath.
+   *
+   * @param content - The markdown content containing image references
+   * @param targetImageFolder - Absolute path to the target folder for images
+   * @param articleFilePath - Absolute path where the article will be saved (unused, kept for compatibility)
+   * @param imageProductionPath - Optional path for production image links (e.g., "/uploads/2026/02")
+   * @returns The content with rewritten image paths
+   */
+  static async remapImages(
+    content: string,
+    targetImageFolder: string,
+    articleFilePath: string,
+    imageProductionPath?: string,
+  ): Promise<string> {
+    // If no production path is specified, return content unchanged
+    if (!imageProductionPath) {
+      return content;
+    }
+
+    const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+    let result = content;
+    const replacements: Array<{ original: string; replacement: string }> = [];
+
+    let match;
+    while ((match = imageRegex.exec(content)) !== null) {
+      const fullMatch = match[0];
+      const alt = match[1];
+      const imagePath = match[2];
+
+      // Skip URLs
+      if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+        continue;
+      }
+
+      // Resolve the absolute path for the image
+      const resolvedPath = await this.resolveImagePath(imagePath);
+      if (!resolvedPath) {
+        continue;
+      }
+
+      // Check if the resolved path is within the targetImageFolder
+      if (resolvedPath.startsWith(targetImageFolder)) {
+        // Extract just the filename
+        const fileName = path.basename(resolvedPath);
+
+        // Create the production path, ensuring no double slashes
+        const normalizedProductionPath = imageProductionPath.replace(
+          /\/+$/,
+          "",
+        ); // Remove trailing slashes
+        const imageLink = `${normalizedProductionPath}/${fileName}`;
+
+        replacements.push({
+          original: fullMatch,
+          replacement: `![${alt}](${imageLink})`,
+        });
+      }
+    }
+
+    // Apply replacements
+    for (const { original, replacement } of replacements) {
+      result = result.replace(original, replacement);
+    }
+
+    return result;
+  }
+
+  /**
+   * Save markdown content to a file with optional image remapping.
+   * Unified method used by WriterService and DraftService.
+   *
+   * @param content - The markdown content to save
+   * @param defaultFileName - Default filename for the save dialog
+   * @param imageTargetFolder - Optional target folder for images (relative to workspace root)
+   * @param imageProductionPath - Optional path for production image links (e.g., "/uploads/2026/02")
+   * @param successMessage - Message to show on successful save
+   */
+  static async saveMarkdownFile(
+    content: string,
+    defaultFileName: string,
+    imageTargetFolder?: string,
+    imageProductionPath?: string,
+    successMessage: string = "File saved successfully!",
+  ): Promise<void> {
+    try {
+      const workspaceFolders = vscode.workspace.workspaceFolders;
+      const workspaceFolder = workspaceFolders?.[0];
+
+      if (!workspaceFolder) {
+        vscode.window.showErrorMessage("No workspace folder is open");
+        return;
+      }
+
+      const defaultUri = vscode.Uri.joinPath(
+        workspaceFolder.uri,
+        defaultFileName,
+      );
+
+      const fileUri = await vscode.window.showSaveDialog({
+        defaultUri,
+        filters: {
+          "Markdown files": ["md"],
+          "All files": ["*"],
+        },
+      });
+
+      if (!fileUri) {
+        return; // User cancelled
+      }
+
+      let finalContent = content;
+
+      // Remap images if a target folder is specified
+      if (imageTargetFolder) {
+        const rootPath = workspaceFolder.uri.fsPath;
+        const targetAbsPath = path.join(rootPath, imageTargetFolder);
+        finalContent = await this.remapImages(
+          content,
+          targetAbsPath,
+          fileUri.fsPath,
+          imageProductionPath,
+        );
+      }
+
+      // Write the file
+      fs.writeFileSync(fileUri.fsPath, finalContent, "utf-8");
+
+      // Open the file in the editor
+      const document = await vscode.workspace.openTextDocument(fileUri);
+      await vscode.window.showTextDocument(document);
+
+      vscode.window.showInformationMessage(successMessage);
+    } catch (error) {
+      console.error("Error saving markdown file:", error);
+      vscode.window.showErrorMessage("Failed to save file");
     }
   }
 }

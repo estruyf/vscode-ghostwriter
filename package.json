@@ -92,6 +92,16 @@
           "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "title": "Ghostwriter",
+      "properties": {
+        "vscode-ghostwriter.attachmentFolder": {
+          "type": "string",
+          "default": "",
+          "description": "Custom folder path for saving image attachments, relative to the workspace root. When empty, defaults to '.ghostwriter/attachments'."
+        }
+      }
     }
   },
   "scripts": {

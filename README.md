@@ -72,6 +72,10 @@ transcripts.
   consistent article metadata
 - **Real-time Streaming**: Watch your article being generated in real-time
 - **Direct File Save**: Save generated articles directly to your workspace
+- **Image Support**: Attach and embed images during writing with automatic
+  markdown reference insertion
+- **Image Remapping for Production**: Configure production image paths (e.g.,
+  `/uploads/2026/02`) when saving articles for deployed environments
 - **Draft Iteration Mode**: Refine your articles conversationally with iterative
   improvements
 
@@ -88,7 +92,10 @@ transcripts.
   prompts
 - **Persistent Drafts**: Drafts saved to `.ghostwriter/drafts/` and accessible
   from home page
-- **Export Options**: Export final version as markdown at any time
+- **Smart Draft Titles**: Drafts automatically use interview topics as titles
+  for easy identification instead of timestamps
+- **Export Options**: Export final version as markdown with optional image
+  remapping for production environments at any time
 
 ### Voice Generator Mode
 - **Writing Style Analysis**: Automatically analyze your existing writing to
@@ -106,6 +113,20 @@ transcripts.
 - **Easy Integration**: Use generated voice files in Writer mode for consistent
   content
 
+### Image Management
+- **Interview Image Capture**: Attach and embed images during interviews with
+  automatic markdown reference insertion
+- **Configurable Storage**: Choose where images are stored with VS Code
+  workspace setting or per-session override
+- **Automatic Organization**: Images automatically saved to
+  `.ghostwriter/attachments/` (or custom folder) with unique filenames
+- **Production Deployment**: Remap image paths for production environments
+  - Configure production image path prefix (e.g., `/uploads/2026/02`)
+  - Automatic path replacement in markdown when saving articles
+  - Ensures proper formatting without double slashes
+- **MarkdownRenderer Integration**: Properly displays embedded images in preview
+  with async loading and error handling
+
 ### State Persistence
 - **Model Preferences**: Selected GitHub Copilot model persists across sessions
 - **Language Preferences**: Selected content language persists across sessions
@@ -115,6 +136,8 @@ transcripts.
   sessions
 - **Prompt Configuration**: Selected prompt configuration persists across
   sessions
+- **Image Settings**: Attachment folder and image production path preferences
+  persist across sessions
 
 ## Getting Started
 
@@ -131,15 +154,18 @@ transcripts.
 
 1. Open the Ghostwriter panel
 2. Click on "Start Interview"
-3. (Optional) Select or create an interviewer agent to shape the interview
-4. Select your preferred GitHub Copilot model
-5. The AI will first ask you for the interview topic
-6. Once you provide the topic, a transcript file is immediately created in
-   `.ghostwriter/transcripts/`
-7. Answer the AI's questions in the chat interface
-8. Each question and answer is saved to the transcript file in real-time
-9. The AI will automatically detect completion and save the final transcript
-10. If the editor closes unexpectedly, your progress is saved in the transcript
+3. (Optional) Select an attachment folder for images captured during interview
+4. (Optional) Select or create an interviewer agent to shape the interview
+5. Select your preferred GitHub Copilot model
+6. The AI will first ask you for the interview topic
+7. Once you provide the topic, a transcript file is immediately created in
+   `.ghostwriter/transcripts/` along with a session file
+8. Answer the AI's questions in the chat interface
+9. Attach images during the interview using the image button (optional)
+10. Each question, answer, and image reference is saved to the transcript file
+    in real-time
+11. The AI will automatically detect completion and save the final transcript
+12. If the editor closes unexpectedly, your progress is saved in the transcript
     file
 
 ### Resuming an Interrupted Interview
@@ -160,22 +186,26 @@ transcripts.
 4. Select a transcript from your workspace or browse for a custom file
 5. (Optional) Select a voice file to maintain consistent writing style
 6. Configure writing options:
-  - Choose writing style (Formal/Casual/Conversational)
-  - Select content language (English, Spanish, French, German, etc.)
-  - Enable/disable headings and SEO optimization
-  - Add target keywords for SEO
-  - Configure frontmatter template
+   - Choose writing style (Formal/Casual/Conversational)
+   - Select content language (English, Spanish, French, German, etc.)
+   - Enable/disable headings and SEO optimization
+   - Add target keywords for SEO
+   - Configure frontmatter template
 7. Select your preferred GitHub Copilot model
 8. Click "Start Writing"
 9. Watch the article generate in real-time
-10. Choose to either:
+10. (Optional) Attach images to the article using the image button
+11. Choose to either:
     - Click "Iterate Draft" to enter Draft Iteration Mode for refinement
     - Click "Save Article" to save directly to your workspace
+12. If the article contains images, configure the production image path (or
+    leave empty for relative paths)
 
 ### Using Draft Iteration Mode
 
 1. After generating an article in Writer mode, click "Iterate Draft"
-2. The draft is automatically saved to `.ghostwriter/drafts/`
+2. The draft is automatically saved to `.ghostwriter/drafts/` with the interview
+   topic as the title (easy to identify related drafts)
 3. Use the refinement input to conversationally improve your content:
    - Example: "Make the intro more engaging"
    - Example: "Add more technical depth to section 3"
@@ -184,6 +214,7 @@ transcripts.
 5. Navigate between revisions using prev/next buttons
 6. View all revisions in the history sidebar (toggle with History button)
 7. Export the final version using the "Export" button
+   - If images are present, configure the production image path (optional)
 8. Access saved drafts anytime from the "My Drafts" card on the home page
 
 ### Managing Drafts
@@ -228,12 +259,18 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 ```
 .ghostwriter/
 ├── transcripts/     # Interview transcripts (.md files)
+│                   # Also stores .json session files with interview metadata
 ├── voices/          # Voice files for writing style (.md files)
 ├── interviewer/     # Interviewer agents (.md files)
 ├── writer/          # Writer agents (.md files)
-├── drafts/          # Draft iterations (.json files)
-└── attachments/     # Uploaded images and files
+├── drafts/          # Draft iterations (.json) with revision history
+└── attachments/     # Images and files captured during interviews and writing
 ```
+
+**Note**: The attachment folder location can be customized via the
+`vscode-ghostwriter.attachmentFolder` workspace setting or per-interview via UI
+selection. The transcript session files (`.json`) contain interview metadata
+including the interview topic, which is automatically used as the draft title.
 
 ## Commands
 
@@ -248,11 +285,22 @@ The extension creates a `.ghostwriter` folder in your workspace root:
 
 ## Extension Settings
 
-This extension stores the following in workspace state:
-- Selected GitHub Copilot model ID
-- Selected content language
-- Frontmatter template for articles
-- Selected interviewer and writer agents
+This extension provides the following configuration options:
+
+### Workspace Settings
+- `vscode-ghostwriter.attachmentFolder` - Custom folder path for saving image
+  attachments, relative to the workspace root. When empty, defaults to
+  `.ghostwriter/attachments`.
+
+### State Persistence (Workspace Local State)
+- **Selected GitHub Copilot model ID** - Persists across sessions
+- **Selected content language** - Persists across sessions
+- **Frontmatter template** - Persists your reusable article templates
+- **Selected interviewer and writer agents** - Persists agent preferences
+- **Attachment Folder Override** - Per-interview override for custom image
+  storage locations
+- **Image Production Path** - Production image path prefix for deployment
+  environments (e.g., `/uploads/2026/02`)
 
 ## Development
 

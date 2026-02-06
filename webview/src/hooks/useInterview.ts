@@ -17,6 +17,7 @@ interface UseInterviewReturn {
   selectedAgent: string;
   selectedModelId: string;
   hasUserStarted: boolean;
+  attachmentFolder: string;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   sendMessage: (e: React.FormEvent, images?: ImageAttachment[]) => void;
@@ -28,6 +29,8 @@ interface UseInterviewReturn {
   resetInterview: () => void;
   handleAgentSelect: (agentPath: string) => void;
   handleModelSelect: (modelId: string) => void;
+  handleAttachmentFolderSelect: () => void;
+  handleAttachmentFolderClear: () => void;
 }
 
 const INTERVIEW_COMPLETION_PHRASES = [
@@ -51,12 +54,13 @@ export function useInterview(): UseInterviewReturn {
   const [selectedAgent, setSelectedAgent] = useState<string>("");
   const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [hasUserStarted, setHasUserStarted] = useState(false);
+  const [attachmentFolder, setAttachmentFolder] = useState<string>("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const hasStartedRef = useRef(false);
 
-  // Load agents on mount
+  // Load agents and attachment folder on mount
   useEffect(() => {
     messageHandler
       .request<AgentFile[]>("getInterviewerAgents")
@@ -77,6 +81,17 @@ export function useInterview(): UseInterviewReturn {
       })
       .catch((error) => {
         console.error("Error loading selected interviewer agent:", error);
+      });
+
+    messageHandler
+      .request<string>("getAttachmentFolder")
+      .then((response) => {
+        if (response) {
+          setAttachmentFolder(response);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading attachment folder:", error);
       });
   }, []);
 
@@ -276,6 +291,25 @@ export function useInterview(): UseInterviewReturn {
     startInterview();
   }, [startInterview]);
 
+  const handleAttachmentFolderSelect = useCallback(async () => {
+    try {
+      const folderPath = await messageHandler.request<string>(
+        "selectAttachmentFolder",
+      );
+      if (folderPath) {
+        setAttachmentFolder(folderPath);
+        messageHandler.send("setAttachmentFolder", { folderPath });
+      }
+    } catch (error) {
+      console.error("Error selecting attachment folder:", error);
+    }
+  }, []);
+
+  const handleAttachmentFolderClear = useCallback(() => {
+    setAttachmentFolder("");
+    messageHandler.send("setAttachmentFolder", { folderPath: undefined });
+  }, []);
+
   return {
     messages,
     inputValue,
@@ -286,6 +320,7 @@ export function useInterview(): UseInterviewReturn {
     selectedAgent,
     selectedModelId,
     hasUserStarted,
+    attachmentFolder,
     textareaRef,
     messagesEndRef,
     sendMessage,
@@ -294,5 +329,7 @@ export function useInterview(): UseInterviewReturn {
     resetInterview,
     handleAgentSelect,
     handleModelSelect,
+    handleAttachmentFolderSelect,
+    handleAttachmentFolderClear,
   };
 }
