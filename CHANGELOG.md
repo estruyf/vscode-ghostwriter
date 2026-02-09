@@ -3,6 +3,14 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
+## [0.0.9] - 2026-02-09
+
+- [#25](https://github.com/estruyf/vscode-ghostwriter/issues/25): Configurable
+  save location and filename templates for articles and drafts
+    - New Save Settings modal for template configuration and previews
+    - Supported placeholders: {{fileName}}, {{slug}}, {{title}}, {{year}},
+      {{month}}, {{day}}, {{date|yyyy-MM-dd}}
+
 ## [0.0.8] - 2026-02-06
 
 - [#19](https://github.com/estruyf/vscode-ghostwriter/issues/19): Add image

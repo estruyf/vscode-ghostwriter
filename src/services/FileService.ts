@@ -3,6 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { CopilotService } from "./CopilotService";
 import { StateService } from "./StateService";
+import { TemplateResolver, TemplateResolverContext } from "../utils";
 
 export class FileService {
   private static GHOSTWRITER_FOLDER = ".ghostwriter";
@@ -213,13 +214,8 @@ AI Model: ${modelId || "N/A"}
     }
   }
 
-  private static sanitizeSlug(value: string): string {
-    return value
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-+|-+$/g, "");
+  static sanitizeSlug(value: string): string {
+    return TemplateResolver.sanitizeSlug(value);
   }
 
   private static async generateTranscriptSlug(topic: string): Promise<string> {
@@ -605,6 +601,76 @@ AI Model: ${modelId || "N/A"}
     return result;
   }
 
+  private static resolveSaveDialogUri(
+    workspaceFolder: vscode.WorkspaceFolder,
+    defaultFileName: string,
+    templateContext?: TemplateResolverContext,
+  ): { defaultUri: vscode.Uri; defaultDir: string } {
+    const rootPath = workspaceFolder.uri.fsPath;
+    const baseFileName = path.basename(defaultFileName);
+    const baseName = baseFileName.replace(/\.[^/.]+$/, "");
+
+    const context: TemplateResolverContext = {
+      date: templateContext?.date || new Date(),
+      fileName: templateContext?.fileName || baseName,
+      title: templateContext?.title,
+      slug: templateContext?.slug,
+    };
+
+    const stateLocation = StateService.getDefaultSaveLocation();
+    const stateFilenameTemplate = StateService.getFilenameTemplate();
+    const config = vscode.workspace.getConfiguration("vscode-ghostwriter");
+
+    const configLocation = config.get<string>("defaultSaveLocation");
+    const configFilenameTemplate = config.get<string>("filenameTemplate");
+
+    const locationTemplate =
+      stateLocation !== undefined ? stateLocation : configLocation || "";
+    const filenameTemplate =
+      stateFilenameTemplate !== undefined
+        ? stateFilenameTemplate
+        : configFilenameTemplate || "";
+
+    let resolvedLocation = locationTemplate
+      ? TemplateResolver.resolveTemplate(locationTemplate, context)
+      : "";
+    let resolvedFileName = filenameTemplate
+      ? TemplateResolver.resolveTemplate(filenameTemplate, context)
+      : baseFileName;
+
+    if (!resolvedFileName) {
+      resolvedFileName = baseFileName;
+    }
+
+    const fileNameDir = path.dirname(resolvedFileName);
+    if (fileNameDir && fileNameDir !== ".") {
+      resolvedLocation = resolvedLocation
+        ? path.join(resolvedLocation, fileNameDir)
+        : fileNameDir;
+      resolvedFileName = path.basename(resolvedFileName);
+    }
+
+    const resolvedDir = resolvedLocation
+      ? path.isAbsolute(resolvedLocation)
+        ? resolvedLocation
+        : path.join(rootPath, resolvedLocation)
+      : rootPath;
+
+    const usesTemplate =
+      Boolean(locationTemplate) ||
+      Boolean(filenameTemplate) ||
+      (fileNameDir && fileNameDir !== ".");
+
+    if (usesTemplate && !fs.existsSync(resolvedDir)) {
+      fs.mkdirSync(resolvedDir, { recursive: true });
+    }
+
+    return {
+      defaultUri: vscode.Uri.file(path.join(resolvedDir, resolvedFileName)),
+      defaultDir: resolvedDir,
+    };
+  }
+
   /**
    * Save markdown content to a file with optional image remapping.
    * Unified method used by WriterService and DraftService.
@@ -614,6 +680,7 @@ AI Model: ${modelId || "N/A"}
    * @param imageTargetFolder - Optional target folder for images (relative to workspace root)
    * @param imageProductionPath - Optional path for production image links (e.g., "/uploads/2026/02")
    * @param successMessage - Message to show on successful save
+   * @param templateContext - Optional template context for resolving placeholders
    */
   static async saveMarkdownFile(
     content: string,
@@ -621,6 +688,7 @@ AI Model: ${modelId || "N/A"}
     imageTargetFolder?: string,
     imageProductionPath?: string,
     successMessage: string = "File saved successfully!",
+    templateContext?: TemplateResolverContext,
   ): Promise<void> {
     try {
       const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -631,9 +699,10 @@ AI Model: ${modelId || "N/A"}
         return;
       }
 
-      const defaultUri = vscode.Uri.joinPath(
-        workspaceFolder.uri,
+      const { defaultUri } = this.resolveSaveDialogUri(
+        workspaceFolder,
         defaultFileName,
+        templateContext,
       );
 
       const fileUri = await vscode.window.showSaveDialog({
@@ -646,6 +715,11 @@ AI Model: ${modelId || "N/A"}
 
       if (!fileUri) {
         return; // User cancelled
+      }
+
+      const targetDir = path.dirname(fileUri.fsPath);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
       }
 
       let finalContent = content;

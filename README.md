@@ -72,6 +72,8 @@ transcripts.
   consistent article metadata
 - **Real-time Streaming**: Watch your article being generated in real-time
 - **Direct File Save**: Save generated articles directly to your workspace
+- **Save Settings Templates**: Configure default save locations and filename
+  templates with placeholders like {{slug}} and {{date|yyyy-MM-dd}}
 - **Image Support**: Attach and embed images during writing with automatic
   markdown reference insertion
 - **Image Remapping for Production**: Configure production image paths (e.g.,
@@ -291,6 +293,12 @@ This extension provides the following configuration options:
 - `vscode-ghostwriter.attachmentFolder` - Custom folder path for saving image
   attachments, relative to the workspace root. When empty, defaults to
   `.ghostwriter/attachments`.
+- `vscode-ghostwriter.defaultSaveLocation` - Default folder path template for
+  saving articles, relative to the workspace root. Example:
+  `articles/{{year}}/{{month}}`.
+- `vscode-ghostwriter.filenameTemplate` - Filename template for saving
+  articles. Supported variables: `{{fileName}}`, `{{slug}}`, `{{title}}`,
+  `{{year}}`, `{{month}}`, `{{day}}`, `{{date|yyyy-MM-dd}}`.
 
 ### State Persistence (Workspace Local State)
 - **Selected GitHub Copilot model ID** - Persists across sessions

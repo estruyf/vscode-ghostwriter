@@ -74,4 +74,7 @@ export interface MessageContent {
   images?: ImageAttachment[];
 }
 
-export type ViewMode = "interview" | "writer";
+export interface SaveConfiguration {
+  defaultSaveLocation?: string;
+  filenameTemplate?: string;
+}

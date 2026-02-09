@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
 import { Draft } from '../../types';
-import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { History, Save, FileText, ChevronLeft, ChevronRight, Trash2, Settings } from 'lucide-react';
 import { useDialog } from '../../hooks/useDialog';
 import ConfirmDialog from '../ConfirmDialog';
 import ImageRemapModal from '../ImageRemapModal';
 import { VisitorBadge } from '../VisitorBadge';
 import { MarkdownRenderer } from '../MarkdownRenderer';
+import SaveSettingsModal from '../SaveSettingsModal';
 import { parseContent } from '../../utils/markdown';
 
 interface DraftIterationViewProps {
@@ -24,6 +25,7 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [showRemapModal, setShowRemapModal] = useState(false);
   const deleteDialog = useDialog();
+  const saveSettingsDialog = useDialog();
   const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -193,6 +195,16 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
             <History className="w-5 h-5" />
           </button>
 
+          {/* Save settings button */}
+          <button
+            onClick={saveSettingsDialog.open}
+            className="px-3 py-2 bg-slate-800 text-slate-200 rounded-lg hover:bg-slate-700 transition-all flex items-center gap-2 hover:cursor-pointer"
+            title="Save settings"
+          >
+            <Settings className="w-4 h-4" />
+            Save Settings
+          </button>
+
           {/* Export button */}
           <button
             onClick={handleExport}
@@ -324,6 +336,11 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
         onCancel={() => setShowRemapModal(false)}
         confirmButtonText="Export Draft"
         title="Image Link Remapping"
+      />
+
+      <SaveSettingsModal
+        isOpen={saveSettingsDialog.isOpen}
+        onClose={saveSettingsDialog.close}
       />
 
       {/* Delete Confirmation Dialog */}

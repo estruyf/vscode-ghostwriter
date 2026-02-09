@@ -314,10 +314,9 @@ Apply the user's refinement request while maintaining the overall structure and 
       throw new Error("Current revision not found");
     }
 
-    const defaultFileName = `${draft.title
-      .replace(/[^a-zA-Z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .toLowerCase()}.md`;
+    const safeTitle = draft.title || "draft";
+    const slug = FileService.sanitizeSlug(safeTitle);
+    const defaultFileName = `${slug || "draft"}.md`;
 
     await FileService.saveMarkdownFile(
       currentRevision.content,
@@ -325,6 +324,11 @@ Apply the user's refinement request while maintaining the overall structure and 
       imageTargetFolder,
       imageProductionPath,
       "Draft exported successfully!",
+      {
+        fileName: slug || "draft",
+        title: safeTitle,
+        date: new Date(),
+      },
     );
   }
 }

@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import { LanguageModelChatMessage } from "vscode";
 import * as fs from "fs";
-import * as path from "path";
 import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
 import { PROMPTS } from "../constants";
@@ -219,19 +218,55 @@ ${frontmatter}
    * @param content - The article content
    * @param imageTargetFolder - Optional target folder for images (relative to workspace root)
    * @param imageProductionPath - Optional path for production image links (e.g., "/uploads/2026/02")
+   * @param transcriptFileName - Optional transcript filename for template context (without extension)
    */
   static async saveArticle(
     content: string,
     imageTargetFolder?: string,
     imageProductionPath?: string,
+    transcriptFileName?: string,
+    title?: string,
   ): Promise<void> {
-    const defaultFileName = `${new Date().getTime()}_article.md`;
+    const extractedTitle =
+      title || this.extractTitleFromContent(content) || transcriptFileName;
+    const safeTitle = extractedTitle || "article";
+
+    const templateContext = {
+      fileName: transcriptFileName || FileService.sanitizeSlug(safeTitle),
+      title: safeTitle,
+      date: new Date(),
+    };
+
+    const defaultFileName = `${FileService.sanitizeSlug(safeTitle)}.md`;
+
     await FileService.saveMarkdownFile(
       content,
       defaultFileName,
       imageTargetFolder,
       imageProductionPath,
       "Article saved successfully!",
+      templateContext,
     );
+  }
+
+  private static extractTitleFromContent(content: string): string | undefined {
+    if (!content) {
+      return undefined;
+    }
+
+    const frontmatterMatch = content.match(/^---\s*[\s\S]*?---/);
+    if (frontmatterMatch) {
+      const titleMatch = frontmatterMatch[0].match(/^title:\s*(.+)$/m);
+      if (titleMatch?.[1]) {
+        return titleMatch[1].replace(/^['"]|['"]$/g, "").trim();
+      }
+    }
+
+    const headingMatch = content.match(/^#\s+(.+)$/m);
+    if (headingMatch?.[1]) {
+      return headingMatch[1].trim();
+    }
+
+    return undefined;
   }
 }

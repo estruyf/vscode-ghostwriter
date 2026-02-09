@@ -9,6 +9,8 @@ interface AppState {
   selectedLanguage?: string;
   attachmentFolder?: string;
   imageProductionPath?: string;
+  defaultSaveLocation?: string;
+  filenameTemplate?: string;
 }
 
 export class StateService {
@@ -198,6 +200,48 @@ export class StateService {
     await this.context.workspaceState.update(this.STATE_KEY, {
       ...state,
       imageProductionPath: path,
+    });
+  }
+
+  /**
+   * Get the default save location override
+   */
+  public static getDefaultSaveLocation(): string | undefined {
+    const state = this.getState();
+    return state.defaultSaveLocation;
+  }
+
+  /**
+   * Set the default save location override
+   */
+  public static async setDefaultSaveLocation(
+    location: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      defaultSaveLocation: location,
+    });
+  }
+
+  /**
+   * Get the filename template override
+   */
+  public static getFilenameTemplate(): string | undefined {
+    const state = this.getState();
+    return state.filenameTemplate;
+  }
+
+  /**
+   * Set the filename template override
+   */
+  public static async setFilenameTemplate(
+    template: string | undefined,
+  ): Promise<void> {
+    const state = this.getState();
+    await this.context.workspaceState.update(this.STATE_KEY, {
+      ...state,
+      filenameTemplate: template,
     });
   }
 }

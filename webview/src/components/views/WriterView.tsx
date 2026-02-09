@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { messageHandler } from '@estruyf/vscode/dist/client';
 import { AgentFile, Draft } from '../../types';
-import { Save } from 'lucide-react';
+import { Save, Settings } from 'lucide-react';
 import ModelSelector from '../ModelSelector';
 import AgentSelector from '../AgentSelector';
 import { TranscriptSelector } from '../TranscriptSelector';
@@ -16,6 +16,7 @@ import DraftIterationView from './DraftIterationView';
 import { VisitorBadge } from '../VisitorBadge';
 import { parseContent } from '../../utils/markdown';
 import { MarkdownRenderer } from '../MarkdownRenderer';
+import SaveSettingsModal from '../SaveSettingsModal';
 
 declare const acquireVsCodeApi: () => any;
 
@@ -24,6 +25,7 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
   const [writerData, writerHandlers] = useWriterData();
   const agentDialog = useDialog();
   const createAgentDialog = useDialog();
+  const saveSettingsDialog = useDialog();
 
   // Local state
   const [selectedTranscript, setSelectedTranscript] = useState<string>('');
@@ -184,12 +186,19 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
       ? `---\n${frontmatter}\n---\n\n${markdown}`
       : markdown;
 
+    // Extract filename from transcript path
+    const transcript = customTranscript || selectedTranscript;
+    const transcriptFileName = transcript
+      ? transcript.split(/[\\/]/).pop()?.replace(/\.[^/.]+$/, '') // Get filename without extension
+      : undefined;
+
     messageHandler.send('saveArticle', {
       content: contentToSave,
       imageProductionPath: imageProductionPath || undefined,
+      transcriptFileName,
     });
     setIsSaving(false);
-  }, [streamingContent]);
+  }, [streamingContent, customTranscript, selectedTranscript]);
 
   const saveArticle = useCallback(() => {
     if (!streamingContent) return;
@@ -311,6 +320,15 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
 
           <div className='flex items-center gap-3 w-full sm:w-auto'>
             <button
+              onClick={saveSettingsDialog.open}
+              className="flex-1 sm:flex-none px-4 py-2 bg-slate-800/70 border border-slate-700 hover:bg-slate-700 text-slate-200 font-semibold rounded-lg transition-all hover:cursor-pointer whitespace-nowrap"
+            >
+              <span className="flex items-center justify-center gap-2">
+                <Settings className="w-4 h-4" />
+                Save Settings
+              </span>
+            </button>
+            <button
               onClick={enterDraftMode}
               disabled={!streamingContent || !isFinishedWriting}
               className="flex-1 sm:flex-none px-4 py-2 bg-purple-500/10 border border-purple-500/50 hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-purple-200 font-semibold rounded-lg transition-all hover:cursor-pointer whitespace-nowrap"
@@ -369,6 +387,11 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
           isOpen={showRemapModal}
           onConfirm={(data) => handleSaveArticle(data.imageProductionPath)}
           onCancel={() => setShowRemapModal(false)}
+        />
+
+        <SaveSettingsModal
+          isOpen={saveSettingsDialog.isOpen}
+          onClose={saveSettingsDialog.close}
         />
       </div>
     );

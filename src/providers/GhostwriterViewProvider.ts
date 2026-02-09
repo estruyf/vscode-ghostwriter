@@ -10,6 +10,8 @@ import { PromptConfigService } from "../services/PromptConfigService";
 import { AgentService } from "../services/AgentService";
 import { DraftService } from "../services/DraftService";
 import { ImageService } from "../services/ImageService";
+import { SaveConfigService } from "../services/SaveConfigService";
+import { TemplateService, TemplateContext } from "../services/TemplateService";
 import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
@@ -352,6 +354,8 @@ export class GhostwriterViewProvider {
             payload.content,
             imageTargetFolder || undefined,
             payload.imageProductionPath,
+            payload.transcriptFileName,
+            payload.title,
           );
           break;
         }
@@ -622,6 +626,62 @@ export class GhostwriterViewProvider {
 
         case "deleteDraft": {
           await DraftService.deleteDraft(payload.draftId);
+          break;
+        }
+
+        case "getSaveConfig": {
+          const config = SaveConfigService.getConfig();
+          if (requestId) {
+            this.postRequestMessage(command, requestId, config);
+          }
+          break;
+        }
+
+        case "updateSaveConfig": {
+          await SaveConfigService.updateConfig(payload);
+          if (requestId) {
+            this.postRequestMessage(command, requestId, payload);
+          }
+          break;
+        }
+
+        case "resetSaveConfig": {
+          await SaveConfigService.resetConfig();
+          if (requestId) {
+            this.postRequestMessage(
+              command,
+              requestId,
+              SaveConfigService.getDefaults(),
+            );
+          }
+          break;
+        }
+
+        case "generatePreviewPath": {
+          const config = payload as {
+            defaultSaveLocation?: string;
+            filenameTemplate?: string;
+          };
+          const context: TemplateContext = {
+            fileName: "my-article",
+            slug: "my-article",
+            title: "My Article",
+            date: new Date(),
+          };
+
+          const location = config.defaultSaveLocation
+            ? TemplateService.resolveTemplate(
+                config.defaultSaveLocation,
+                context,
+              )
+            : "";
+          const fileName = config.filenameTemplate
+            ? TemplateService.resolveTemplate(config.filenameTemplate, context)
+            : "";
+
+          if (requestId) {
+            this.postRequestMessage(command, requestId, { location, fileName });
+          }
           break;
         }
 
