@@ -74,6 +74,7 @@ transcripts.
 - **Direct File Save**: Save generated articles directly to your workspace
 - **Save Settings Templates**: Configure default save locations and filename
   templates with placeholders like {{slug}} and {{date|yyyy-MM-dd}}
+- **Page Bundle Support**: Automatically save articles as `slug/index.md` bundles, perfect for static site generators like Hugo and Astro. Optionally move referenced images directly into the bundle folder.
 - **Image Support**: Attach and embed images during writing with automatic
   markdown reference insertion
 - **Image Remapping for Production**: Configure production image paths (e.g.,
