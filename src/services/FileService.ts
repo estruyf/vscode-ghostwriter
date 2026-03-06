@@ -3,6 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { CopilotService } from "./CopilotService";
 import { StateService } from "./StateService";
+import { SaveConfigService } from "./SaveConfigService";
 import { TemplateResolver, TemplateResolverContext } from "../utils";
 
 export class FileService {
@@ -601,11 +602,11 @@ AI Model: ${modelId || "N/A"}
     return result;
   }
 
-  private static resolveSaveDialogUri(
+  private static async resolveSaveDialogUri(
     workspaceFolder: vscode.WorkspaceFolder,
     defaultFileName: string,
     templateContext?: TemplateResolverContext,
-  ): { defaultUri: vscode.Uri; defaultDir: string } {
+  ): Promise<{ defaultUri: vscode.Uri; defaultDir: string; slug: string }> {
     const rootPath = workspaceFolder.uri.fsPath;
     const baseFileName = path.basename(defaultFileName);
     const baseName = baseFileName.replace(/\.[^/.]+$/, "");
@@ -616,6 +617,9 @@ AI Model: ${modelId || "N/A"}
       title: templateContext?.title,
       slug: templateContext?.slug,
     };
+
+    const slug =
+      context.slug || TemplateResolver.sanitizeSlug(context.title || baseName);
 
     const stateLocation = StateService.getDefaultSaveLocation();
     const stateFilenameTemplate = StateService.getFilenameTemplate();
@@ -650,6 +654,16 @@ AI Model: ${modelId || "N/A"}
       resolvedFileName = path.basename(resolvedFileName);
     }
 
+    // Page bundle support: create a slug-named folder with index.md
+    const usePageBundle = SaveConfigService.getUsePageBundle();
+    if (usePageBundle) {
+      const bundleFolder = slug || baseName;
+      resolvedLocation = resolvedLocation
+        ? path.join(resolvedLocation, bundleFolder)
+        : bundleFolder;
+      resolvedFileName = "index.md";
+    }
+
     const resolvedDir = resolvedLocation
       ? path.isAbsolute(resolvedLocation)
         ? resolvedLocation
@@ -659,21 +673,38 @@ AI Model: ${modelId || "N/A"}
     const usesTemplate =
       Boolean(locationTemplate) ||
       Boolean(filenameTemplate) ||
+      usePageBundle ||
       (fileNameDir && fileNameDir !== ".");
 
     if (usesTemplate && !fs.existsSync(resolvedDir)) {
-      fs.mkdirSync(resolvedDir, { recursive: true });
+      const confirmed = await vscode.window.showInformationMessage(
+        `Create folder at: ${resolvedDir}?`,
+        { modal: true },
+        "Create",
+        "Cancel",
+      );
+
+      if (confirmed === "Create") {
+        fs.mkdirSync(resolvedDir, { recursive: true });
+      } else {
+        throw new Error("Save cancelled by user");
+      }
     }
 
     return {
       defaultUri: vscode.Uri.file(path.join(resolvedDir, resolvedFileName)),
       defaultDir: resolvedDir,
+      slug,
     };
   }
 
   /**
    * Save markdown content to a file with optional image remapping.
    * Unified method used by WriterService and DraftService.
+   *
+   * When page bundle mode is enabled (`usePageBundle`), this creates a folder
+   * named after the slug, saves the article as `index.md`, and optionally
+   * moves all referenced images into the bundle folder.
    *
    * @param content - The markdown content to save
    * @param defaultFileName - Default filename for the save dialog
@@ -694,24 +725,32 @@ AI Model: ${modelId || "N/A"}
       const workspaceFolders = vscode.workspace.workspaceFolders;
       const workspaceFolder = workspaceFolders?.[0];
 
+      const usePageBundle = SaveConfigService.getUsePageBundle();
+      const moveImages = SaveConfigService.getMoveImagesToPageBundle();
+
       if (!workspaceFolder) {
         vscode.window.showErrorMessage("No workspace folder is open");
         return;
       }
 
-      const { defaultUri } = this.resolveSaveDialogUri(
+      const { defaultUri } = await this.resolveSaveDialogUri(
         workspaceFolder,
         defaultFileName,
         templateContext,
       );
 
-      const fileUri = await vscode.window.showSaveDialog({
-        defaultUri,
-        filters: {
-          "Markdown files": ["md"],
-          "All files": ["*"],
-        },
-      });
+      let fileUri: vscode.Uri | undefined;
+      if (!usePageBundle) {
+        fileUri = await vscode.window.showSaveDialog({
+          defaultUri,
+          filters: {
+            "Markdown files": ["md"],
+            "All files": ["*"],
+          },
+        });
+      } else {
+        fileUri = defaultUri; // In page bundle mode, we skip the save dialog and use the resolved path directly
+      }
 
       if (!fileUri) {
         return; // User cancelled
@@ -724,8 +763,11 @@ AI Model: ${modelId || "N/A"}
 
       let finalContent = content;
 
-      // Remap images if a target folder is specified
-      if (imageTargetFolder) {
+      if (usePageBundle && moveImages) {
+        // Page bundle mode: move images into the bundle folder and rewrite paths
+        finalContent = await this.moveImagesToPageBundle(content, targetDir);
+      } else if (imageTargetFolder) {
+        // Legacy mode: remap images if a target folder is specified
         const rootPath = workspaceFolder.uri.fsPath;
         const targetAbsPath = path.join(rootPath, imageTargetFolder);
         finalContent = await this.remapImages(
@@ -748,5 +790,77 @@ AI Model: ${modelId || "N/A"}
       console.error("Error saving markdown file:", error);
       vscode.window.showErrorMessage("Failed to save file");
     }
+  }
+
+  /**
+   * Move all referenced images into the page bundle folder and rewrite their
+   * paths in the markdown content.
+   *
+   * @param content - The markdown content containing image references
+   * @param bundleDir - The absolute path to the page bundle folder
+   * @returns The content with rewritten image paths pointing to the bundle-local images
+   */
+  private static async moveImagesToPageBundle(
+    content: string,
+    bundleDir: string,
+  ): Promise<string> {
+    const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+    let result = content;
+    const replacements: Array<{ original: string; replacement: string }> = [];
+    const copiedImages = new Set<string>();
+
+    let match;
+    while ((match = imageRegex.exec(content)) !== null) {
+      const fullMatch = match[0];
+      const alt = match[1];
+      const imagePath = match[2];
+
+      // Skip URLs
+      if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+        continue;
+      }
+
+      // Resolve the absolute path for the source image
+      const resolvedPath = await this.resolveImagePath(imagePath);
+      if (!resolvedPath || !fs.existsSync(resolvedPath)) {
+        continue;
+      }
+
+      const fileName = path.basename(resolvedPath);
+      const destPath = path.join(bundleDir, fileName);
+
+      // Copy the image into the bundle folder (skip if already there)
+      if (!copiedImages.has(resolvedPath)) {
+        try {
+          // Don't copy if source and destination are the same
+          if (path.resolve(resolvedPath) !== path.resolve(destPath)) {
+            fs.copyFileSync(resolvedPath, destPath);
+          }
+          copiedImages.add(resolvedPath);
+        } catch (error) {
+          console.error(`Error copying image to page bundle: ${error}`);
+          continue;
+        }
+      }
+
+      // Rewrite the path to be relative to the bundle folder (just the filename)
+      replacements.push({
+        original: fullMatch,
+        replacement: `![${alt}](${fileName})`,
+      });
+    }
+
+    // Apply replacements
+    for (const { original, replacement } of replacements) {
+      result = result.replace(original, replacement);
+    }
+
+    if (copiedImages.size > 0) {
+      vscode.window.showInformationMessage(
+        `Moved ${copiedImages.size} image(s) into the page bundle folder.`,
+      );
+    }
+
+    return result;
   }
 }

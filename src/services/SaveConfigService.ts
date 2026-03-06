@@ -9,6 +9,8 @@ import { StateService } from "./StateService";
 export interface SaveConfig {
   defaultSaveLocation?: string; // Template for save path: e.g., "articles/{{year}}/{{month}}"
   filenameTemplate?: string; // Template for filename: e.g., "{{date|yyyy-MM-dd}}-{{slug}}.md"
+  usePageBundle?: boolean; // When true, creates a slug-named folder with index.md
+  moveImagesToPageBundle?: boolean; // When true, moves images into the page bundle folder
 }
 
 export class SaveConfigService {
@@ -16,8 +18,13 @@ export class SaveConfigService {
   private static readonly SETTING_KEY_FILENAME_TEMPLATE = "filenameTemplate";
   private static readonly SETTING_KEY_DEFAULT_SAVE_LOCATION =
     "defaultSaveLocation";
+  private static readonly SETTING_KEY_USE_PAGE_BUNDLE = "usePageBundle";
+  private static readonly SETTING_KEY_MOVE_IMAGES_TO_PAGE_BUNDLE =
+    "moveImagesToPageBundle";
   private static readonly DEFAULT_FILENAME_TEMPLATE = "{{slug}}.md";
   private static readonly DEFAULT_SAVE_LOCATION = "";
+  private static readonly DEFAULT_USE_PAGE_BUNDLE = false;
+  private static readonly DEFAULT_MOVE_IMAGES_TO_PAGE_BUNDLE = true;
 
   /**
    * Get the complete save configuration
@@ -41,6 +48,12 @@ export class SaveConfigService {
           ? stateFilenameTemplate
           : config.get<string>(this.SETTING_KEY_FILENAME_TEMPLATE) ||
             this.DEFAULT_FILENAME_TEMPLATE,
+      usePageBundle:
+        config.get<boolean>(this.SETTING_KEY_USE_PAGE_BUNDLE) ??
+        this.DEFAULT_USE_PAGE_BUNDLE,
+      moveImagesToPageBundle:
+        config.get<boolean>(this.SETTING_KEY_MOVE_IMAGES_TO_PAGE_BUNDLE) ??
+        this.DEFAULT_MOVE_IMAGES_TO_PAGE_BUNDLE,
     };
   }
 
@@ -56,6 +69,23 @@ export class SaveConfigService {
    */
   static getDefaultSaveLocation(): string {
     return this.getConfig().defaultSaveLocation || this.DEFAULT_SAVE_LOCATION;
+  }
+
+  /**
+   * Get whether page bundle mode is enabled
+   */
+  static getUsePageBundle(): boolean {
+    return this.getConfig().usePageBundle ?? this.DEFAULT_USE_PAGE_BUNDLE;
+  }
+
+  /**
+   * Get whether images should be moved into the page bundle
+   */
+  static getMoveImagesToPageBundle(): boolean {
+    return (
+      this.getConfig().moveImagesToPageBundle ??
+      this.DEFAULT_MOVE_IMAGES_TO_PAGE_BUNDLE
+    );
   }
 
   /**
@@ -79,6 +109,22 @@ export class SaveConfigService {
       await currentConfig.update(
         this.SETTING_KEY_DEFAULT_SAVE_LOCATION,
         config.defaultSaveLocation,
+        vscode.ConfigurationTarget.Workspace,
+      );
+    }
+
+    if (config.usePageBundle !== undefined) {
+      await currentConfig.update(
+        this.SETTING_KEY_USE_PAGE_BUNDLE,
+        config.usePageBundle,
+        vscode.ConfigurationTarget.Workspace,
+      );
+    }
+
+    if (config.moveImagesToPageBundle !== undefined) {
+      await currentConfig.update(
+        this.SETTING_KEY_MOVE_IMAGES_TO_PAGE_BUNDLE,
+        config.moveImagesToPageBundle,
         vscode.ConfigurationTarget.Workspace,
       );
     }
@@ -108,6 +154,8 @@ export class SaveConfigService {
     await this.updateConfig({
       defaultSaveLocation: this.DEFAULT_SAVE_LOCATION,
       filenameTemplate: this.DEFAULT_FILENAME_TEMPLATE,
+      usePageBundle: this.DEFAULT_USE_PAGE_BUNDLE,
+      moveImagesToPageBundle: this.DEFAULT_MOVE_IMAGES_TO_PAGE_BUNDLE,
     });
   }
 
@@ -118,6 +166,8 @@ export class SaveConfigService {
     return {
       defaultSaveLocation: this.DEFAULT_SAVE_LOCATION,
       filenameTemplate: this.DEFAULT_FILENAME_TEMPLATE,
+      usePageBundle: this.DEFAULT_USE_PAGE_BUNDLE,
+      moveImagesToPageBundle: this.DEFAULT_MOVE_IMAGES_TO_PAGE_BUNDLE,
     };
   }
 

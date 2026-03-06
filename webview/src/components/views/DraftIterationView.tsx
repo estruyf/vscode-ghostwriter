@@ -119,6 +119,18 @@ export default function DraftIterationView({ draft: initialDraft, onBack, onClos
   }, [draft.id]);
 
   const handleExport = useCallback(async () => {
+    // Check if page bundle mode handles images automatically
+    try {
+      const saveConfig = await messageHandler.request<{ usePageBundle?: boolean; moveImagesToPageBundle?: boolean }>('getSaveConfig');
+      if (saveConfig?.usePageBundle && saveConfig?.moveImagesToPageBundle) {
+        // Page bundle mode handles images — skip remap modal
+        handleExportDraft('');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking save config:', error);
+    }
+
     // Check if content has images (markdown image syntax)
     const content = currentRevision?.content || '';
     const hasImages = /!\[([^\]]*)\]\(([^)]+)\)/g.test(content);

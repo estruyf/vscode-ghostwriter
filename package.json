@@ -110,6 +110,16 @@
           "type": "string",
           "default": "{{slug}}.md",
           "description": "Filename template for saving articles. Supported variables: {{fileName}}, {{slug}}, {{title}}, {{year}}, {{month}}, {{day}}, {{date|yyyy-MM-dd}}. Example: {{date|yyyy-MM-dd}}-{{slug}}.md"
+        },
+        "vscode-ghostwriter.usePageBundle": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, creates a dedicated folder (named after the slug) for each blog post and saves the article as index.md inside it."
+        },
+        "vscode-ghostwriter.moveImagesToPageBundle": {
+          "type": "boolean",
+          "default": true,
+          "description": "When page bundles are enabled, move all referenced images into the page bundle folder and update their paths in the markdown."
         }
       }
     }
@@ -151,5 +161,8 @@
     "typescript-eslint": "^8.52.0",
     "uuid": "^9.0.0",
     "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
   }
 }

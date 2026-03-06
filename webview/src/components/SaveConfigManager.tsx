@@ -10,6 +10,8 @@ export default function SaveConfigManager({ onClose }: SaveConfigManagerProps) {
   const [config, setConfig] = useState<SaveConfiguration>({
     defaultSaveLocation: '',
     filenameTemplate: '{{slug}}.md',
+    usePageBundle: false,
+    moveImagesToPageBundle: true,
   });
 
   const [preview, setPreview] = useState<{ location: string; fileName: string }>({
@@ -101,8 +103,8 @@ export default function SaveConfigManager({ onClose }: SaveConfigManagerProps) {
       {message && (
         <div
           className={`rounded-lg p-4 ${message.type === 'success'
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-900 dark:text-green-200'
-              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200'
+            ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-900 dark:text-green-200'
+            : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200'
             }`}
         >
           {message.text}
@@ -154,6 +156,44 @@ export default function SaveConfigManager({ onClose }: SaveConfigManagerProps) {
           {preview.fileName && (
             <div className='mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-700'>
               <p className='text-xs text-gray-600 dark:text-gray-400'>Preview: {preview.fileName}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Page Bundle */}
+        <div className='pt-2 border-t border-gray-200 dark:border-gray-700'>
+          <div className='flex items-center gap-3 mb-2'>
+            <input
+              type='checkbox'
+              id='usePageBundle'
+              checked={config.usePageBundle || false}
+              onChange={(e) =>
+                setConfig({ ...config, usePageBundle: e.target.checked })
+              }
+              className='w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 hover:cursor-pointer'
+            />
+            <label htmlFor='usePageBundle' className='text-sm font-medium text-gray-900 dark:text-gray-100 hover:cursor-pointer'>
+              Use Page Bundle
+            </label>
+          </div>
+          <p className='text-xs text-gray-600 dark:text-gray-400 mb-3'>
+            Creates a dedicated folder (named after the slug) with an <code className='bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded'>index.md</code> file. Useful for Hugo, Astro, and other static site generators.
+          </p>
+
+          {config.usePageBundle && (
+            <div className='ml-7 flex items-center gap-3'>
+              <input
+                type='checkbox'
+                id='moveImagesToPageBundle'
+                checked={config.moveImagesToPageBundle ?? true}
+                onChange={(e) =>
+                  setConfig({ ...config, moveImagesToPageBundle: e.target.checked })
+                }
+                className='w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 hover:cursor-pointer'
+              />
+              <label htmlFor='moveImagesToPageBundle' className='text-sm text-gray-900 dark:text-gray-100 hover:cursor-pointer'>
+                Move referenced images into the page bundle folder
+              </label>
             </div>
           )}
         </div>

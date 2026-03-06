@@ -6,6 +6,7 @@ import { CopilotService } from "./CopilotService";
 import { GhostwriterViewProvider } from "../providers/GhostwriterViewProvider";
 import { FileService } from "./FileService";
 import { v4 as uuidv4 } from "uuid";
+import matter from "gray-matter";
 
 export interface DraftRevision {
   id: string;
@@ -314,7 +315,8 @@ Apply the user's refinement request while maintaining the overall structure and 
       throw new Error("Current revision not found");
     }
 
-    const safeTitle = draft.title || "draft";
+    const fmContent = matter(currentRevision.content);
+    const safeTitle = fmContent.data.title || draft.title || "draft";
     const slug = FileService.sanitizeSlug(safeTitle);
     const defaultFileName = `${slug || "draft"}.md`;
 
@@ -325,7 +327,7 @@ Apply the user's refinement request while maintaining the overall structure and 
       imageProductionPath,
       "Draft exported successfully!",
       {
-        fileName: slug || "draft",
+        fileName: slug,
         title: safeTitle,
         date: new Date(),
       },

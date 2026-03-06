@@ -77,4 +77,6 @@ export interface MessageContent {
 export interface SaveConfiguration {
   defaultSaveLocation?: string;
   filenameTemplate?: string;
+  usePageBundle?: boolean;
+  moveImagesToPageBundle?: boolean;
 }

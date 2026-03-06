@@ -3,6 +3,16 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
+## [0.0.10] - 2026-03-04
+
+- Page bundle support for static site generators (Hugo, Astro, etc.)
+    - New `usePageBundle` setting: creates a slug-named folder with `index.md`
+    - New `moveImagesToPageBundle` setting: automatically copies referenced
+      images into the page bundle folder and rewrites their paths
+    - Page bundle toggles available in Save Settings modal
+    - When page bundle + move images are enabled, the image remap modal is
+      skipped automatically
+
 ## [0.0.9] - 2026-02-09
 
 - [#25](https://github.com/estruyf/vscode-ghostwriter/issues/25): Configurable

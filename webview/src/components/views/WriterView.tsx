@@ -200,8 +200,20 @@ export default function WriterView({ onBack }: { onBack: () => void }) {
     setIsSaving(false);
   }, [streamingContent, customTranscript, selectedTranscript]);
 
-  const saveArticle = useCallback(() => {
+  const saveArticle = useCallback(async () => {
     if (!streamingContent) return;
+
+    // Check if page bundle mode handles images automatically
+    try {
+      const saveConfig = await messageHandler.request<{ usePageBundle?: boolean; moveImagesToPageBundle?: boolean }>('getSaveConfig');
+      if (saveConfig?.usePageBundle && saveConfig?.moveImagesToPageBundle) {
+        // Page bundle mode handles images — skip remap modal
+        handleSaveArticle('');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking save config:', error);
+    }
 
     // Check if content has images (markdown image syntax)
     const hasImages = /!\[([^\]]*)\]\(([^)]+)\)/g.test(streamingContent);
