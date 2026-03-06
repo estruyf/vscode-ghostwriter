@@ -143,7 +143,7 @@ export default function DraftsView({ onBack }: DraftsViewProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950">
+    <div className="flex flex-col h-full bg-slate-950">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900">
         <div className="flex items-center gap-4">

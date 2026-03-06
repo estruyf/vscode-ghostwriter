@@ -140,7 +140,7 @@ export default function InterviewView({ onBack }: { onBack: () => void }) {
   });
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950">
+    <div className="flex flex-col h-full bg-slate-950">
       {/* Header */}
       <div className="flex flex-col border-b border-slate-700 bg-slate-900 shadow-md z-10">
         <div className="px-6 py-4 flex items-center justify-between">

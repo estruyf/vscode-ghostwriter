@@ -5,6 +5,7 @@ this file.
 
 ## [0.0.10] - 2026-03-04
 
+- Added a persistent top navigation bar in the webview to allow quick switching between views (Interview, Voice Profile, Write Article, Drafts) without returning to the Home screen
 - Page bundle support for static site generators (Hugo, Astro, etc.)
     - New `usePageBundle` setting: creates a slug-named folder with `index.md`
     - New `moveImagesToPageBundle` setting: automatically copies referenced
