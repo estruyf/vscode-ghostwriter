@@ -7,4 +7,5 @@ export default defineConfig({
   outDir: "./out/extension",
   sourcemap: true,
   external: ["vscode"],
+  noExternal: ["gray-matter"],
 });

@@ -3,6 +3,10 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
+## [0.0.11] - 2026-03-10
+
+- Fixed production build issue where `gray-matter` dependency was not bundled with the extension
+
 ## [0.0.10] - 2026-03-04
 
 - Added a persistent top navigation bar in the webview to allow quick switching between views (Interview, Voice Profile, Write Article, Drafts) without returning to the Home screen
