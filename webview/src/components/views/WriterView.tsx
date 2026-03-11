@@ -18,8 +18,6 @@ import { parseContent } from '../../utils/markdown';
 import { MarkdownRenderer } from '../MarkdownRenderer';
 import SaveSettingsModal from '../SaveSettingsModal';
 
-declare const acquireVsCodeApi: () => any;
-
 export default function WriterView({ onBack }: { onBack: () => void }) {
   // Custom hooks
   const [writerData, writerHandlers] = useWriterData();

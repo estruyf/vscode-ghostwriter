@@ -28,6 +28,7 @@ const ChatMessage = React.memo(({ role, content }: ChatMessageProps) => {
           ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-3xl rounded-tr-sm shadow-lg'
           : 'bg-gradient-to-br from-slate-700 to-slate-800 text-slate-100 rounded-3xl rounded-tl-sm shadow-md'
           }`}
+        data-role={role}
       >
         {normalizedContent.text && (
           <Streamdown className="whitespace-pre-wrap wrap-break-word">{normalizedContent.text}</Streamdown>

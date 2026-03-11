@@ -13,8 +13,6 @@ import { TranscriptSelector } from '../TranscriptSelector';
 import ConfirmDialog from '../ConfirmDialog';
 import type { Message } from '../ChatWindow';
 
-declare const acquireVsCodeApi: () => any;
-
 export default function InterviewView({ onBack }: { onBack: () => void }) {
   // Use custom hooks
   const {

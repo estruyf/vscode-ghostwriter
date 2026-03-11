@@ -109,3 +109,24 @@ div[data-streamdown="image-wrapper"] button {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Fix link visibility inside user message bubbles (purple background) */
+[data-role="user"] a,
+[data-role="user"] button[data-streamdown="link"] {
+  color: var(--color-secondary-foreground);
+  text-decoration-color: var(--color-secondary-foreground);
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-primary-foreground);
+    text-decoration-style: solid;
+  }
+}
+
+/* Ensure code blocks always have a dark background regardless of parent context */
+[data-streamdown="code-block"] {
+  background-color: #0d1117;
+}

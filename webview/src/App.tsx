@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Home, MessagesSquare, Signature, Sparkles, FileEdit } from 'lucide-react';
+import { messageHandler, Messenger } from '@estruyf/vscode/dist/client';
 import HomePage from './components/views/HomePage';
 import InterviewView from './components/views/InterviewView';
 import WriterView from './components/views/WriterView';
@@ -7,7 +8,6 @@ import VoiceGeneratorView from './components/views/VoiceGeneratorView';
 import DraftsView from './components/views/DraftsView';
 
 type Page = 'home' | 'interview' | 'writer' | 'voice-generator' | 'drafts';
-declare const acquireVsCodeApi: undefined | (() => { postMessage: (message: { command: string; payload?: unknown }) => void });
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -29,8 +29,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const vscodeApi = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null;
-    vscodeApi?.postMessage({ command: 'appReady' });
+    messageHandler.send('appReady');
 
     const handleBackendMessage = (event: MessageEvent) => {
       const command = event.data?.command;
@@ -41,9 +40,9 @@ function App() {
       }
     };
 
-    window.addEventListener('message', handleBackendMessage);
+    Messenger.listen(handleBackendMessage);
     return () => {
-      window.removeEventListener('message', handleBackendMessage);
+      Messenger.unlisten(handleBackendMessage);
     };
   }, []);
 

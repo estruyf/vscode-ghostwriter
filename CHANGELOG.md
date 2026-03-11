@@ -10,6 +10,7 @@ this file.
   - `Ghostwriter: Start Writing`
 - Improved command behavior so Ghostwriter opens directly on the requested page
   (Interview or Writer), including when the webview is newly created
+- Better link and codeblock visibility in the interview
 
 ## [0.0.11] - 2026-03-10
 
