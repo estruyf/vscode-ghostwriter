@@ -3,6 +3,14 @@
 All notable changes to the "vscode-ghostwriter" extension will be documented in
 this file.
 
+## [0.0.12] - 2026-03-11
+
+- Added quick-start commands:
+  - `Ghostwriter: Start Interview`
+  - `Ghostwriter: Start Writing`
+- Improved command behavior so Ghostwriter opens directly on the requested page
+  (Interview or Writer), including when the webview is newly created
+
 ## [0.0.11] - 2026-03-10
 
 - Fixed production build issue where `gray-matter` dependency was not bundled with the extension

@@ -83,6 +83,16 @@
           "light": "assets/ghostwriter-vscode.png",
           "dark": "assets/ghostwriter-vscode.png"
         }
+      },
+      {
+        "command": "vscode-ghostwriter.startInterview",
+        "title": "Start Interview",
+        "category": "Ghostwriter"
+      },
+      {
+        "command": "vscode-ghostwriter.startWriting",
+        "title": "Start Writing",
+        "category": "Ghostwriter"
       }
     ],
     "menus": {

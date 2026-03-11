@@ -7,6 +7,7 @@ import VoiceGeneratorView from './components/views/VoiceGeneratorView';
 import DraftsView from './components/views/DraftsView';
 
 type Page = 'home' | 'interview' | 'writer' | 'voice-generator' | 'drafts';
+declare const acquireVsCodeApi: undefined | (() => { postMessage: (message: { command: string; payload?: unknown }) => void });
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -24,6 +25,25 @@ function App() {
     window.addEventListener('navigate', handleNavigate);
     return () => {
       window.removeEventListener('navigate', handleNavigate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const vscodeApi = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null;
+    vscodeApi?.postMessage({ command: 'appReady' });
+
+    const handleBackendMessage = (event: MessageEvent) => {
+      const command = event.data?.command;
+      const page = event.data?.payload?.page as Page | undefined;
+
+      if (command === 'navigateToPage' && page) {
+        handleNavigation(page);
+      }
+    };
+
+    window.addEventListener('message', handleBackendMessage);
+    return () => {
+      window.removeEventListener('message', handleBackendMessage);
     };
   }, []);
 

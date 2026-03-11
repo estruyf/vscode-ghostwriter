@@ -16,10 +16,25 @@ import { Uri } from "vscode";
 
 export class GhostwriterViewProvider {
   public static readonly viewType = "ghostwriter.mainView";
+  public static readonly supportedPages = [
+    "home",
+    "interview",
+    "writer",
+    "voice-generator",
+    "drafts",
+  ] as const;
+
+  private static readonly pageSet = new Set<string>(
+    GhostwriterViewProvider.supportedPages,
+  );
+
   private static webview: vscode.WebviewPanel | null = null;
   private static isDisposed = true;
   private static currentInterviewId: string | null = null;
   private static extensionContext: vscode.ExtensionContext | null = null;
+  private static pendingPage:
+    | (typeof GhostwriterViewProvider.supportedPages)[number]
+    | null = null;
 
   public static get isOpen(): boolean {
     return !this.isDisposed;
@@ -88,6 +103,25 @@ export class GhostwriterViewProvider {
     });
   }
 
+  public static async openWithPage(
+    extensionUri: vscode.Uri,
+    page: (typeof GhostwriterViewProvider.supportedPages)[number],
+  ) {
+    if (!this.pageSet.has(page)) {
+      return;
+    }
+
+    const wasOpen = !!this.webview;
+    this.pendingPage = page;
+    await this.create(extensionUri);
+
+    if (wasOpen && this.webview) {
+      this.webview.reveal();
+      this.postMessage("navigateToPage", { page });
+      this.pendingPage = null;
+    }
+  }
+
   private static async messageListener(message: MessageHandlerData<any>) {
     const { command, requestId, payload } = message;
 
@@ -103,6 +137,14 @@ export class GhostwriterViewProvider {
 
         case "setSelectedModelId": {
           await StateService.setSelectedModelId(payload.modelId);
+          break;
+        }
+
+        case "appReady": {
+          if (this.pendingPage) {
+            this.postMessage("navigateToPage", { page: this.pendingPage });
+            this.pendingPage = null;
+          }
           break;
         }
 

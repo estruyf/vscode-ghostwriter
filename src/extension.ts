@@ -19,6 +19,18 @@ export function activate(context: vscode.ExtensionContext) {
       GhostwriterViewProvider.create(context.extensionUri);
     }),
   );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-ghostwriter.startInterview", () => {
+      GhostwriterViewProvider.openWithPage(context.extensionUri, "interview");
+    }),
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-ghostwriter.startWriting", () => {
+      GhostwriterViewProvider.openWithPage(context.extensionUri, "writer");
+    }),
+  );
 }
 
 export function deactivate() {
